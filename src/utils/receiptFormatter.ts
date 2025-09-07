@@ -4,7 +4,7 @@ export const formatReceiptId = (receipt: Receipt): string => {
   // Extract counter and date from invoice ID
   const id = receipt.id;
   
-  if (id.startsWith('INV-') || id.startsWith('MNL-')) 
+  if (id.startsWith('INV-') || id.startsWith('MNL-')) {
     // For new format like INV-1070925 or MNL-1070925
     const parts = id.split('-');
     if (parts.length === 2) {

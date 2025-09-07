@@ -230,7 +230,7 @@ export const useSupabasePOS = () => {
         const randomSuffix = Math.floor(Math.random() * 100).toString().padStart(2, '0');
         
         // Create a more unique invoice number pattern
-        invoiceNumber =`INV-${counter}(${dateStr})`;
+        invoiceNumber = `${timestamp.toString().slice(-6)}${dateStr}${randomSuffix}`;
 
         // Try to create receipt with generated invoice number
         const result = await supabase
