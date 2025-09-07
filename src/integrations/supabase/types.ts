@@ -14,224 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_reports: {
+        Row: {
+          created_at: string
+          id: string
+          photocopy_income: number | null
+          report_date: string
+          total_profit: number | null
+          total_sales: number | null
+          total_transactions: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photocopy_income?: number | null
+          report_date: string
+          total_profit?: number | null
+          total_sales?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photocopy_income?: number | null
+          report_date?: string
+          total_profit?: number | null
+          total_sales?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           barcode: string | null
-          category: string | null
-          cost_price: number
+          category: string
           created_at: string
+          description: string | null
           id: string
-          is_photocopy: boolean | null
           name: string
-          sell_price: number
+          price: number
           stock: number
           updated_at: string
         }
         Insert: {
           barcode?: string | null
-          category?: string | null
-          cost_price?: number
+          category: string
           created_at?: string
+          description?: string | null
           id?: string
-          is_photocopy?: boolean | null
           name: string
-          sell_price?: number
+          price: number
           stock?: number
           updated_at?: string
         }
         Update: {
           barcode?: string | null
-          category?: string | null
-          cost_price?: number
+          category?: string
           created_at?: string
+          description?: string | null
           id?: string
-          is_photocopy?: boolean | null
           name?: string
-          sell_price?: number
+          price?: number
           stock?: number
           updated_at?: string
         }
         Relationships: []
       }
-      profiles: {
+      transaction_items: {
         Row: {
-          created_at: string
-          display_name: string | null
-          email: string | null
-          full_name: string | null
           id: string
-          is_admin: boolean | null
-          updated_at: string
-          user_id: string
-          username: string | null
-        }
-        Insert: {
-          created_at?: string
-          display_name?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string
-          is_admin?: boolean | null
-          updated_at?: string
-          user_id: string
-          username?: string | null
-        }
-        Update: {
-          created_at?: string
-          display_name?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string
-          is_admin?: boolean | null
-          updated_at?: string
-          user_id?: string
-          username?: string | null
-        }
-        Relationships: []
-      }
-      receipt_items: {
-        Row: {
-          cost_price: number
-          created_at: string
-          id: string
+          price: number
           product_id: string | null
           product_name: string
-          profit: number
           quantity: number
-          receipt_id: string
-          total_price: number
-          unit_price: number
+          subtotal: number
+          transaction_id: string
         }
         Insert: {
-          cost_price?: number
-          created_at?: string
           id?: string
+          price: number
           product_id?: string | null
           product_name: string
-          profit?: number
-          quantity?: number
-          receipt_id: string
-          total_price?: number
-          unit_price?: number
+          quantity: number
+          subtotal: number
+          transaction_id: string
         }
         Update: {
-          cost_price?: number
-          created_at?: string
           id?: string
+          price?: number
           product_id?: string | null
           product_name?: string
-          profit?: number
           quantity?: number
-          receipt_id?: string
-          total_price?: number
-          unit_price?: number
+          subtotal?: number
+          transaction_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "receipt_items_new_receipt_id_fkey1"
-            columns: ["receipt_id"]
+            foreignKeyName: "transaction_items_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "receipts"
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_items_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
       }
-      receipts: {
+      transactions: {
         Row: {
-          created_at: string
-          discount: number
+          cashier_name: string | null
+          discount_amount: number | null
+          discount_percent: number | null
+          final_amount: number
           id: string
-          invoice_number: string
-          payment_method: string | null
-          profit: number
-          subtotal: number
-          total: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          discount?: number
-          id: string
-          invoice_number: string
-          payment_method?: string | null
-          profit?: number
-          subtotal?: number
-          total?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          discount?: number
-          id?: string
-          invoice_number?: string
-          payment_method?: string | null
-          profit?: number
-          subtotal?: number
-          total?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      shopping_items: {
-        Row: {
-          created_at: string
-          current_stock: number | null
-          id: string
-          is_completed: boolean
-          name: string
+          is_manual_note: boolean | null
           notes: string | null
-          quantity: number | null
-          unit: string | null
-          updated_at: string
-          user_id: string
+          payment_method: string
+          total_amount: number
+          transaction_code: string
+          transaction_date: string
         }
         Insert: {
-          created_at?: string
-          current_stock?: number | null
+          cashier_name?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          final_amount: number
           id?: string
-          is_completed?: boolean
-          name: string
+          is_manual_note?: boolean | null
           notes?: string | null
-          quantity?: number | null
-          unit?: string | null
-          updated_at?: string
-          user_id: string
+          payment_method: string
+          total_amount: number
+          transaction_code: string
+          transaction_date?: string
         }
         Update: {
-          created_at?: string
-          current_stock?: number | null
+          cashier_name?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          final_amount?: number
           id?: string
-          is_completed?: boolean
-          name?: string
+          is_manual_note?: boolean | null
           notes?: string | null
-          quantity?: number | null
-          unit?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
+          payment_method?: string
+          total_amount?: number
+          transaction_code?: string
+          transaction_date?: string
         }
         Relationships: []
       }
@@ -240,34 +175,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_invoice_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_invoice_number_v2: {
-        Args: { is_manual?: boolean; tx_date?: string }
-        Returns: string
-      }
-      get_user_by_username_or_email: {
-        Args: { identifier: string }
-        Returns: {
-          email: string
-          full_name: string
-          user_id: string
-          username: string
-        }[]
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "admin" | "kasir"
-      product_category: "fotocopy" | "atk" | "pramuka" | "lainnya"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -394,9 +305,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "kasir"],
-      product_category: ["fotocopy", "atk", "pramuka", "lainnya"],
-    },
+    Enums: {},
   },
 } as const
