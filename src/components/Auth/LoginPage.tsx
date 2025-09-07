@@ -291,12 +291,13 @@ export const LoginPage = () => {
           </div>
           
           {/* Development Note */}
-          <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
+         {/* <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
           {/*  <p className="text-xs text-muted-foreground text-center">
               💡 <strong>Tips:</strong> Untuk testing yang lebih cepat, nonaktifkan "Confirm email" 
               di Supabase Dashboard → Auth → Settings
-            </p>*/}
-          </div>
+            </p>
+          </div> */}
+          </Card>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignIn} className="space-y-4">
