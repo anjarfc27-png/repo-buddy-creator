@@ -297,7 +297,6 @@ export const LoginPage = () => {
               di Supabase Dashboard → Auth → Settings
             </p>
           </div> */}
-          </Card>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignIn} className="space-y-4">
