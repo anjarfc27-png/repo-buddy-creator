@@ -129,7 +129,7 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
               Jalan Gajah - Dempet (Depan Koramil)
             </p>
             <p className="text-sm text-muted-foreground">
-              HP: 0858-6800-3638
+              HP: 0895630183347
             </p>
           </div>
 

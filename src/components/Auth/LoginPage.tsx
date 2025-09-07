@@ -345,14 +345,15 @@ export const LoginPage = () => {
               </Button>
               
               <div className="flex gap-2">
-                <Button 
+               {/*  <Button 
                   type="button" 
                   variant="outline" 
                   className="flex-1 text-sm" 
                   onClick={() => { setShowSignUp(true); setError(''); }}
                 >
                   Daftar Akun
-                </Button>
+                </Button> */}
+              
                 <Button 
                   type="button" 
                   variant="ghost" 

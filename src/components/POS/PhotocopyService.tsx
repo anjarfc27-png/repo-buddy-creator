@@ -31,14 +31,14 @@ export const PhotocopyService = ({ onAddToCart, formatPrice }: PhotocopyServiceP
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <Copy className="h-5 w-5 text-primary" />
-              🖨️ Layanan Fotocopy A4
+              🖨️ Layanan Fotocopy 
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Hitam Putih • Kertas A4</span>
+                <span className="text-sm text-muted-foreground">Hitam Putih • Kertas berkualitas</span>
               </div>
               <div className="text-right">
                 <div className="text-xs text-muted-foreground">Mulai dari</div>
