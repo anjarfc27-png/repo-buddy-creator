@@ -292,10 +292,10 @@ export const LoginPage = () => {
           
           {/* Development Note */}
           <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
-            <p className="text-xs text-muted-foreground text-center">
+          {/*  <p className="text-xs text-muted-foreground text-center">
               💡 <strong>Tips:</strong> Untuk testing yang lebih cepat, nonaktifkan "Confirm email" 
               di Supabase Dashboard → Auth → Settings
-            </p>
+            </p>*/}
           </div>
         </CardHeader>
         <CardContent>
