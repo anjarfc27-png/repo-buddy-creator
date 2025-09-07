@@ -38,7 +38,7 @@ export const PhotocopyDialog = ({ isOpen, onClose, product, onAddToCart }: Photo
   const getTieredPrice = (qty: number) => {
     if (qty >= 1000) return 260;
     if (qty >= 400) return 275;
-    if (qty >= 150) return 285;
+    if (qty >= 150) return 290;
     return product.sellPrice;
   };
 

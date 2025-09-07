@@ -98,7 +98,7 @@ export const usePOS = () => {
         } else if (quantity >= 400) {
           finalPrice = 275;
         } else if (quantity >= 150) {
-          finalPrice = 285;
+          finalPrice = 290;
         }
       }
 
@@ -205,7 +205,7 @@ export const usePOS = () => {
         } else if (quantity >= 400) {
           newFinalPrice = 275;
         } else if (quantity >= 150) {
-          newFinalPrice = 285;
+          newFinalPrice = 290;
         } else {
           newFinalPrice = cartItem.product.sellPrice;
         }

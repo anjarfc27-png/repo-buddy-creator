@@ -55,7 +55,7 @@ export const PhotocopyService = ({ onAddToCart, formatPrice }: PhotocopyServiceP
                 </div>
                 <div className="flex justify-between">
                   <span>150-399</span>
-                  <span className="font-medium">{formatPrice(285)}</span>
+                  <span className="font-medium">{formatPrice(290)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>400-999</span>
