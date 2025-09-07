@@ -75,11 +75,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const record = Array.isArray(data) ? data[0] : data;
-    if (!record?.email) {
+    if (!record || !record.email) {
       return { error: { message: 'Username tidak ditemukan' } };
     }
 
-    return signIn(record.email, password);
+    return signIn(record.email as string, password);
   };
 
   const signOut = async () => {

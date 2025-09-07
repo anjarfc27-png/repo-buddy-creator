@@ -133,12 +133,13 @@ export const useSupabasePOS = () => {
         .from('products')
         .insert({
           name: productData.name,
+          price: productData.sellPrice, // Keep price for compatibility
           cost_price: productData.costPrice,
           sell_price: productData.sellPrice,
           stock: productData.stock,
           barcode: productData.barcode,
-          category: productData.category,
-          is_photocopy: productData.isPhotocopy
+          category: productData.category || 'General',
+          is_photocopy: productData.isPhotocopy || false
         });
 
       if (error) throw error;
@@ -154,7 +155,10 @@ export const useSupabasePOS = () => {
       const updateData: any = {};
       if (updates.name !== undefined) updateData.name = updates.name;
       if (updates.costPrice !== undefined) updateData.cost_price = updates.costPrice;
-      if (updates.sellPrice !== undefined) updateData.sell_price = updates.sellPrice;
+      if (updates.sellPrice !== undefined) {
+        updateData.sell_price = updates.sellPrice;
+        updateData.price = updates.sellPrice; // Keep price in sync
+      }
       if (updates.stock !== undefined) updateData.stock = updates.stock;
       if (updates.barcode !== undefined) updateData.barcode = updates.barcode;
       if (updates.category !== undefined) updateData.category = updates.category;
