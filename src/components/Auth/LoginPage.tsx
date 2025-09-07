@@ -289,6 +289,14 @@ export const LoginPage = () => {
           <div className="text-xs text-muted-foreground mt-2">
             {formatDate(currentTime)} • Jam Operasional: 07:00 - 17:00
           </div>
+          
+          {/* Development Note */}
+          <div className="mt-4 p-3 bg-info/10 border border-info/20 rounded-lg">
+            <p className="text-xs text-muted-foreground text-center">
+              💡 <strong>Tips:</strong> Untuk testing yang lebih cepat, nonaktifkan "Confirm email" 
+              di Supabase Dashboard → Auth → Settings
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignIn} className="space-y-4">
@@ -336,14 +344,24 @@ export const LoginPage = () => {
                 {isLoading ? 'Memproses...' : 'Masuk ke Sistem'}
               </Button>
               
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full text-sm text-muted-foreground hover:text-primary" 
-                onClick={() => setShowForgotPassword(true)}
-              >
-                Lupa Password?
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1 text-sm" 
+                  onClick={() => { setShowSignUp(true); setError(''); }}
+                >
+                  Daftar Akun
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="flex-1 text-sm text-muted-foreground hover:text-primary" 
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  Lupa Password?
+                </Button>
+              </div>
             </div>
           </form>
         </CardContent>
