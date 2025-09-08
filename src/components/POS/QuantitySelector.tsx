@@ -53,12 +53,12 @@ export const QuantitySelector = ({
     }
   }, [category]);
 
-  // Update custom price when currentPrice changes
+  // Reset unit quantity when main quantity is reset to 0
   useEffect(() => {
-    if (currentPrice && canEditPrice) {
-      setCustomPrice(currentPrice.toString());
+    if (quantity === 0) {
+      setUnitQuantity(0);
     }
-  }, [currentPrice, canEditPrice]);
+  }, [quantity]);
 
   const handleQuantityChange = (newQuantity: number) => {
     const validQuantity = Math.max(0, newQuantity);
