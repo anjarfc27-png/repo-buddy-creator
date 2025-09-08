@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Minus } from 'lucide-react';
 import { Product } from '@/types/pos';
-
 
 interface AddProductFormProps {
   onAddProduct: (product: Omit<Product, 'id'>) => void;
@@ -21,12 +20,11 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
     name: '',
     costPrice: '',
     sellPrice: '',
-    stock: '',
     category: '',
     isPhotocopy: false,
   });
-  const [isService, setIsService] = useState(false);
   const [stockQuantity, setStockQuantity] = useState(0);
+  const [isService, setIsService] = useState(false);
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
@@ -46,7 +44,7 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
     if (existingProduct && onUpdateProduct) {
       // Update existing product stock
       onUpdateProduct(existingProduct.id, {
-        stock: existingProduct.stock + (stockQuantity || 0),
+        stock: existingProduct.stock + stockQuantity,
         costPrice: parseFloat(formData.costPrice) || existingProduct.costPrice,
         sellPrice: parseFloat(formData.sellPrice) || existingProduct.sellPrice,
         category: formData.category || existingProduct.category,
@@ -57,7 +55,7 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
         name: formData.name,
         costPrice: parseFloat(formData.costPrice) || 0,
         sellPrice: parseFloat(formData.sellPrice),
-        stock: (formData.isPhotocopy || isService) ? 0 : (stockQuantity || 0),
+        stock: (formData.isPhotocopy || isService) ? 0 : stockQuantity,
         category: formData.category || undefined,
         isPhotocopy: formData.isPhotocopy,
       });
@@ -68,7 +66,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
       name: '',
       costPrice: '',
       sellPrice: '',
-      stock: '',
       category: '',
       isPhotocopy: false,
     });
@@ -76,13 +73,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
     setIsService(false);
     setSuggestions([]);
     setShowSuggestions(false);
-    
-    // Don't auto-close, keep form open for continuous adding
-    // Force a small delay to ensure state updates properly
-    setTimeout(() => {
-      // This will trigger a re-render in components consuming the context
-      setFormData(prev => ({ ...prev }));
-    }, 100);
   };
 
   const handleNameChange = (value: string) => {
@@ -125,12 +115,24 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
       name: product.name,
       costPrice: product.costPrice.toString(),
       sellPrice: product.sellPrice.toString(),
-      stock: '',
       category: product.category || '',
       isPhotocopy: product.isPhotocopy || false,
     });
     setShowSuggestions(false);
     setSuggestions([]);
+  };
+
+  const decreaseStock = () => {
+    setStockQuantity(prev => Math.max(0, prev - 1));
+  };
+
+  const increaseStock = () => {
+    setStockQuantity(prev => prev + 1);
+  };
+
+  const handleStockChange = (value: string) => {
+    const num = parseInt(value) || 0;
+    setStockQuantity(Math.max(0, num));
   };
 
   return (
@@ -243,16 +245,15 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0"
-                      onClick={() => setStockQuantity(Math.max(0, stockQuantity - 1))}
+                      onClick={decreaseStock}
                     >
-                      <span className="sr-only">Kurangi stok</span>
-                      -
+                      <Minus className="h-3 w-3" />
                     </Button>
                     <Input
                       id="stock"
                       type="number"
                       value={stockQuantity || ''}
-                      onChange={(e) => setStockQuantity(Number(e.target.value) || 0)}
+                      onChange={(e) => handleStockChange(e.target.value)}
                       className="h-8 w-20 text-center"
                       min="0"
                       placeholder="0"
@@ -262,10 +263,9 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0"
-                      onClick={() => setStockQuantity(stockQuantity + 1)}
+                      onClick={increaseStock}
                     >
-                      <span className="sr-only">Tambah stok</span>
-                      +
+                      <Plus className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -285,7 +285,7 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button type="submit" className="flex-1" variant="success">
+                <Button type="submit" className="flex-1">
                   <Plus className="w-4 h-4 mr-2" />
                   Tambah Produk
                 </Button>
@@ -359,7 +359,7 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button type="submit" className="flex-1" variant="success">
+                <Button type="submit" className="flex-1">
                   <Plus className="w-4 h-4 mr-2" />
                   Tambah Layanan
                 </Button>
