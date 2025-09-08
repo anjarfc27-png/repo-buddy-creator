@@ -19,6 +19,7 @@ interface QuantitySelectorProps {
   currentPrice?: number;
   onPriceChange?: (price: number) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onGetTotalQuantity?: (getTotalQuantity: () => number) => void;
 }
 
 export const QuantitySelector = ({
@@ -32,7 +33,8 @@ export const QuantitySelector = ({
   allowBulkPricing = false,
   currentPrice,
   onPriceChange,
-  onKeyDown
+  onKeyDown,
+  onGetTotalQuantity
 }: QuantitySelectorProps) => {
   const [selectedUnit, setSelectedUnit] = useState('pcs');
   const [unitQuantity, setUnitQuantity] = useState(0);
@@ -69,24 +71,18 @@ export const QuantitySelector = ({
     setUnitQuantity(value);
   };
 
-  const handleAddUnits = () => {
-    if (unitQuantity > 0) {
-      const multiplier = getUnitMultiplier(selectedUnit, category);
-      const addQuantity = unitQuantity * multiplier;
-      const newQuantity = quantity + addQuantity;
-      console.log('Manual Unit Conversion:', {
-        unitQuantity,
-        selectedUnit,
-        category,
-        multiplier,
-        addQuantity,
-        currentQuantity: quantity,
-        newQuantity
-      });
-      onQuantityChange(newQuantity);
-      setUnitQuantity(0); // Reset after manual add
-    }
+  // Get total quantity including unit conversions for external use
+  const getTotalQuantity = () => {
+    const multiplier = getUnitMultiplier(selectedUnit, category);
+    return quantity + (unitQuantity * multiplier);
   };
+
+  // Expose getTotalQuantity to parent component
+  useEffect(() => {
+    if (onGetTotalQuantity) {
+      onGetTotalQuantity(getTotalQuantity);
+    }
+  }, [quantity, unitQuantity, selectedUnit, category, onGetTotalQuantity]);
 
   const handleUnitChange = (unit: string) => {
     setSelectedUnit(unit);
@@ -98,6 +94,11 @@ export const QuantitySelector = ({
     if (!isNaN(price) && onPriceChange) {
       onPriceChange(price);
     }
+  };
+
+  const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value) || 0;
+    handleQuantityChange(value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -122,12 +123,13 @@ export const QuantitySelector = ({
         <Input
           type="number"
           value={quantity || ''}
-          onChange={(e) => handleQuantityChange(Number(e.target.value) || 0)}
+          onChange={handleQuantityInputChange}
           onKeyDown={handleKeyDown}
           className="h-8 w-20 text-center text-sm"
           min="0"
           max={maxStock}
           placeholder="0"
+          inputMode="numeric"
         />
         
         <Button
@@ -163,6 +165,7 @@ export const QuantitySelector = ({
               className="h-8 w-16 text-center text-sm"
               min="0"
               placeholder="0"
+              inputMode="numeric"
             />
             <Select value={selectedUnit} onValueChange={handleUnitChange}>
               <SelectTrigger className="h-8 flex-1">
@@ -176,15 +179,6 @@ export const QuantitySelector = ({
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 px-3"
-              onClick={handleAddUnits}
-              disabled={unitQuantity <= 0}
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
           </div>
         </div>
       )}
@@ -204,19 +198,18 @@ export const QuantitySelector = ({
       {canEditPrice && onPriceChange && (
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">
-            Harga khusus per lusin (≥1 lusin):
+            Harga khusus:
           </Label>
           <Input
             type="number"
             value={customPrice}
             onChange={(e) => handlePriceChange(e.target.value)}
             className="h-8 text-sm"
-            placeholder="Harga total per lusin"
+            placeholder="Harga per lusin"
             min="0"
+            inputMode="decimal"
+            onFocus={(e) => e.target.select()}
           />
-          <div className="text-xs text-muted-foreground">
-            Total untuk 1 lusin (12 pcs)
-          </div>
         </div>
       )}
     </div>
