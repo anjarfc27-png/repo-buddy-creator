@@ -66,14 +66,16 @@ export const QuantitySelector = ({
 
   const handleUnitQuantityChange = (value: number) => {
     if (value < 0) return;
-    
-    // Automatically add items when unit quantity changes
-    if (value > 0) {
+    setUnitQuantity(value);
+  };
+
+  const handleAddUnits = () => {
+    if (unitQuantity > 0) {
       const multiplier = getUnitMultiplier(selectedUnit, category);
-      const addQuantity = value * multiplier;
+      const addQuantity = unitQuantity * multiplier;
       const newQuantity = quantity + addQuantity;
-      console.log('Auto Unit Conversion:', {
-        value,
+      console.log('Manual Unit Conversion:', {
+        unitQuantity,
         selectedUnit,
         category,
         multiplier,
@@ -82,9 +84,8 @@ export const QuantitySelector = ({
         newQuantity
       });
       onQuantityChange(newQuantity);
+      setUnitQuantity(0); // Reset after manual add
     }
-    
-    setUnitQuantity(0); // Reset after auto-adding
   };
 
   const handleUnitChange = (unit: string) => {
@@ -157,7 +158,7 @@ export const QuantitySelector = ({
           <div className="flex items-center gap-2">
             <Input
               type="number"
-              value={unitQuantity}
+              value={unitQuantity || ''}
               onChange={(e) => handleUnitQuantityChange(parseInt(e.target.value) || 0)}
               className="h-8 w-16 text-center text-sm"
               min="0"
@@ -175,6 +176,15 @@ export const QuantitySelector = ({
                 ))}
               </SelectContent>
             </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 px-3"
+              onClick={handleAddUnits}
+              disabled={unitQuantity <= 0}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       )}
