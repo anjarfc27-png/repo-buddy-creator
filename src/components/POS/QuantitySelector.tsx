@@ -66,7 +66,25 @@ export const QuantitySelector = ({
 
   const handleUnitQuantityChange = (value: number) => {
     if (value < 0) return;
-    setUnitQuantity(value);
+    
+    // Automatically add items when unit quantity changes
+    if (value > 0) {
+      const multiplier = getUnitMultiplier(selectedUnit, category);
+      const addQuantity = value * multiplier;
+      const newQuantity = quantity + addQuantity;
+      console.log('Auto Unit Conversion:', {
+        value,
+        selectedUnit,
+        category,
+        multiplier,
+        addQuantity,
+        currentQuantity: quantity,
+        newQuantity
+      });
+      onQuantityChange(newQuantity);
+    }
+    
+    setUnitQuantity(0); // Reset after auto-adding
   };
 
   const handleUnitChange = (unit: string) => {
@@ -136,16 +154,14 @@ export const QuantitySelector = ({
       {/* Unit selector */}
       {showUnitSelector && (
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">
-            Tambah dalam satuan:
-          </Label>
           <div className="flex items-center gap-2">
             <Input
               type="number"
               value={unitQuantity}
-              onChange={(e) => setUnitQuantity(parseInt(e.target.value) || 0)}
+              onChange={(e) => handleUnitQuantityChange(parseInt(e.target.value) || 0)}
               className="h-8 w-16 text-center text-sm"
               min="0"
+              placeholder="0"
             />
             <Select value={selectedUnit} onValueChange={handleUnitChange}>
               <SelectTrigger className="h-8 flex-1">
@@ -159,29 +175,6 @@ export const QuantitySelector = ({
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 px-3"
-              onClick={() => {
-                const multiplier = getUnitMultiplier(selectedUnit, category);
-                const addQuantity = unitQuantity * multiplier;
-                console.log('QuantitySelector Debug:', {
-                  unitQuantity,
-                  selectedUnit,
-                  category,
-                  multiplier,
-                  addQuantity,
-                  currentQuantity: quantity,
-                  newQuantity: quantity + addQuantity
-                });
-                onQuantityChange(quantity + addQuantity);
-                setUnitQuantity(0); // Reset after adding
-              }}
-              disabled={unitQuantity === 0}
-            >
-              Tambah
-            </Button>
           </div>
         </div>
       )}
