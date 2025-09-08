@@ -1,19 +1,22 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProductGrid } from './ProductGrid';
-import { ShoppingCart } from './ShoppingCart';
-import { Receipt } from './Receipt';
-import { AddProductForm } from './AddProductForm';
-import { SalesReport } from './SalesReport';
-import { ManualReceiptReport } from '@/components/Reports/ManualReceiptReport';
 import { PhotocopyDialog } from './PhotocopyDialog';
 import { PhotocopyService } from './PhotocopyService';
-import { StockManagement } from './StockManagement';
-import { ReceiptHistory } from './ReceiptHistory';
-import { ManualInvoice } from './ManualInvoice';
-import { ShoppingList } from './ShoppingList';
 import { AdminProtection } from '@/components/Auth/AdminProtection';
-import { BluetoothManager } from './BluetoothManager';
+import { 
+  LazyProductGrid,
+  LazyShoppingCart,
+  LazyReceipt,
+  LazyAddProductForm,
+  LazySalesReport,
+  LazyManualReceiptReport,
+  LazyStockManagement,
+  LazyReceiptHistory,
+  LazyManualInvoice,
+  LazyShoppingList,
+  LazyBluetoothManager,
+  ComponentLoader
+} from '@/components/Performance/LazyComponents';
 import { usePOSContext } from '@/contexts/POSContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Receipt as ReceiptType, Product } from '@/types/pos';
@@ -32,7 +35,8 @@ import {
   DollarSign,
   BarChart3,
   LogOut,
-  Settings
+  Settings,
+  RefreshCw
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 
@@ -135,6 +139,23 @@ export const POSInterface = () => {
       await signOut();
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      const { toast } = await import('sonner');
+      toast.info('Menyinkronkan data...');
+      
+      // Trigger vibration on mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate(100);
+      }
+      
+      // Force reload of the page to sync with latest data
+      window.location.reload();
+    } catch (error) {
+      console.error('Refresh error:', error);
     }
   };
 
@@ -324,45 +345,91 @@ Profit: ${formatPrice(receipt.profit)}
         <div className="w-full px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
-              <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              <div>
-                <h1 className="text-lg sm:text-2xl font-bold">Kasir Toko Anjar</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-                  Jalan Gajah - Dempet (Depan Koramil)
-                </p>
-                <p className="text-xs sm:text-sm text-primary font-medium">
-                  {getWelcomeMessage()}, Admin Kasir
-                </p>
+              <div className="flex items-center gap-2">
+                <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                <div className="hidden sm:block">
+                  <h1 className="text-lg sm:text-2xl font-bold">Kasir Toko Anjar</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Jalan Gajah - Dempet (Depan Koramil)
+                  </p>
+                  <p className="text-xs sm:text-sm text-primary font-medium">
+                    {getWelcomeMessage()}, Admin Kasir
+                  </p>
+                </div>
+                {/* Mobile compact header */}
+                <div className="sm:hidden">
+                  <h1 className="text-sm font-bold">Toko Anjar</h1>
+                  <p className="text-xs text-primary">
+                    {getWelcomeMessage()}
+                  </p>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 sm:gap-4">
-              {/* Bluetooth Manager */}
-              <BluetoothManager />
+            <div className="flex items-center gap-1 sm:gap-4">
+              {/* Mobile compact version */}
+              <div className="sm:hidden flex items-center gap-1">
+                <Suspense fallback={<div className="h-8 w-8"></div>}>
+                  <LazyBluetoothManager />
+                </Suspense>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  className="h-8 w-8 p-0"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="h-8 w-8 p-0"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
               
-              {/* Thermal Print Status */}
-              {(lastReceipt || selectedReceipt) && (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md border">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground">
-                    Tekan <kbd className="px-1 py-0.5 bg-muted rounded text-xs font-mono">Enter</kbd> untuk print thermal
-                  </span>
-                </div>
-              )}
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-              <div className="text-right text-xs sm:text-sm">
-                <div className="font-semibold">Admin Kasir</div>
-                <div className="text-muted-foreground hidden sm:block">
-                  {new Date().toLocaleDateString('id-ID')}
+              {/* Desktop version */}
+              <div className="hidden sm:flex items-center gap-4">
+                <Suspense fallback={<div className="h-8 w-8"></div>}>
+                  <LazyBluetoothManager />
+                </Suspense>
+                
+                {/* Thermal Print Status */}
+                {(lastReceipt || selectedReceipt) && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-md border">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-muted-foreground">
+                      Tekan <kbd className="px-1 py-0.5 bg-muted rounded text-xs font-mono">Enter</kbd> untuk print thermal
+                    </span>
+                  </div>
+                )}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span>Refresh</span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </Button>
+                <div className="text-right text-xs sm:text-sm">
+                  <div className="font-semibold">Admin Kasir</div>
+                  <div className="text-muted-foreground">
+                    {new Date().toLocaleDateString('id-ID')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -429,14 +496,38 @@ Profit: ${formatPrice(receipt.profit)}
           }
         }} className="w-full">
           <TabsList className="flex w-full h-auto p-1 overflow-x-auto gap-1 justify-start sm:grid sm:grid-cols-8 sm:gap-1">
-            <TabsTrigger value="pos" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3">Kasir</TabsTrigger>
-            <TabsTrigger value="manual-invoice" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 whitespace-nowrap">Nota Manual</TabsTrigger>
-            <TabsTrigger value="shopping-list" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 whitespace-nowrap">Daftar Belanja</TabsTrigger>
-            <TabsTrigger value="stock" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3">Stok</TabsTrigger>
-            <TabsTrigger value="receipt" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3">Nota</TabsTrigger>
-            <TabsTrigger value="reports" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3">Laporan</TabsTrigger>
-            <TabsTrigger value="manual-reports" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 whitespace-nowrap">Laporan Manual</TabsTrigger>
-            <TabsTrigger value="admin" className="flex-shrink-0 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3">Admin</TabsTrigger>
+            <TabsTrigger value="pos" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              <span className="sm:hidden">💰</span>
+              <span className="hidden sm:inline">Kasir</span>
+            </TabsTrigger>
+            <TabsTrigger value="manual-invoice" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 whitespace-nowrap">
+              <span className="sm:hidden">📄</span>
+              <span className="hidden sm:inline">Nota Manual</span>
+            </TabsTrigger>
+            <TabsTrigger value="shopping-list" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 whitespace-nowrap">
+              <span className="sm:hidden">📝</span>
+              <span className="hidden sm:inline">Daftar Belanja</span>
+            </TabsTrigger>
+            <TabsTrigger value="stock" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              <span className="sm:hidden">📦</span>
+              <span className="hidden sm:inline">Stok</span>
+            </TabsTrigger>
+            <TabsTrigger value="receipt" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              <span className="sm:hidden">🧾</span>
+              <span className="hidden sm:inline">Nota</span>
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              <span className="sm:hidden">📊</span>
+              <span className="hidden sm:inline">Laporan</span>
+            </TabsTrigger>
+            <TabsTrigger value="manual-reports" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 whitespace-nowrap">
+              <span className="sm:hidden">📋</span>
+              <span className="hidden sm:inline">Laporan Manual</span>
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="flex-shrink-0 text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              <span className="sm:hidden">⚙️</span>
+              <span className="hidden sm:inline">Admin</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pos" className="space-y-2 sm:space-y-4 mt-2 sm:mt-4">
@@ -471,30 +562,34 @@ Profit: ${formatPrice(receipt.profit)}
                         formatPrice={formatPrice}
                       />
                       
-                      <ProductGrid 
-                        products={filteredProducts}
-                        onAddToCart={addToCart}
-                        onPhotocopyClick={handlePhotocopyClick}
-                      />
+                      <Suspense fallback={<ComponentLoader />}>
+                        <LazyProductGrid 
+                          products={filteredProducts}
+                          onAddToCart={addToCart}
+                          onPhotocopyClick={handlePhotocopyClick}
+                        />
+                      </Suspense>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               <div className="space-y-2 sm:space-y-4">
-                <ShoppingCart
-                  cart={cart}
-                  updateCartQuantity={updateCartQuantity}
-                  removeFromCart={removeFromCart}
-                  clearCart={clearCart}
-                  processTransaction={handleProcessTransaction}
-                  formatPrice={formatPrice}
-                  onPrintThermal={handlePrintThermal}
-                  onViewReceipt={handleViewReceipt}
-                  receipts={receipts}
-                  products={products}
-                  onAddToCart={addToCart}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyShoppingCart
+                    cart={cart}
+                    updateCartQuantity={updateCartQuantity}
+                    removeFromCart={removeFromCart}
+                    clearCart={clearCart}
+                    processTransaction={handleProcessTransaction}
+                    formatPrice={formatPrice}
+                    onPrintThermal={handlePrintThermal}
+                    onViewReceipt={handleViewReceipt}
+                    receipts={receipts}
+                    products={products}
+                    onAddToCart={addToCart}
+                  />
+                </Suspense>
               </div>
             </div>
           </TabsContent>
@@ -507,41 +602,49 @@ Profit: ${formatPrice(receipt.profit)}
               </TabsList>
               
               <TabsContent value="products" className="space-y-4">
-                <StockManagement 
-                  products={products}
-                  onUpdateProduct={updateProduct}
-                  onDeleteProduct={deleteProduct}
-                  formatPrice={formatPrice}
-                  showLowStockOnly={false}
-                  readOnly={true}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyStockManagement 
+                    products={products}
+                    onUpdateProduct={updateProduct}
+                    onDeleteProduct={deleteProduct}
+                    formatPrice={formatPrice}
+                    showLowStockOnly={false}
+                    readOnly={true}
+                  />
+                </Suspense>
               </TabsContent>
               
               <TabsContent value="low-stock" className="space-y-4">
-                <StockManagement 
-                  products={products}
-                  onUpdateProduct={updateProduct}
-                  onDeleteProduct={deleteProduct}
-                  formatPrice={formatPrice}
-                  showLowStockOnly={true}
-                  readOnly={true}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyStockManagement 
+                    products={products}
+                    onUpdateProduct={updateProduct}
+                    onDeleteProduct={deleteProduct}
+                    formatPrice={formatPrice}
+                    showLowStockOnly={true}
+                    readOnly={true}
+                  />
+                </Suspense>
               </TabsContent>
             </Tabs>
           </TabsContent>
 
           <TabsContent value="manual-invoice" className="space-y-4">
-            <ManualInvoice 
-              onCreateInvoice={handleManualInvoice}
-              formatPrice={formatPrice}
-              receipts={receipts}
-              onPrintReceipt={handlePrintThermal}
-              products={products}
-            />
+            <Suspense fallback={<ComponentLoader />}>
+              <LazyManualInvoice 
+                onCreateInvoice={handleManualInvoice}
+                formatPrice={formatPrice}
+                receipts={receipts}
+                onPrintReceipt={handlePrintThermal}
+                products={products}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="shopping-list" className="space-y-4">
-            <ShoppingList />
+            <Suspense fallback={<ComponentLoader />}>
+              <LazyShoppingList />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="admin" className="space-y-4">
@@ -553,63 +656,75 @@ Profit: ${formatPrice(receipt.profit)}
               </TabsList>
               
               <TabsContent value="add-product" className="space-y-4">
-                <AddProductForm 
-                  onAddProduct={addProduct} 
-                  onUpdateProduct={updateProduct}
-                  products={products}
-                  onClose={() => setCurrentTab('stock-management')} 
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyAddProductForm 
+                    onAddProduct={addProduct} 
+                    onUpdateProduct={updateProduct}
+                    products={products}
+                    onClose={() => setCurrentTab('stock-management')} 
+                  />
+                </Suspense>
               </TabsContent>
               
               <TabsContent value="stock-management" className="space-y-4">
-                <StockManagement 
-                  products={products}
-                  onUpdateProduct={updateProduct}
-                  onDeleteProduct={deleteProduct}
-                  formatPrice={formatPrice}
-                  showLowStockOnly={false}
-                  readOnly={false}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyStockManagement 
+                    products={products}
+                    onUpdateProduct={updateProduct}
+                    onDeleteProduct={deleteProduct}
+                    formatPrice={formatPrice}
+                    showLowStockOnly={false}
+                    readOnly={false}
+                  />
+                </Suspense>
               </TabsContent>
               
               <TabsContent value="advanced-reports" className="space-y-4">
-                <SalesReport receipts={receipts} formatPrice={formatPrice} />
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazySalesReport receipts={receipts} formatPrice={formatPrice} />
+                </Suspense>
               </TabsContent>
             </Tabs>
           </TabsContent>
 
           <TabsContent value="receipt" className="space-y-4">
-            {selectedReceipt ? (
-              <Receipt 
-                receipt={selectedReceipt} 
-                formatPrice={formatPrice} 
-                onBack={() => setSelectedReceipt(null)}
-              />
-            ) : (
-              <ReceiptHistory 
-                receipts={receipts}
-                formatPrice={formatPrice}
-                onViewReceipt={handleViewReceipt}
-                onPrintReceipt={handlePrintThermal}
-                onBackToPOS={() => setSelectedReceipt(null)}
-              />
-            )}
+            <Suspense fallback={<ComponentLoader />}>
+              {selectedReceipt ? (
+                <LazyReceipt 
+                  receipt={selectedReceipt} 
+                  formatPrice={formatPrice} 
+                  onBack={() => setSelectedReceipt(null)}
+                />
+              ) : (
+                <LazyReceiptHistory 
+                  receipts={receipts}
+                  formatPrice={formatPrice}
+                  onViewReceipt={handleViewReceipt}
+                  onPrintReceipt={handlePrintThermal}
+                  onBackToPOS={() => setSelectedReceipt(null)}
+                />
+              )}
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="reports" className="space-y-4">
-            <SalesReport 
-              receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-'))} 
-              formatPrice={formatPrice}
-            />
+            <Suspense fallback={<ComponentLoader />}>
+              <LazySalesReport 
+                receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-'))} 
+                formatPrice={formatPrice}
+              />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="manual-reports" className="space-y-2 sm:space-y-4 mt-2 sm:mt-4">
-            <ManualReceiptReport 
-              receipts={receipts} 
-              formatPrice={formatPrice}
-              onViewReceipt={handleViewReceipt}
-              onPrintReceipt={handlePrintThermal}
-            />
+            <Suspense fallback={<ComponentLoader />}>
+              <LazyManualReceiptReport 
+                receipts={receipts} 
+                formatPrice={formatPrice}
+                onViewReceipt={handleViewReceipt}
+                onPrintReceipt={handlePrintThermal}
+              />
+            </Suspense>
           </TabsContent>
         </Tabs>
 
