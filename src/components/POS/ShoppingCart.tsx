@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartItem, Receipt as ReceiptType } from '@/types/pos';
@@ -16,6 +15,7 @@ import { toast } from 'sonner';
 import { QuantitySelector } from './QuantitySelector';
 import { QuickProductSearch } from './QuickProductSearch';
 import { Product } from '@/types/pos';
+import { useBluetoothContext } from '@/contexts/BluetoothContext';
 
 interface ShoppingCartProps {
   cart: CartItem[];
@@ -50,6 +50,7 @@ export const ShoppingCart = ({
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
+  const { isConnected, isConnecting, connect } = useBluetoothContext();
 
   const handlePriceChange = (productId: string, newPrice: number) => {
     const item = cart.find(item => item.product.id === productId);
@@ -110,6 +111,15 @@ export const ShoppingCart = ({
     setIsProcessing(true);
     
     try {
+      // If not connected, try to connect first
+      if (!isConnected) {
+        const connected = await connect();
+        if (!connected) {
+          toast.error('Gagal terhubung ke printer thermal. Pastikan printer menyala dan dalam jangkauan.');
+          return;
+        }
+      }
+
       const receipt = await processTransaction(paymentMethod, discountAmount);
       if (receipt) {
         try {
@@ -161,15 +171,32 @@ export const ShoppingCart = ({
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <Badge variant="secondary" className="text-xs">{cart.length} item</Badge>
+            
+            {/* Enhanced Thermal Print Button with connection status */}
             <Button
               size="sm"
-              variant="outline"
+              variant={isConnected ? "default" : "outline"}
               onClick={handleThermalPrint}
-              className="h-5 w-5 sm:h-6 sm:w-6 p-0"
-              title="Print Thermal"
+              disabled={isProcessing || isConnecting}
+              className={`h-6 w-auto px-2 sm:h-7 sm:px-3 flex items-center gap-1 ${
+                isConnected ? 'bg-success hover:bg-success/90 text-success-foreground' : 
+                isConnecting ? 'animate-pulse' : ''
+              }`}
+              title={isConnected ? 'Print Thermal (Terhubung)' : isConnecting ? 'Menghubungkan...' : 'Print Thermal (Belum Terhubung)'}
             >
-              <Printer className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              {isConnecting ? (
+                <Bluetooth className="h-3 w-3 animate-spin" />
+              ) : (
+                <>
+                  <Printer className="h-3 w-3" />
+                  {isConnected && <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>}
+                </>
+              )}
+              <span className="hidden sm:inline text-xs">
+                {isConnecting ? 'Connecting' : isConnected ? 'Print' : 'Print'}
+              </span>
             </Button>
+            
             <Button
               size="sm"
               variant="outline"
