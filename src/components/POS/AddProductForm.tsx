@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, X } from 'lucide-react';
 import { Product } from '@/types/pos';
-import { QuantitySelector } from './QuantitySelector';
+
 
 interface AddProductFormProps {
   onAddProduct: (product: Omit<Product, 'id'>) => void;
@@ -236,14 +236,38 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label>Jumlah Stok (opsional)</Label>
-                  <QuantitySelector
-                    quantity={stockQuantity}
-                    productName={formData.name}
-                    category={formData.category}
-                    onQuantityChange={setStockQuantity}
-                    showUnitSelector={true}
-                  />
+                  <Label htmlFor="stock">Jumlah Stok (opsional)</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-8 p-0"
+                      onClick={() => setStockQuantity(Math.max(0, stockQuantity - 1))}
+                    >
+                      <span className="sr-only">Kurangi stok</span>
+                      -
+                    </Button>
+                    <Input
+                      id="stock"
+                      type="number"
+                      value={stockQuantity || ''}
+                      onChange={(e) => setStockQuantity(Number(e.target.value) || 0)}
+                      className="h-8 w-20 text-center"
+                      min="0"
+                      placeholder="0"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-8 p-0"
+                      onClick={() => setStockQuantity(stockQuantity + 1)}
+                    >
+                      <span className="sr-only">Tambah stok</span>
+                      +
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="flex items-center space-x-2">
