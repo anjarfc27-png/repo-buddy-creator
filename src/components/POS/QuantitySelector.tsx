@@ -60,6 +60,7 @@ export const QuantitySelector = ({
 
   const handleQuantityChange = (newQuantity: number) => {
     const validQuantity = Math.max(0, newQuantity);
+    console.log('Direct quantity change:', { newQuantity, validQuantity });
     onQuantityChange(validQuantity);
   };
 
@@ -165,6 +166,15 @@ export const QuantitySelector = ({
               onClick={() => {
                 const multiplier = getUnitMultiplier(selectedUnit, category);
                 const addQuantity = unitQuantity * multiplier;
+                console.log('QuantitySelector Debug:', {
+                  unitQuantity,
+                  selectedUnit,
+                  category,
+                  multiplier,
+                  addQuantity,
+                  currentQuantity: quantity,
+                  newQuantity: quantity + addQuantity
+                });
                 onQuantityChange(quantity + addQuantity);
                 setUnitQuantity(0); // Reset after adding
               }}
