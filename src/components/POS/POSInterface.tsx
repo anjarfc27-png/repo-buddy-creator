@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PhotocopyDialog } from './PhotocopyDialog';
 import { PhotocopyService } from './PhotocopyService';
+import { WiFiPrinterManager } from './WiFiPrinterManager';
 import { AdminProtection } from '@/components/Auth/AdminProtection';
 import { 
   LazyProductGrid,
@@ -346,6 +347,21 @@ Profit: ${formatPrice(receipt.profit)}
     return "Selamat Malam";
   };
 
+
+  const handleWiFiDirectPrint = async (printerId: string, settings: any, document: File): Promise<boolean> => {
+    try {
+      const { toast } = await import('sonner');
+      toast.info(`Mengirim ke ${printerId} (${settings.paperSize}, ${settings.quality})...`);
+      await new Promise((r) => setTimeout(r, 800));
+      toast.success('Dokumen berhasil dikirim (simulasi)');
+      return true;
+    } catch (e) {
+      const { toast } = await import('sonner');
+      toast.error('Gagal mengirim dokumen ke printer WiFi');
+      return false;
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Header */}
@@ -483,8 +499,7 @@ Profit: ${formatPrice(receipt.profit)}
               </div>
             </CardContent>
           </Card>
-          
-          
+
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('stock')}>
             <CardContent className="flex items-center p-4">
               <Users className="h-8 w-8 text-error mr-3" />
@@ -518,6 +533,9 @@ Profit: ${formatPrice(receipt.profit)}
             </TabsTrigger>
             <TabsTrigger value="receipt" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
               Nota
+            </TabsTrigger>
+            <TabsTrigger value="wifi-print" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+              Cetak WiFi
             </TabsTrigger>
             <TabsTrigger value="reports" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
               Laporan
@@ -702,6 +720,17 @@ Profit: ${formatPrice(receipt.profit)}
             <Suspense fallback={<ComponentLoader />}>
               <LazyShoppingList />
             </Suspense>
+          </TabsContent>
+
+          <TabsContent value="wifi-print" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Cetak via WiFi</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <WiFiPrinterManager onPrint={handleWiFiDirectPrint} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="admin" className="space-y-4">
