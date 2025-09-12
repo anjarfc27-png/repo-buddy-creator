@@ -349,17 +349,8 @@ Profit: ${formatPrice(receipt.profit)}
 
 
   const handleWiFiDirectPrint = async (printerId: string, settings: any, document: File): Promise<boolean> => {
-    try {
-      const { toast } = await import('sonner');
-      toast.info(`Mengirim ke ${printerId} (${settings.paperSize}, ${settings.quality})...`);
-      await new Promise((r) => setTimeout(r, 800));
-      toast.success('Dokumen berhasil dikirim (simulasi)');
-      return true;
-    } catch (e) {
-      const { toast } = await import('sonner');
-      toast.error('Gagal mengirim dokumen ke printer WiFi');
-      return false;
-    }
+    // This function is now just a passthrough since WiFiPrinterManager handles the real printing
+    return true;
   };
 
   return (

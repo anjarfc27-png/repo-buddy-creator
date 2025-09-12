@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,17 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Wifi, Printer, Search, Settings, FileText, Zap } from 'lucide-react';
-
-interface WiFiPrinter {
-  id: string;
-  name: string;
-  ip: string;
-  model: string;
-  status: 'online' | 'offline' | 'busy';
-  paperSizes: string[];
-  features: string[];
-}
+import { Network, Printer, Search, Settings, FileText, Zap, Loader2 } from 'lucide-react';
+import { networkPrinter, NetworkPrinter, PrintJob } from '@/lib/network-printer';
 
 interface PrintSettings {
   paperSize: string;
@@ -35,8 +26,8 @@ interface WiFiPrinterManagerProps {
 
 export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
   const [isScanning, setIsScanning] = useState(false);
-  const [discoveredPrinters, setDiscoveredPrinters] = useState<WiFiPrinter[]>([]);
-  const [selectedPrinter, setSelectedPrinter] = useState<WiFiPrinter | null>(null);
+  const [discoveredPrinters, setDiscoveredPrinters] = useState<NetworkPrinter[]>([]);
+  const [selectedPrinter, setSelectedPrinter] = useState<NetworkPrinter | null>(null);
   const [document, setDocument] = useState<File | null>(null);
   const [printSettings, setPrintSettings] = useState<PrintSettings>({
     paperSize: 'A4',
@@ -47,58 +38,34 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
     collate: false
   });
 
-  // Mock printer discovery - in real implementation, this would scan network
+  // Real network printer discovery
   const scanForPrinters = async () => {
     setIsScanning(true);
     toast({
-      title: "Mencari Printer WiFi",
-      description: "Scanning jaringan untuk printer yang tersedia...",
+      title: "Mencari Printer Jaringan",
+      description: "Scanning jaringan WiFi/LAN untuk printer yang tersedia...",
     });
 
     try {
-      // Simulate network scanning delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const printers = await networkPrinter.scanForPrinters();
+      setDiscoveredPrinters(printers);
       
-      // Mock discovered printers
-      const mockPrinters: WiFiPrinter[] = [
-        {
-          id: 'canon-mg3600-001',
-          name: 'Canon PIXMA MG3600',
-          ip: '192.168.1.105',
-          model: 'MG3600 Series',
-          status: 'online',
-          paperSizes: ['A4', 'A5', 'Letter', 'Legal'],
-          features: ['Duplex', 'Color', 'High Quality']
-        },
-        {
-          id: 'epson-l3210-002',
-          name: 'Epson L3210',
-          ip: '192.168.1.108',
-          model: 'L3210 Series',
-          status: 'online',
-          paperSizes: ['A4', 'A5', 'Letter'],
-          features: ['High Quality', 'Fast Print']
-        },
-        {
-          id: 'hp-laserjet-003',
-          name: 'HP LaserJet Pro',
-          ip: '192.168.1.112',
-          model: 'LaserJet Pro M404',
-          status: 'busy',
-          paperSizes: ['A4', 'A5', 'Letter', 'Legal'],
-          features: ['Duplex', 'High Speed', 'Toner Save']
-        }
-      ];
-
-      setDiscoveredPrinters(mockPrinters);
-      toast({
-        title: "Scan Selesai",
-        description: `Ditemukan ${mockPrinters.length} printer WiFi`,
-      });
-    } catch (error) {
+      if (printers.length === 0) {
+        toast({
+          title: "Tidak Ada Printer",
+          description: "Tidak ada printer ditemukan di jaringan ini",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Scan Selesai",
+          description: `Ditemukan ${printers.length} printer di jaringan`,
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Gagal scan printer. Pastikan perangkat terhubung WiFi yang sama.",
+        description: error.message || "Gagal scan printer. Pastikan perangkat terhubung ke jaringan yang sama.",
         variant: "destructive",
       });
     } finally {
@@ -136,17 +103,34 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
     }
 
     try {
-      const success = await onPrint(selectedPrinter.id, printSettings, document);
+      const printJob: PrintJob = {
+        printerId: selectedPrinter.id,
+        document: document,
+        settings: printSettings
+      };
+
+      const success = await networkPrinter.printDocument(printJob);
       if (success) {
         toast({
           title: "Print Berhasil",
           description: `Dokumen dikirim ke ${selectedPrinter.name}`,
         });
+        
+        // Reset form after successful print
+        setDocument(null);
+        setPrintSettings({
+          paperSize: 'A4',
+          quality: 'normal',
+          darkness: 50,
+          copies: 1,
+          duplex: false,
+          collate: false
+        });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Print Gagal",
-        description: "Gagal mengirim dokumen ke printer",
+        description: error.message || "Gagal mengirim dokumen ke printer",
         variant: "destructive",
       });
     }
@@ -159,12 +143,12 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
 
   return (
     <div className="space-y-4">
-      {/* WiFi Printer Discovery */}
+      {/* Network Printer Discovery */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wifi className="h-5 w-5 text-primary" />
-            WiFi Printer Discovery
+            <Network className="h-5 w-5 text-primary" />
+            Pemindaian Printer Jaringan (WiFi/LAN)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -176,13 +160,13 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
           >
             {isScanning ? (
               <>
-                <Search className="w-4 h-4 mr-2 animate-spin" />
-                Scanning Network...
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Memindai Jaringan...
               </>
             ) : (
               <>
-                <Search className="w-4 h-4 mr-2" />
-                Scan Ulang Printer WiFi
+                <Network className="w-4 h-4 mr-2" />
+                Cari Printer di Jaringan
               </>
             )}
           </Button>
@@ -205,7 +189,7 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
                         <div>
                           <div className="font-medium">{printer.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {printer.model} • {printer.ip}
+                            {printer.model} • {printer.ip}:{printer.port}
                           </div>
                         </div>
                       </div>
@@ -217,11 +201,11 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
                          printer.status === 'busy' ? 'Sibuk' : 'Offline'}
                       </Badge>
                     </div>
-                    {printer.features.length > 0 && (
+                    {printer.supportedFormats.length > 0 && (
                       <div className="flex gap-1 mt-2">
-                        {printer.features.map((feature) => (
-                          <Badge key={feature} variant="outline" className="text-xs">
-                            {feature}
+                        {printer.supportedFormats.map((format) => (
+                          <Badge key={format} variant="outline" className="text-xs">
+                            {format}
                           </Badge>
                         ))}
                       </div>
@@ -325,6 +309,23 @@ export const WiFiPrinterManager = ({ onPrint }: WiFiPrinterManagerProps) => {
                 <span>Tipis</span>
                 <span>Tebal</span>
               </div>
+            </div>
+
+            {/* Copies */}
+            <div className="space-y-2">
+              <Label>Jumlah Salinan</Label>
+              <Select value={printSettings.copies.toString()} onValueChange={(value) => 
+                setPrintSettings(prev => ({ ...prev, copies: parseInt(value) }))
+              }>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1,2,3,4,5,10,20,50].map((num) => (
+                    <SelectItem key={num} value={num.toString()}>{num} Salinan</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <Separator />
