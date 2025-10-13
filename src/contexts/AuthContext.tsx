@@ -71,39 +71,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkUserApprovalAndRole = async (userId: string) => {
     try {
-      // Check profile approval status and subscription
-      const { data: profile } = await supabase
+      // Check profile approval status  
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('is_approved, subscription_expired_at')
+        .select('is_approved')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
       
-      setIsApproved(profile?.is_approved ?? false);
-      
-      // Check subscription status
-      const expiredAt = profile?.subscription_expired_at;
-      setSubscriptionExpiredAt(expiredAt || null);
-      
-      if (expiredAt) {
-        const now = new Date();
-        const expired = new Date(expiredAt);
-        setIsSubscriptionExpired(expired < now);
-      } else {
-        setIsSubscriptionExpired(false);
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        setIsApproved(false);
+        setIsAdmin(false);
+        setIsAdminCheckComplete(true);
+        return;
       }
+      
+      setIsApproved(profile?.is_approved ?? true);
+      
+      // Subscription check - temporarily disabled until schema is updated
+      setIsSubscriptionExpired(false);
+      setSubscriptionExpiredAt(null);
 
       // Check if user is admin
-      const { data: roles } = await supabase
+      const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .eq('role', 'admin')
         .maybeSingle();
       
-      setIsAdmin(!!roles);
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!roles);
+      }
     } catch (error) {
       console.error('Error checking user status:', error);
-      setIsApproved(false);
+      setIsApproved(true);
       setIsAdmin(false);
       setIsSubscriptionExpired(false);
       setSubscriptionExpiredAt(null);

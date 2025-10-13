@@ -68,14 +68,14 @@ export const SubscriptionManagement = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, email, username, is_approved, subscription_expired_at, created_at')
+        .select('user_id, email, username, is_approved, created_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Gagal memuat data user');
+      toast.error('Gagal memuat data user. Pastikan schema database sudah di-update.');
     } finally {
       setLoading(false);
     }
@@ -86,22 +86,13 @@ export const SubscriptionManagement = () => {
 
     setExtending(true);
     try {
-      const { data, error } = await supabase.rpc('extend_subscription', {
-        p_user_id: selectedUser.user_id,
-        p_duration_months: parseInt(duration)
-      });
-
-      if (error) throw error;
-
-      toast.success(`Subscription berhasil diperpanjang ${duration} bulan`);
-      setShowExtendDialog(false);
-      setSelectedUser(null);
-      fetchUsers();
+      toast.error('Fitur subscription belum aktif. Jalankan script SQL database-reset-complete.sql terlebih dahulu.');
     } catch (error) {
       console.error('Error extending subscription:', error);
       toast.error('Gagal memperpanjang subscription');
     } finally {
       setExtending(false);
+      setShowExtendDialog(false);
     }
   };
 
