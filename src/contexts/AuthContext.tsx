@@ -71,7 +71,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkUserApprovalAndRole = async (userId: string) => {
     try {
-      // Check profile approval status  
+      // Check if user is admin first
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      const isUserAdmin = !!roles && !rolesError;
+      setIsAdmin(isUserAdmin);
+      
+      // Check profile approval status
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_approved')
@@ -80,40 +91,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        setIsApproved(false);
-        setIsAdmin(false);
-        setIsAdminCheckComplete(true);
-        return;
+        // If admin, bypass approval check
+        setIsApproved(isUserAdmin ? true : false);
+      } else {
+        // Admin always approved, regular users check is_approved
+        setIsApproved(isUserAdmin ? true : (profile?.is_approved ?? false));
       }
       
-      setIsApproved(profile?.is_approved ?? true);
-      
-      // Subscription check - temporarily disabled until schema is updated
+      // Subscription check - disabled
       setIsSubscriptionExpired(false);
       setSubscriptionExpiredAt(null);
-
-      // Check if user is admin
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
       
-      if (rolesError) {
-        console.error('Error fetching roles:', rolesError);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(!!roles);
-      }
     } catch (error) {
       console.error('Error checking user status:', error);
-      setIsApproved(true);
+      setIsApproved(false);
       setIsAdmin(false);
       setIsSubscriptionExpired(false);
       setSubscriptionExpiredAt(null);
     } finally {
-      // Mark admin check as complete
       setIsAdminCheckComplete(true);
     }
   };
