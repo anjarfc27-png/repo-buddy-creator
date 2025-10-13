@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Clock, MessageCircle, Instagram, Mail, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import kasirqLogo from '@/assets/kasirq-logo.png';
 
 export const WaitingApproval = () => {
   const { user, isApproved, loading, signOut } = useAuth();
@@ -105,6 +106,10 @@ export const WaitingApproval = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex flex-col items-center mb-6">
+            <img src={kasirqLogo} alt="KasirQ Logo" className="w-20 h-20 mb-3" />
+            <h1 className="text-3xl font-bold text-primary">KasirQ</h1>
+          </div>
           <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
             <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>

@@ -86,7 +86,7 @@ export const SubscriptionManagement = () => {
 
     setExtending(true);
     try {
-      toast.error('Fitur subscription belum aktif. Jalankan script SQL database-reset-complete.sql terlebih dahulu.');
+      toast.info('Fitur subscription memerlukan kolom subscription_expired_at di database. Silakan tambahkan kolom tersebut terlebih dahulu.');
     } catch (error) {
       console.error('Error extending subscription:', error);
       toast.error('Gagal memperpanjang subscription');
