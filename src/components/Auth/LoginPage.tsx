@@ -189,8 +189,8 @@ export const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex flex-col items-center mb-4">
-            <img src={kasirqLogo} alt="KasirQ Logo" className="w-20 h-20 mb-3" />
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src={kasirqLogo} alt="KasirQ Logo" className="w-16 h-16" />
             <h1 className="text-3xl font-bold text-primary">KasirQ</h1>
           </div>
           <CardTitle className="text-2xl font-bold">Kasir Multi Toko</CardTitle>
