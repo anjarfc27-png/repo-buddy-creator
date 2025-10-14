@@ -23,6 +23,7 @@ interface UserProfile {
   user_id: string;
   email: string;
   username: string;
+  whatsapp_number?: string;
   is_approved: boolean;
   created_at: string;
   approved_at?: string;
@@ -102,7 +103,7 @@ export const UserManagement = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, email, username, is_approved, created_at, approved_at')
+        .select('user_id, email, username, whatsapp_number, is_approved, created_at, approved_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -335,16 +336,29 @@ export const UserManagement = () => {
               {pendingUsers.map((user) => (
                 <div
                   key={user.user_id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border rounded-lg"
+                  className="flex flex-col gap-3 p-4 border rounded-lg"
                 >
                   <div className="flex-1">
                     <p className="font-semibold">{user.username}</p>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <p className="text-xs text-muted-foreground">
+                    {user.whatsapp_number && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                        <a
+                          href={`https://wa.me/${user.whatsapp_number}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {user.whatsapp_number}
+                        </a>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
                       Daftar: {new Date(user.created_at).toLocaleString('id-ID')}
                     </p>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
                     <Button
                       size="sm"
                       variant="default"
@@ -384,12 +398,25 @@ export const UserManagement = () => {
               {approvedUsers.map((user) => (
                 <div
                   key={user.user_id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border rounded-lg"
+                  className="flex flex-col gap-3 p-4 border rounded-lg"
                 >
                   <div className="flex-1">
                     <p className="font-semibold">{user.username}</p>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <p className="text-xs text-muted-foreground">
+                    {user.whatsapp_number && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <MessageCircle className="h-4 w-4 text-muted-foreground" />
+                        <a
+                          href={`https://wa.me/${user.whatsapp_number}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {user.whatsapp_number}
+                        </a>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
                       Disetujui: {user.approved_at ? new Date(user.approved_at).toLocaleString('id-ID') : '-'}
                     </p>
                   </div>

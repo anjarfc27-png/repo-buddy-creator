@@ -108,8 +108,23 @@ export const SubscriptionManagement = () => {
 
       if (error) throw error;
 
-      toast.success(`Subscription berhasil diperpanjang ${months} bulan`);
-      fetchUsers(); // Refresh data
+      // Show success toast with details
+      const expiredDateFormatted = newExpiredDate.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+      
+      toast.success(
+        `Subscription berhasil diperpanjang ${months} bulan`,
+        {
+          description: `Expired pada: ${expiredDateFormatted}`,
+          duration: 5000
+        }
+      );
+      
+      // Refresh data to show updated info
+      await fetchUsers();
     } catch (error) {
       console.error('Error extending subscription:', error);
       toast.error('Gagal memperpanjang subscription');

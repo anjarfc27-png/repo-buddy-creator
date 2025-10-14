@@ -31,6 +31,7 @@ export const LoginPage = () => {
   const [signUpData, setSignUpData] = useState({
     email: '',
     username: '',
+    whatsappNumber: '',
     password: '',
     confirmPassword: ''
   });
@@ -123,10 +124,15 @@ export const LoginPage = () => {
       return;
     }
 
+    if (!signUpData.whatsappNumber.trim()) {
+      setErrors('Nomor WhatsApp wajib diisi');
+      return;
+    }
+
     // Show loading state
     sonnerToast.loading('Mendaftar...', { id: 'signup-loading' });
 
-    const { error } = await signUp(signUpData.email, signUpData.username, signUpData.password);
+    const { error } = await signUp(signUpData.email, signUpData.username, signUpData.password, signUpData.whatsappNumber);
     
     // Dismiss loading
     sonnerToast.dismiss('signup-loading');
@@ -156,6 +162,7 @@ export const LoginPage = () => {
       setSignUpData({
         email: '',
         username: '',
+        whatsappNumber: '',
         password: '',
         confirmPassword: ''
       });
@@ -262,6 +269,20 @@ export const LoginPage = () => {
                     onChange={(e) => setSignUpData(prev => ({ ...prev, username: e.target.value }))}
                     required
                   />
+                </div>
+                <div>
+                  <Label htmlFor="whatsapp-number">Nomor WhatsApp (format: 6281234567890)</Label>
+                  <Input
+                    id="whatsapp-number"
+                    type="tel"
+                    placeholder="628xxxxxxxxxx"
+                    value={signUpData.whatsappNumber}
+                    onChange={(e) => setSignUpData(prev => ({ ...prev, whatsappNumber: e.target.value }))}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Format: 62 diikuti nomor HP (tanpa 0 di depan)
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="signup-password">Password</Label>
