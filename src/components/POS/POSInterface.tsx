@@ -2,10 +2,7 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PhotocopyDialog } from './PhotocopyDialog';
 import { PhotocopyService } from './PhotocopyService';
-<<<<<<< HEAD
-=======
 import { WiFiPrinterManager } from './WiFiPrinterManager';
->>>>>>> sumber/main
 import { AdminProtection } from '@/components/Auth/AdminProtection';
 import { 
   LazyProductGrid,
@@ -13,16 +10,10 @@ import {
   LazyReceipt,
   LazyAddProductForm,
   LazySalesReport,
-<<<<<<< HEAD
-  LazyStockManagement,
-  LazyReceiptHistory,
-  LazyQuickInvoice,
-=======
   LazyManualReceiptReport,
   LazyStockManagement,
   LazyReceiptHistory,
   LazyManualInvoice,
->>>>>>> sumber/main
   LazyShoppingList,
   LazyBluetoothManager,
   ComponentLoader
@@ -46,26 +37,11 @@ import {
   BarChart3,
   LogOut,
   Settings,
-<<<<<<< HEAD
-  RefreshCw,
-  AlertTriangle,
-  Scan
-} from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useStore } from '@/contexts/StoreContext';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
-import { Capacitor } from '@capacitor/core';
-import { toast } from 'sonner';
-
-export const POSInterface = () => {
-  const navigate = useNavigate();
-=======
   RefreshCw
 } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 
 export const POSInterface = () => {
->>>>>>> sumber/main
   const {
     products,
     cart,
@@ -83,37 +59,15 @@ export const POSInterface = () => {
   } = usePOSContext();
 
   const { signOut } = useAuth();
-<<<<<<< HEAD
-  const { currentStore } = useStore();
-  const [lastReceipt, setLastReceipt] = useState<ReceiptType | null>(null);
-  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptType | null>(null);
-=======
   const location = useLocation();
   const [lastReceipt, setLastReceipt] = useState<ReceiptType | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptType | null>(location.state?.viewReceipt || null);
->>>>>>> sumber/main
   const [searchTerm, setSearchTerm] = useState('');
   const [photocopyProduct, setPhotocopyProduct] = useState<Product | null>(null);
   const [showPhotocopyDialog, setShowPhotocopyDialog] = useState(false);
   const [currentTab, setCurrentTab] = useState('pos');
   const [showAdminProtection, setShowAdminProtection] = useState(false);
   const [pendingAdminAction, setPendingAdminAction] = useState<string | null>(null);
-<<<<<<< HEAD
-  const [isScanning, setIsScanning] = useState(false);
-
-  // Handle location state for viewing receipts from navigation
-  useEffect(() => {
-    try {
-      const state = (window.history.state && window.history.state.usr) as any;
-      if (state?.viewReceipt) {
-        setSelectedReceipt(state.viewReceipt);
-      }
-    } catch (error) {
-      console.log('No receipt from navigation state');
-    }
-  }, []);
-=======
->>>>>>> sumber/main
 
   // Global Enter key support for thermal printing
   useEffect(() => {
@@ -164,12 +118,6 @@ export const POSInterface = () => {
         setCurrentTab('stock-management');
         break;
       case 'stock':
-<<<<<<< HEAD
-        setCurrentTab('stock');
-        break;
-      case 'low-stock':
-=======
->>>>>>> sumber/main
         setCurrentTab('low-stock');
         break;
     }
@@ -185,10 +133,6 @@ export const POSInterface = () => {
       setCurrentTab(pendingAdminAction);
       setPendingAdminAction(null);
     }
-<<<<<<< HEAD
-    setShowAdminProtection(false);
-=======
->>>>>>> sumber/main
   };
 
   const handleLogout = async () => {
@@ -239,11 +183,7 @@ export const POSInterface = () => {
       
       // Try thermal printing first
       if (thermalPrinter.isConnected()) {
-<<<<<<< HEAD
-        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
-=======
         const receiptText = formatThermalReceipt(receipt, formatPrice);
->>>>>>> sumber/main
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -255,11 +195,7 @@ export const POSInterface = () => {
       // Fallback to thermal printer connection attempt
       const connected = await thermalPrinter.connect();
       if (connected) {
-<<<<<<< HEAD
-        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
-=======
         const receiptText = formatThermalReceipt(receipt, formatPrice);
->>>>>>> sumber/main
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -281,20 +217,6 @@ export const POSInterface = () => {
   };
 
   const handleBrowserPrint = (receipt: ReceiptType) => {
-<<<<<<< HEAD
-    const storeName = currentStore?.name || 'TOKO';
-    const storeAddress = currentStore?.address || '';
-    const storePhone = currentStore?.phone || '';
-    
-    const printContent = `
-===============================
-   ${storeName.toUpperCase()}
-===============================
-${storeAddress ? storeAddress + '\n' : ''}${storePhone ? 'Telp: ' + storePhone + '\n' : ''}
-Invoice: ${receipt.id}
-Tanggal: ${new Date(receipt.timestamp).toLocaleDateString('id-ID')}
-Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-=======
     const printContent = `
 ===============================
    TOKO ANJAR
@@ -302,7 +224,6 @@ Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digi
 Invoice: ${receipt.id}
 Tanggal: ${new Date(receipt.timestamp).toLocaleDateString('id-ID')}
 Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID')}
->>>>>>> sumber/main
 -------------------------------
 
 ${receipt.items.map(item => `
@@ -364,33 +285,17 @@ Profit: ${formatPrice(receipt.profit)}
     const searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
     const productName = product.name.toLowerCase();
     const productCategory = product.category?.toLowerCase() || '';
-<<<<<<< HEAD
-    const productCode = product.code?.toLowerCase() || '';
-    const productBarcode = product.barcode?.toLowerCase() || '';
-    
-    // Check if all search words are found in product name, code, barcode, or category
-    return searchWords.every(word => 
-      productName.includes(word) || 
-      productCategory.includes(word) ||
-      productCode.includes(word) ||
-      productBarcode.includes(word)
-=======
     
     // Check if all search words are found in product name or category
     return searchWords.every(word => 
       productName.includes(word) || productCategory.includes(word)
->>>>>>> sumber/main
     );
   });
 
   // Memoized calculations for dashboard statistics to improve performance and ensure reactivity
   const dashboardStats = useMemo(() => {
     const totalProducts = products.length;
-<<<<<<< HEAD
-    const lowStockProductsArray = products.filter(product => product.stock <= 24 && !product.isPhotocopy);
-=======
     const lowStockProducts = products.filter(product => product.stock <= 24 && !product.isPhotocopy).length;
->>>>>>> sumber/main
     
     const today = new Date();
     const todayString = today.toDateString();
@@ -423,11 +328,7 @@ Profit: ${formatPrice(receipt.profit)}
     
     return {
       totalProducts,
-<<<<<<< HEAD
-      lowStockProductsArray,
-=======
       lowStockProducts,
->>>>>>> sumber/main
       todayRevenue,
       todayProfit,
       todayManualRevenue,
@@ -435,12 +336,7 @@ Profit: ${formatPrice(receipt.profit)}
     };
   }, [products, receipts]);
 
-<<<<<<< HEAD
-  const { totalProducts, lowStockProductsArray, todayRevenue, todayProfit, todayManualRevenue, todayPhotocopyEarnings } = dashboardStats;
-  const lowStockCount = lowStockProductsArray.length;
-=======
   const { totalProducts, lowStockProducts, todayRevenue, todayProfit, todayManualRevenue, todayPhotocopyEarnings } = dashboardStats;
->>>>>>> sumber/main
 
   // Welcome message based on time
   const getWelcomeMessage = () => {
@@ -457,124 +353,6 @@ Profit: ${formatPrice(receipt.profit)}
     return true;
   };
 
-<<<<<<< HEAD
-  const handleBarcodeScanner = async () => {
-    if (!Capacitor.isNativePlatform()) {
-      toast.error('Scan barcode hanya tersedia di aplikasi mobile');
-      return;
-    }
-
-    try {
-      setIsScanning(true);
-      
-      // Check permission
-      const status = await BarcodeScanner.checkPermission({ force: true });
-      
-      if (!status.granted) {
-        toast.error('Izin kamera tidak diberikan');
-        setIsScanning(false);
-        return;
-      }
-
-      // Make background transparent and show scanner UI
-      document.body.classList.add('scanner-active');
-      
-      // Add scanner overlay with focus guide
-      const scannerOverlay = document.createElement('div');
-      scannerOverlay.id = 'scanner-overlay';
-      scannerOverlay.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: transparent;">
-          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; border: 2px solid red; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);">
-            <div style="position: absolute; top: -2px; left: -2px; width: 30px; height: 30px; border-top: 4px solid red; border-left: 4px solid red;"></div>
-            <div style="position: absolute; top: -2px; right: -2px; width: 30px; height: 30px; border-top: 4px solid red; border-right: 4px solid red;"></div>
-            <div style="position: absolute; bottom: -2px; left: -2px; width: 30px; height: 30px; border-bottom: 4px solid red; border-left: 4px solid red;"></div>
-            <div style="position: absolute; bottom: -2px; right: -2px; width: 30px; height: 30px; border-bottom: 4px solid red; border-right: 4px solid red;"></div>
-          </div>
-          <button id="scanner-back" style="position: absolute; top: 20px; left: 20px; padding: 12px 24px; background: white; color: black; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 10000;">Kembali</button>
-          <button id="scanner-flash" style="position: absolute; top: 20px; right: 20px; padding: 12px 24px; background: white; color: black; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; z-index: 10000;">Flash</button>
-          <p style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); color: white; font-size: 18px; text-align: center; z-index: 10000; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Arahkan kamera ke barcode</p>
-        </div>
-      `;
-      document.body.appendChild(scannerOverlay);
-      
-      // Handle back button
-      let scanCancelled = false;
-      document.getElementById('scanner-back')?.addEventListener('click', async () => {
-        scanCancelled = true;
-        await BarcodeScanner.stopScan();
-        document.body.classList.remove('scanner-active');
-        document.getElementById('scanner-overlay')?.remove();
-        setIsScanning(false);
-      });
-      
-      // Handle flash toggle (note: flash control may not be available in all Capacitor versions)
-      let flashOn = false;
-      document.getElementById('scanner-flash')?.addEventListener('click', () => {
-        flashOn = !flashOn;
-        // Flash toggle would require native implementation
-        toast.info(flashOn ? 'Flash ON' : 'Flash OFF');
-      });
-      
-      // Start scanning
-      const result = await BarcodeScanner.startScan();
-      
-      // Remove overlay and transparency
-      document.body.classList.remove('scanner-active');
-      document.getElementById('scanner-overlay')?.remove();
-      setIsScanning(false);
-
-      if (!scanCancelled && result.hasContent) {
-        // Search for product by barcode or code
-        const foundProduct = products.find(p => 
-          p.barcode?.toLowerCase() === result.content?.toLowerCase() ||
-          p.code?.toLowerCase() === result.content?.toLowerCase() ||
-          p.name.toLowerCase().includes(result.content?.toLowerCase() || '')
-        );
-
-        if (foundProduct) {
-          if (foundProduct.isPhotocopy && currentStore?.category === 'atk') {
-            handlePhotocopyClick(foundProduct);
-          } else {
-            addToCart(foundProduct, 1);
-          }
-          toast.success(`Produk "${foundProduct.name}" ditambahkan ke keranjang`);
-        } else {
-          toast.error(`Produk dengan kode "${result.content}" tidak ditemukan`);
-        }
-      }
-    } catch (error) {
-      console.error('Barcode scan error:', error);
-      document.body.classList.remove('scanner-active');
-      document.getElementById('scanner-overlay')?.remove();
-      setIsScanning(false);
-      toast.error('Terjadi kesalahan saat scanning');
-    }
-  };
-
-  return (
-    <div className="min-h-screen w-full bg-background">
-      {/* Header - Fixed with safe area */}
-      <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full pt-safe">
-        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
-          <div className="flex items-center justify-between">
-            <div 
-              onClick={() => navigate('/settings', { replace: true })} 
-              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer"
-            >
-              <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-              <div>
-                <div className="hidden sm:block">
-                  <h1 className="text-lg sm:text-2xl font-bold">
-                    Kasir POS Multi Toko
-                  </h1>
-                  {currentStore?.address && (
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {currentStore.address}
-                    </p>
-                  )}
-                  <p className="text-xs sm:text-sm text-primary font-medium">
-                    {getWelcomeMessage()}, {currentStore?.cashier_name || 'Admin Kasir'}
-=======
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Header */}
@@ -591,18 +369,11 @@ Profit: ${formatPrice(receipt.profit)}
                   </p>
                   <p className="text-xs sm:text-sm text-primary font-medium">
                     {getWelcomeMessage()}, Admin Kasir
->>>>>>> sumber/main
                   </p>
                 </div>
                 {/* Mobile compact header */}
                 <div className="sm:hidden">
-<<<<<<< HEAD
-                  <h1 className="text-sm font-bold">
-                    {currentStore?.name || 'Toko'}
-                  </h1>
-=======
                   <h1 className="text-sm font-bold">Toko Anjar</h1>
->>>>>>> sumber/main
                   <p className="text-xs text-primary">
                     {getWelcomeMessage()}
                   </p>
@@ -681,24 +452,13 @@ Profit: ${formatPrice(receipt.profit)}
         </div>
       </header>
 
-<<<<<<< HEAD
-        {/* Dashboard Stats with top padding for fixed header */}
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-4 mt-16 sm:mt-20">
-        <div className="grid grid-cols-1 gap-2 sm:gap-4 mb-4 sm:mb-6">
-          {/* Full width card on top */}
-=======
         {/* Dashboard Stats */}
       <div className="w-full px-2 sm:px-4 py-2 sm:py-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
->>>>>>> sumber/main
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('revenue')}>
             <CardContent className="flex items-center p-4">
               <DollarSign className="h-8 w-8 text-success mr-3" />
               <div>
-<<<<<<< HEAD
-                <p className="text-xs sm:text-sm text-muted-foreground">Penjualan Hari Ini</p>
-                <p className="text-lg sm:text-2xl font-bold">{formatPrice(todayRevenue)}</p>
-=======
                 <div className="text-2xl font-bold text-success">
                   {formatPrice(todayRevenue)}
                 </div>
@@ -727,35 +487,10 @@ Profit: ${formatPrice(receipt.profit)}
                   {formatPrice(todayManualRevenue)}
                 </div>
                 <div className="text-sm text-muted-foreground">Pendapatan Manual</div>
->>>>>>> sumber/main
               </div>
             </CardContent>
           </Card>
 
-<<<<<<< HEAD
-          {/* Two cards side by side */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-4">
-            <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('profit')}>
-              <CardContent className="flex items-center p-4">
-                <TrendingUp className="h-8 w-8 text-primary mr-3" />
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Keuntungan Hari Ini</p>
-                  <p className="text-lg sm:text-2xl font-bold">{formatPrice(todayProfit)}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('low-stock')}>
-              <CardContent className="flex items-center p-4">
-                <AlertTriangle className="h-8 w-8 text-warning mr-3" />
-              <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Stok Menipis</p>
-                  <p className="text-lg sm:text-2xl font-bold">{lowStockCount}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-=======
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('stock')}>
             <CardContent className="flex items-center p-4">
               <Users className="h-8 w-8 text-error mr-3" />
@@ -765,7 +500,6 @@ Profit: ${formatPrice(receipt.profit)}
               </div>
             </CardContent>
           </Card>
->>>>>>> sumber/main
         </div>
 
         <Tabs value={currentTab} onValueChange={(value) => {
@@ -775,31 +509,6 @@ Profit: ${formatPrice(receipt.profit)}
             setCurrentTab(value);
           }
         }} className="w-full">
-<<<<<<< HEAD
-          <TabsList className="grid grid-cols-4 sm:flex sm:flex-wrap w-full h-auto p-1 gap-1 sm:justify-start">
-            <TabsTrigger value="pos" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Kasir
-            </TabsTrigger>
-            <TabsTrigger value="quick-invoice" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Nota Cepat
-            </TabsTrigger>
-            <TabsTrigger value="shopping-list" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Daftar Belanja
-            </TabsTrigger>
-            <TabsTrigger value="stock" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Stok
-            </TabsTrigger>
-            <TabsTrigger value="low-stock" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Stok Menipis
-            </TabsTrigger>
-            <TabsTrigger value="receipt" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Nota
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-              Laporan
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
-=======
           <TabsList className="flex flex-wrap w-full h-auto p-1 gap-1 justify-start sm:grid sm:grid-cols-8 sm:gap-1">
             <TabsTrigger value="pos" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
               Kasir
@@ -826,7 +535,6 @@ Profit: ${formatPrice(receipt.profit)}
               Laporan Manual
             </TabsTrigger>
             <TabsTrigger value="admin" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
->>>>>>> sumber/main
               Admin
             </TabsTrigger>
           </TabsList>
@@ -845,11 +553,7 @@ Profit: ${formatPrice(receipt.profit)}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6">
-<<<<<<< HEAD
-                    <div className="mb-3 sm:mb-4 space-y-2">
-=======
                     <div className="mb-3 sm:mb-4">
->>>>>>> sumber/main
                       <div className="relative">
                         <Search className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -866,16 +570,6 @@ Profit: ${formatPrice(receipt.profit)}
                               <div
                                 key={product.id}
                                 className="p-2 hover:bg-muted cursor-pointer border-b last:border-b-0"
-<<<<<<< HEAD
-                                 onClick={() => {
-                                   if (product.isPhotocopy && currentStore?.category === 'atk') {
-                                     handlePhotocopyClick(product);
-                                   } else {
-                                     addToCart(product, 1);
-                                   }
-                                   setSearchTerm('');
-                                 }}
-=======
                                 onClick={() => {
                                   if (product.isPhotocopy) {
                                     handlePhotocopyClick(product);
@@ -884,7 +578,6 @@ Profit: ${formatPrice(receipt.profit)}
                                   }
                                   setSearchTerm('');
                                 }}
->>>>>>> sumber/main
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1">
@@ -927,29 +620,6 @@ Profit: ${formatPrice(receipt.profit)}
                           </div>
                         )}
                       </div>
-<<<<<<< HEAD
-                      
-                      {/* Barcode Scanner Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleBarcodeScanner}
-                        disabled={isScanning}
-                        className="w-full h-8 sm:h-10"
-                      >
-                        <Scan className="h-4 w-4 mr-2" />
-                        {isScanning ? 'Scanning...' : 'Scan Barcode'}
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {/* Layanan Fotocopy - only for ATK stores */}
-                      {currentStore?.category === 'atk' && (
-                        <PhotocopyService 
-                          onAddToCart={addToCart}
-                          formatPrice={formatPrice}
-                        />
-                      )}
-=======
                     </div>
                     <div className="space-y-4">
                       {/* Layanan Fotocopy */}
@@ -957,17 +627,12 @@ Profit: ${formatPrice(receipt.profit)}
                         onAddToCart={addToCart}
                         formatPrice={formatPrice}
                       />
->>>>>>> sumber/main
                       
                       <Suspense fallback={<ComponentLoader />}>
                         <LazyProductGrid 
                           products={filteredProducts}
                           onAddToCart={addToCart}
-<<<<<<< HEAD
-                          onPhotocopyClick={currentStore?.category === 'atk' ? handlePhotocopyClick : undefined}
-=======
                           onPhotocopyClick={handlePhotocopyClick}
->>>>>>> sumber/main
                         />
                       </Suspense>
                     </div>
@@ -996,23 +661,6 @@ Profit: ${formatPrice(receipt.profit)}
           </TabsContent>
 
           <TabsContent value="stock" className="space-y-4">
-<<<<<<< HEAD
-            <Suspense fallback={<ComponentLoader />}>
-              <LazyStockManagement 
-                products={products}
-                onUpdateProduct={updateProduct}
-                onDeleteProduct={deleteProduct}
-                formatPrice={formatPrice}
-                showLowStockOnly={false}
-                readOnly={true}
-              />
-            </Suspense>
-          </TabsContent>
-
-          <TabsContent value="quick-invoice" className="space-y-4">
-            <Suspense fallback={<ComponentLoader />}>
-              <LazyQuickInvoice 
-=======
             <Tabs defaultValue="products" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="products">Stok Produk</TabsTrigger>
@@ -1050,22 +698,11 @@ Profit: ${formatPrice(receipt.profit)}
           <TabsContent value="manual-invoice" className="space-y-4">
             <Suspense fallback={<ComponentLoader />}>
               <LazyManualInvoice 
->>>>>>> sumber/main
                 onCreateInvoice={handleManualInvoice}
                 formatPrice={formatPrice}
                 receipts={receipts}
                 onPrintReceipt={handlePrintThermal}
                 products={products}
-<<<<<<< HEAD
-                cart={cart}
-                updateCartQuantity={updateCartQuantity}
-                removeFromCart={removeFromCart}
-                clearCart={clearCart}
-                processTransaction={handleProcessTransaction}
-                addToCart={addToCart}
-                onViewReceipt={handleViewReceipt}
-=======
->>>>>>> sumber/main
               />
             </Suspense>
           </TabsContent>
@@ -1076,41 +713,6 @@ Profit: ${formatPrice(receipt.profit)}
             </Suspense>
           </TabsContent>
 
-<<<<<<< HEAD
-          {/* Low Stock Tab */}
-          <TabsContent value="low-stock" className="mt-0 space-y-4">
-            <Card className="pos-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-warning" />
-                  Stok Menipis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {lowStockProductsArray.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-success" />
-                    <p>Tidak ada stok yang menipis</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {lowStockProductsArray.map((product) => (
-                      <div
-                        key={product.id}
-                        className="flex items-center justify-between p-3 border rounded-md bg-card hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{product.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Stok: {product.stock} {product.category ? `• ${product.category}` : ''}
-                          </p>
-                        </div>
-                        <Badge variant="destructive">{product.stock} tersisa</Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
-=======
           <TabsContent value="wifi-print" className="space-y-4">
             <Card>
               <CardHeader>
@@ -1118,32 +720,16 @@ Profit: ${formatPrice(receipt.profit)}
               </CardHeader>
               <CardContent>
                 <WiFiPrinterManager onPrint={handleWiFiDirectPrint} />
->>>>>>> sumber/main
               </CardContent>
             </Card>
           </TabsContent>
 
-<<<<<<< HEAD
-          <TabsContent value="admin" className="space-y-2 sm:space-y-4">
-            <Tabs defaultValue="add-product" className="w-full">
-              <TabsList className="flex flex-wrap w-full h-auto gap-1 p-1 sm:grid sm:grid-cols-3">
-                <TabsTrigger value="add-product" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
-                  Tambah Produk
-                </TabsTrigger>
-                <TabsTrigger value="stock-management" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
-                  Kelola Stok
-                </TabsTrigger>
-                <TabsTrigger value="advanced-reports" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
-                  Laporan
-                </TabsTrigger>
-=======
           <TabsContent value="admin" className="space-y-4">
             <Tabs defaultValue="add-product" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="add-product">Tambah Produk</TabsTrigger>
                 <TabsTrigger value="stock-management">Kelola Stok</TabsTrigger>
                 <TabsTrigger value="advanced-reports">Laporan Lanjutan</TabsTrigger>
->>>>>>> sumber/main
               </TabsList>
               
               <TabsContent value="add-product" className="space-y-4">
@@ -1201,17 +787,11 @@ Profit: ${formatPrice(receipt.profit)}
           <TabsContent value="reports" className="space-y-4">
             <Suspense fallback={<ComponentLoader />}>
               <LazySalesReport 
-<<<<<<< HEAD
-                receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-') && !receipt.id.startsWith('QCK-'))} 
-=======
                 receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-'))} 
->>>>>>> sumber/main
                 formatPrice={formatPrice}
               />
             </Suspense>
           </TabsContent>
-<<<<<<< HEAD
-=======
 
           <TabsContent value="manual-reports" className="space-y-2 sm:space-y-4 mt-2 sm:mt-4">
             <Suspense fallback={<ComponentLoader />}>
@@ -1223,7 +803,6 @@ Profit: ${formatPrice(receipt.profit)}
               />
             </Suspense>
           </TabsContent>
->>>>>>> sumber/main
         </Tabs>
 
         {/* Admin Protection Dialog */}
@@ -1235,13 +814,8 @@ Profit: ${formatPrice(receipt.profit)}
           description="Masukkan kata sandi admin untuk mengakses menu admin"
         />
 
-<<<<<<< HEAD
-        {/* Photocopy Dialog - only for ATK stores */}
-        {currentStore?.category === 'atk' && photocopyProduct && (
-=======
         {/* Photocopy Dialog */}
         {photocopyProduct && (
->>>>>>> sumber/main
           <PhotocopyDialog
             isOpen={showPhotocopyDialog}
             onClose={() => {

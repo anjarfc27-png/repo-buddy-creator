@@ -26,39 +26,17 @@ export const QuickProductSearch = ({ products, onAddToCart, formatPrice }: Quick
       const searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
       const productName = product.name.toLowerCase();
       const productCategory = product.category?.toLowerCase() || '';
-<<<<<<< HEAD
-      const productCode = product.code?.toLowerCase() || '';
-      const productBarcode = product.barcode?.toLowerCase() || '';
-      
-      // Check if all search words are found in product name, code, barcode, or category
-      return searchWords.every(word => 
-        productName.includes(word) || 
-        productCategory.includes(word) ||
-        productCode.includes(word) ||
-        productBarcode.includes(word)
-=======
       
       // Check if all search words are found in product name or category
       return searchWords.every(word => 
         productName.includes(word) || productCategory.includes(word)
->>>>>>> sumber/main
       );
     })
     .slice(0, 5); // Limit to 5 results
 
   useEffect(() => {
-<<<<<<< HEAD
-    if (isOpen) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 100);
-=======
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
->>>>>>> sumber/main
     }
   }, [isOpen]);
 
@@ -89,14 +67,6 @@ export const QuickProductSearch = ({ products, onAddToCart, formatPrice }: Quick
   };
 
   const handleSelectProduct = (product: Product) => {
-<<<<<<< HEAD
-    // Prevent adding if stock is 0 and not a photocopy service
-    if (product.stock <= 0 && !product.isPhotocopy) {
-      return;
-    }
-    
-=======
->>>>>>> sumber/main
     onAddToCart(product, 1);
     setSearchTerm('');
     setSelectedIndex(0);

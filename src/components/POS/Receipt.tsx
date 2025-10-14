@@ -1,47 +1,13 @@
-<<<<<<< HEAD
-import React, { useEffect, useCallback, useState } from 'react';
-=======
 import React, { useEffect, useCallback } from 'react';
->>>>>>> sumber/main
 import { Receipt as ReceiptType } from '@/types/pos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-<<<<<<< HEAD
-import { ArrowLeft, Printer } from 'lucide-react';
-import { thermalPrinter } from '@/lib/thermal-printer';
-import { formatThermalReceipt, formatPrintReceipt } from '@/lib/receipt-formatter';
-import { toast } from 'sonner';
-import { useStore } from '@/contexts/StoreContext';
-import { useQrisImage } from '@/hooks/useQrisImage';
-import QRCode from 'qrcode';
-
-const QrisBlock = () => {
-  const { currentStore } = useStore();
-  const { qrisUrl } = useQrisImage();
-  if (!qrisUrl) return null;
-  return (
-    <div className="mt-4 pt-3 border-t">
-      <div className="text-xs font-medium text-center mb-2 text-muted-foreground">
-        QRIS Pembayaran
-      </div>
-      <div className="flex justify-center">
-        <img 
-          src={qrisUrl}
-          alt="QRIS"
-          className="w-48 h-48 object-contain border-2 border-border rounded bg-white"
-        />
-      </div>
-    </div>
-  );
-};
-=======
 import { ArrowLeft, Printer, Copy } from 'lucide-react';
 import { thermalPrinter } from '@/lib/thermal-printer';
 import { formatThermalReceipt, formatPrintReceipt } from '@/lib/receipt-formatter';
 import { toast } from 'sonner';
->>>>>>> sumber/main
 
 interface ReceiptProps {
   receipt: ReceiptType;
@@ -50,21 +16,12 @@ interface ReceiptProps {
 }
 
 export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
-<<<<<<< HEAD
-  const { currentStore } = useStore();
-  const [bankQrCode, setBankQrCode] = useState<string>('');
-=======
->>>>>>> sumber/main
   
   const handleThermalPrint = useCallback(async () => {
     try {
       // Try thermal printing first
       if (thermalPrinter.isConnected()) {
-<<<<<<< HEAD
-        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
-=======
         const receiptText = formatThermalReceipt(receipt, formatPrice);
->>>>>>> sumber/main
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -76,11 +33,7 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
       // Fallback to thermal printer connection attempt
       const connected = await thermalPrinter.connect();
       if (connected) {
-<<<<<<< HEAD
-        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
-=======
         const receiptText = formatThermalReceipt(receipt, formatPrice);
->>>>>>> sumber/main
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -98,52 +51,16 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
       toast.error('Thermal printer gagal, menggunakan printer browser...');
       handlePrint();
     }
-<<<<<<< HEAD
-  }, [receipt, formatPrice, currentStore]);
-
-  const handlePrint = useCallback(() => {
-    const printContent = formatPrintReceipt(receipt, formatPrice, currentStore);
-=======
   }, [receipt, formatPrice]);
 
   const handlePrint = useCallback(() => {
     const printContent = formatPrintReceipt(receipt, formatPrice);
->>>>>>> sumber/main
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(printContent);
       printWindow.document.close();
       printWindow.print();
     }
-<<<<<<< HEAD
-  }, [receipt, formatPrice, currentStore]);
-
-
-  // Generate QR Code for bank transfer
-  useEffect(() => {
-    const generateBankQR = async () => {
-      const paymentMethod = receipt.paymentMethod?.toLowerCase() || 'cash';
-      
-      if (paymentMethod === 'transfer' && currentStore?.bank_account_number && currentStore?.bank_name) {
-        const bankInfo = `Bank: ${currentStore.bank_name}\nNo. Rekening: ${currentStore.bank_account_number}\nAtas Nama: ${currentStore.bank_account_holder || '-'}`;
-        try {
-          const url = await QRCode.toDataURL(bankInfo, {
-            width: 200,
-            margin: 1,
-            color: { dark: '#000000', light: '#FFFFFF' }
-          });
-          setBankQrCode(url);
-        } catch (err) {
-          console.error('Error generating bank QR code:', err);
-        }
-      } else {
-        setBankQrCode('');
-      }
-    };
-
-    generateBankQR();
-  }, [receipt.paymentMethod, currentStore]);
-=======
   }, [receipt, formatPrice]);
 
   const handleCopyReceipt = useCallback(() => {
@@ -151,7 +68,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
     navigator.clipboard.writeText(receiptText);
     toast.success('Struk berhasil disalin ke clipboard!');
   }, [receipt, formatPrice]);
->>>>>>> sumber/main
 
   // Add Enter key support for thermal printing
   useEffect(() => {
@@ -178,12 +94,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
           )}
           <h2 className="text-xl font-semibold">Detail Struk</h2>
         </div>
-<<<<<<< HEAD
-        <Button onClick={handleThermalPrint} size="sm">
-          <Printer className="h-4 w-4 mr-1" />
-          Print Thermal
-        </Button>
-=======
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleCopyReceipt}>
             <Copy className="h-4 w-4 mr-1" />
@@ -194,7 +104,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             Print Thermal
           </Button>
         </div>
->>>>>>> sumber/main
       </div>
 
       {/* Konten struk */}
@@ -204,18 +113,7 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             <div>
               <CardTitle>Struk {receipt.id}</CardTitle>
               <p className="text-sm text-muted-foreground">
-<<<<<<< HEAD
-                {new Intl.DateTimeFormat('id-ID', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                }).format(receipt.timestamp)}
-=======
                 {receipt.timestamp.toLocaleString('id-ID')}
->>>>>>> sumber/main
               </p>
             </div>
             <Badge variant={receipt.paymentMethod === 'tunai' ? 'default' : 'secondary'}>
@@ -226,24 +124,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
         <CardContent>
           {/* Toko Info */}
           <div className="text-center mb-4 pb-3 border-b">
-<<<<<<< HEAD
-            <h3 className="font-bold text-lg">{currentStore?.name || 'Toko'}</h3>
-            {currentStore?.address && (
-              <p className="text-sm text-muted-foreground">
-                {currentStore.address}
-              </p>
-            )}
-            {currentStore?.phone && (
-              <p className="text-sm text-muted-foreground">
-                HP: {currentStore.phone}
-              </p>
-            )}
-            {(currentStore?.opening_hours || currentStore?.closing_hours) && (
-              <p className="text-sm text-muted-foreground">
-                Buka: {currentStore?.opening_hours?.slice(0, 5) || '-'} - {currentStore?.closing_hours?.slice(0, 5) || '-'}
-              </p>
-            )}
-=======
             <h3 className="font-bold text-lg">Toko Anjar</h3>
             <p className="text-sm text-muted-foreground">
               Jalan Gajah - Dempet (Depan Koramil)
@@ -251,7 +131,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             <p className="text-sm text-muted-foreground">
               HP: 0895630183347
             </p>
->>>>>>> sumber/main
           </div>
 
           {/* Items */}
@@ -296,46 +175,6 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             </div>
           </div>
 
-<<<<<<< HEAD
-          {/* Payment QR Code */}
-          {bankQrCode && receipt.paymentMethod?.toLowerCase() === 'transfer' && (
-            <div className="mt-4 pt-3 border-t">
-              <div className="text-xs font-medium text-center mb-2 text-muted-foreground">
-                QR Code Informasi Rekening
-              </div>
-              <div className="flex justify-center">
-                <img 
-                  src={bankQrCode} 
-                  alt="QR Code Bank Transfer"
-                  className="w-40 h-40 border-2 border-border rounded"
-                />
-              </div>
-              <div className="text-xs text-center text-muted-foreground italic mt-2">
-                Scan untuk info rekening transfer
-              </div>
-            </div>
-          )}
-          
-          {receipt.paymentMethod?.toLowerCase() === 'qris' && currentStore?.qris_image_url && (
-            <div className="mt-4 pt-3 border-t">
-              <div className="text-xs font-medium text-center mb-2 text-muted-foreground">
-                QRIS Pembayaran
-              </div>
-              <div className="flex justify-center">
-                <img 
-                  src={currentStore.qris_image_url} 
-                  alt="QRIS"
-                  className="w-48 h-48 object-contain border-2 border-border rounded"
-                />
-              </div>
-              <div className="text-xs text-center text-muted-foreground italic mt-2">
-                Scan untuk melakukan pembayaran
-              </div>
-            </div>
-          )}
-
-=======
->>>>>>> sumber/main
           {/* Footer */}
           <div className="text-center mt-4 pt-3 border-t text-xs text-muted-foreground">
             <p>Terima kasih atas kunjungan Anda!</p>
@@ -352,10 +191,7 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             <ul className="space-y-1">
               <li>• Tekan <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Enter</kbd> untuk print thermal otomatis</li>
               <li>• Klik tombol "Print Thermal" untuk print manual</li>
-<<<<<<< HEAD
-=======
               <li>• Klik "Salin" untuk menyalin teks struk</li>
->>>>>>> sumber/main
             </ul>
           </div>
         </CardContent>

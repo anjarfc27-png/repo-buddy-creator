@@ -16,10 +16,6 @@ import { QuantitySelector } from './QuantitySelector';
 import { QuickProductSearch } from './QuickProductSearch';
 import { Product } from '@/types/pos';
 import { useBluetoothContext } from '@/contexts/BluetoothContext';
-<<<<<<< HEAD
-import { PaymentMethodSelector } from './PaymentMethodSelector';
-=======
->>>>>>> sumber/main
 
 interface ShoppingCartProps {
   cart: CartItem[];
@@ -115,34 +111,17 @@ export const ShoppingCart = ({
     setIsProcessing(true);
     
     try {
-<<<<<<< HEAD
-      // Check if already connected
-      if (!isConnected) {
-        toast.info('Menghubungkan ke printer...');
-        const connected = await connect();
-        if (!connected) {
-          toast.error('Gagal terhubung ke printer thermal. Pastikan printer menyala dan dalam jangkauan.');
-          setIsProcessing(false);
-=======
       // If not connected, try to connect first
       if (!isConnected) {
         const connected = await connect();
         if (!connected) {
           toast.error('Gagal terhubung ke printer thermal. Pastikan printer menyala dan dalam jangkauan.');
->>>>>>> sumber/main
           return;
         }
       }
 
-<<<<<<< HEAD
-      // Process transaction
       const receipt = await processTransaction(paymentMethod, discountAmount);
       if (receipt) {
-        // Print directly since we're already connected
-=======
-      const receipt = await processTransaction(paymentMethod, discountAmount);
-      if (receipt) {
->>>>>>> sumber/main
         try {
           const thermalContent = formatThermalReceipt(receipt, formatPrice);
           const success = await thermalPrinter.print(thermalContent);
@@ -153,11 +132,7 @@ export const ShoppingCart = ({
             setDiscount(0);
             setDiscountType('amount');
           } else {
-<<<<<<< HEAD
-            toast.error('Gagal mencetak nota. Printer mungkin terputus.');
-=======
             toast.error('Gagal mencetak nota. Pastikan printer terhubung.');
->>>>>>> sumber/main
           }
         } catch (error) {
           console.error('Print error:', error);
@@ -272,9 +247,6 @@ export const ShoppingCart = ({
                   {formatPrice(item.finalPrice || item.product.sellPrice)} × {item.quantity}
                 </div>
                 
-<<<<<<< HEAD
-                 
-=======
                 {/* Bulk Pricing Display */}
                 {item.quantity >= 12 && (
                   <div className="mb-2 p-2 bg-primary/5 rounded border">
@@ -331,42 +303,22 @@ export const ShoppingCart = ({
                   </div>
                 )}
                 
->>>>>>> sumber/main
                 <QuantitySelector
                   quantity={item.quantity}
                   productName={item.product.name}
                   category={item.product.category}
-<<<<<<< HEAD
-                  maxStock={item.product.isPhotocopy ? undefined : item.product.stock}
-=======
->>>>>>> sumber/main
                   onQuantityChange={(quantity) => {
                     if (quantity === 0) {
                       removeFromCart(item.product.id);
                     } else {
-<<<<<<< HEAD
-                      // Validate stock for non-photocopy items
-                      if (!item.product.isPhotocopy && quantity > item.product.stock) {
-                        toast.error('Stok Tidak Cukup', {
-                          description: `Stok ${item.product.name} hanya tersisa ${item.product.stock}`,
-                        });
-                        return;
-                      }
-=======
->>>>>>> sumber/main
                       updateCartQuantity(item.product.id, quantity, item.finalPrice);
                     }
                   }}
                   onRemove={() => removeFromCart(item.product.id)}
-<<<<<<< HEAD
-                  showUnitSelector={true}
-                  showUnitConversions={true}
-=======
                   allowBulkPricing={true}
                   currentPrice={item.quantity >= 12 ? (item.finalPrice || item.product.sellPrice) * 12 : item.finalPrice || item.product.sellPrice}
                   onPriceChange={(price) => handlePriceChange(item.product.id, price)}
                   showUnitSelector={true}
->>>>>>> sumber/main
                 />
               </div>
               
@@ -382,9 +334,6 @@ export const ShoppingCart = ({
         <Separator />
         
         <div className="space-y-3 sm:space-y-4">
-<<<<<<< HEAD
-          <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
-=======
           <div className="space-y-1 sm:space-y-2">
             <Label className="text-xs sm:text-sm font-medium">Metode Pembayaran</Label>
             <Select value={paymentMethod} onValueChange={setPaymentMethod}>
@@ -399,7 +348,6 @@ export const ShoppingCart = ({
               </SelectContent>
             </Select>
           </div>
->>>>>>> sumber/main
 
           <div className="space-y-1 sm:space-y-2">
             <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">

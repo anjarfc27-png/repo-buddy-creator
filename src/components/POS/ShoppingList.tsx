@@ -16,29 +16,16 @@ import {
   X,
   AlertTriangle,
   Download,
-<<<<<<< HEAD
-  Share2,
-  MessageCircle
-=======
   Share2
->>>>>>> sumber/main
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useShoppingList, ShoppingItem } from '@/hooks/useShoppingList';
 import { useAuth } from '@/contexts/AuthContext';
-<<<<<<< HEAD
-import { useStore } from '@/contexts/StoreContext';
-=======
->>>>>>> sumber/main
 import { generateShoppingListPDF, shareShoppingListPDF } from '@/lib/pdf-utils';
 import { QuantitySelector } from './QuantitySelector';
 
 export const ShoppingList = () => {
   const { user } = useAuth();
-<<<<<<< HEAD
-  const { currentStore } = useStore();
-=======
->>>>>>> sumber/main
   const { items, loading, addItem, updateItem, removeItem, toggleComplete, clearCompleted } = useShoppingList();
   const [newItem, setNewItem] = useState({
     name: '',
@@ -127,49 +114,6 @@ export const ShoppingList = () => {
     toast.success('PDF berhasil diunduh!');
   };
 
-<<<<<<< HEAD
-  const handleShareWhatsApp = () => {
-    // Format the shopping list for WhatsApp
-    let message = '📋 *DAFTAR BELANJA*\n\n';
-    
-    const pendingItems = items.filter(item => !item.is_completed);
-    
-    pendingItems.forEach((item, index) => {
-      message += `${index + 1}. *${item.name}*\n`;
-      if (item.quantity) {
-        message += `   Jumlah: ${item.quantity} ${item.unit || 'pcs'}\n`;
-      }
-      if (item.current_stock !== undefined) {
-        message += `   Stok saat ini: ${item.current_stock}\n`;
-      }
-      if (item.notes) {
-        message += `   Catatan: ${item.notes}\n`;
-      }
-      message += '\n';
-    });
-    
-    message += `Total: ${pendingItems.length} item\n`;
-    message += `\nDibuat: ${new Date().toLocaleDateString('id-ID')}`;
-    
-    // Get WhatsApp number from store settings
-    const whatsappNumber = (currentStore as any)?.whatsapp_number || '';
-    
-    // Encode message for URL
-    const encodedMessage = encodeURIComponent(message);
-    
-    // Create WhatsApp URL (with or without phone number)
-    const whatsappUrl = whatsappNumber
-      ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodedMessage}`
-      : `https://wa.me/?text=${encodedMessage}`;
-    
-    // Open WhatsApp in new window
-    window.open(whatsappUrl, '_blank');
-    
-    toast.success('Membuka WhatsApp...');
-  };
-
-=======
->>>>>>> sumber/main
   const handleSharePDF = async () => {
     await shareShoppingListPDF(items, user?.email);
   };
@@ -257,12 +201,7 @@ export const ShoppingList = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">
-<<<<<<< HEAD
-                  <span className="sm:hidden">{pendingItems.length}</span>
-                  <span className="hidden sm:inline">{pendingItems.length} item</span>
-=======
                   {pendingItems.length} pending
->>>>>>> sumber/main
                 </Badge>
                 {completedItems.length > 0 && (
                   <Badge variant="outline">
@@ -285,19 +224,11 @@ export const ShoppingList = () => {
                     <Button
                       size="sm"
                       variant="outline"
-<<<<<<< HEAD
-                      onClick={handleShareWhatsApp}
-                      title="Kirim ke WhatsApp"
-                    >
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      WhatsApp
-=======
                       onClick={handleSharePDF}
                       title="Bagikan daftar belanja"
                     >
                       <Share2 className="h-3 w-3 mr-1" />
                       Bagikan
->>>>>>> sumber/main
                     </Button>
                   </>
                 )}

@@ -3,20 +3,9 @@ import { Receipt } from '@/types/pos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-<<<<<<< HEAD
-import { FileText, TrendingUp, DollarSign, Package, MessageCircle } from 'lucide-react';
-import { format, subDays, subWeeks, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
-import { id } from 'date-fns/locale';
-import { printA4Report, generateA4PrintContent } from './SalesReportPrint';
-import { useStore } from '@/contexts/StoreContext';
-import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-=======
 import { FileText, TrendingUp, DollarSign, Package } from 'lucide-react';
 import { format, subDays, subWeeks, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
->>>>>>> sumber/main
 
 interface SalesReportProps {
   receipts: Receipt[];
@@ -27,10 +16,6 @@ type ReportPeriod = '1d' | '7d' | '30d' | '60d' | '365d';
 
 export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>('1d');
-<<<<<<< HEAD
-  const { currentStore } = useStore();
-=======
->>>>>>> sumber/main
 
   const getDateRange = (period: ReportPeriod) => {
     const now = new Date();
@@ -81,141 +66,6 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
   };
 
   const handlePrint = () => {
-<<<<<<< HEAD
-    printA4Report({
-      receipts: filteredReceipts,
-      formatPrice,
-      periodLabel: getPeriodLabel(selectedPeriod),
-      startDate: start,
-      endDate: end,
-      stats,
-      storeName: currentStore?.name || 'Toko',
-      storeAddress: currentStore?.address || ''
-    });
-  };
-
-  const handleWhatsAppPDF = async () => {
-    try {
-      toast.info('Membuat PDF...');
-      
-      // Generate HTML content (same as Cetak Laporan)
-      const htmlContent = generateA4PrintContent({
-        receipts: filteredReceipts,
-        formatPrice,
-        periodLabel: getPeriodLabel(selectedPeriod),
-        startDate: start,
-        endDate: end,
-        stats,
-        storeName: currentStore?.name || 'Toko',
-        storeAddress: currentStore?.address || ''
-      });
-      
-      // Create temporary container off-screen
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlContent;
-      tempDiv.style.position = 'fixed';
-      tempDiv.style.left = '-10000px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '210mm'; // A4 width
-      tempDiv.style.background = '#ffffff';
-      document.body.appendChild(tempDiv);
-      
-      // Wait for layout/Fonts
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      // Render the printable container only
-      const target = tempDiv.querySelector('.container') as HTMLElement || tempDiv;
-      const canvas = await html2canvas(target, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: 794, // ~ A4 width at 96dpi
-      });
-      
-      // Remove temp from DOM
-      document.body.removeChild(tempDiv);
-      
-      // Prepare PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10; // 10mm margins
-      const contentWidthMm = pageWidth - margin * 2;
-      const contentHeightMm = pageHeight - margin * 2;
-      
-      // px to mm conversion based on content width
-      const pxPerMm = canvas.width / contentWidthMm;
-      const pageHeightPx = contentHeightMm * pxPerMm;
-      
-      let y = 0;
-      let pageIndex = 0;
-      
-      while (y < canvas.height) {
-        const sliceHeightPx = Math.min(pageHeightPx, canvas.height - y);
-        const sliceCanvas = document.createElement('canvas');
-        sliceCanvas.width = canvas.width;
-        sliceCanvas.height = sliceHeightPx;
-        const ctx = sliceCanvas.getContext('2d');
-        if (!ctx) break;
-        ctx.drawImage(
-          canvas,
-          0,
-          y,
-          canvas.width,
-          sliceHeightPx,
-          0,
-          0,
-          canvas.width,
-          sliceHeightPx
-        );
-        const imgData = sliceCanvas.toDataURL('image/png');
-        const sliceHeightMm = sliceHeightPx / pxPerMm;
-        if (pageIndex > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, margin, contentWidthMm, sliceHeightMm);
-        y += sliceHeightPx;
-        pageIndex++;
-      }
-      
-      const filename = `Laporan-${getPeriodLabel(selectedPeriod)}-${format(new Date(), 'ddMMyyyy')}.pdf`;
-      pdf.save(filename);
-      
-      // Open WhatsApp message prompt
-      const whatsappNumber = (currentStore as any)?.whatsapp_report_number || (currentStore as any)?.whatsapp_number || '';
-      if (whatsappNumber) {
-        const message = `📊 *LAPORAN PENJUALAN*\n${currentStore?.name || 'Toko'}\n\n📅 Periode: ${getPeriodLabel(selectedPeriod)}\n${format(start, 'dd MMM yyyy', { locale: id })} - ${format(end, 'dd MMM yyyy', { locale: id })}\n\n💰 Total Penjualan: ${formatPrice(stats.totalSales)}\n📈 Total Profit: ${formatPrice(stats.totalProfit)}\n🧾 Transaksi: ${stats.totalTransactions}\n📦 Barang Terjual: ${stats.totalItems}\n\n_File PDF telah didownload. Silakan kirim file tersebut melalui chat ini._`;
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        toast.success('PDF telah didownload!', { description: 'Kirim file PDF melalui WhatsApp yang sudah terbuka' });
-      } else {
-        toast.success('PDF berhasil didownload!');
-        toast.info('Atur nomor WhatsApp di Pengaturan Toko untuk mengirim langsung');
-      }
-      
-    } catch (error) {
-      console.error('Error creating PDF:', error);
-      toast.error('Gagal membuat PDF');
-    }
-  };
-      
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <h2 className="text-xl sm:text-2xl font-bold">Laporan Penjualan</h2>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={handlePrint} variant="outline" className="w-full sm:w-auto">
-            <FileText className="w-4 h-4 mr-2" />
-            Cetak Laporan
-          </Button>
-          <Button onClick={handleWhatsAppPDF} variant="default" className="w-full sm:w-auto">
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Kirim via WhatsApp
-          </Button>
-          <Select value={selectedPeriod} onValueChange={(value: ReportPeriod) => setSelectedPeriod(value)}>
-            <SelectTrigger className="w-full sm:w-48">
-=======
     const printContent = `
       <div style="font-family: monospace; max-width: 300px; margin: 0 auto;">
         <h2 style="text-align: center; margin-bottom: 20px;">LAPORAN PENJUALAN</h2>
@@ -307,7 +157,6 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
         <div className="flex gap-2">
           <Select value={selectedPeriod} onValueChange={(value: ReportPeriod) => setSelectedPeriod(value)}>
             <SelectTrigger className="w-48">
->>>>>>> sumber/main
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -318,13 +167,10 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
               <SelectItem value="365d">1 Tahun Terakhir</SelectItem>
             </SelectContent>
           </Select>
-<<<<<<< HEAD
-=======
           <Button onClick={handlePrint} variant="outline">
             <FileText className="w-4 h-4 mr-2" />
             Cetak Laporan
           </Button>
->>>>>>> sumber/main
         </div>
       </div>
 

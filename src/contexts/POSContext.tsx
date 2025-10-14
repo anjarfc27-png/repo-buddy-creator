@@ -28,40 +28,12 @@ export const POSProvider = ({ children }: { children: ReactNode }) => {
   const supabasePOS = useSupabasePOS();
   const localPOS = usePOS();
 
-<<<<<<< HEAD
-  // Always use Supabase when user is logged in for real-time sync
-  const currentPOS = user ? supabasePOS : localPOS;
-
-  const addManualReceipt = async (receipt: Receipt) => {
-=======
   const addManualReceipt = async (receipt: Receipt) => {
     // Always use Supabase if user is logged in for consistent data
->>>>>>> sumber/main
     if (user && supabasePOS.addManualReceipt) {
       await supabasePOS.addManualReceipt(receipt);
       return;
     }
-<<<<<<< HEAD
-    localPOS.addManualReceipt?.(receipt);
-  };
-
-  // Ensure all cart operations use the current POS system
-  const contextValue: POSContextType = {
-    products: currentPOS.products,
-    cart: currentPOS.cart,
-    receipts: currentPOS.receipts,
-    loading: user ? supabasePOS.loading : false,
-    addProduct: currentPOS.addProduct,
-    updateProduct: currentPOS.updateProduct,
-    deleteProduct: currentPOS.deleteProduct,
-    addToCart: currentPOS.addToCart,
-    updateCartQuantity: currentPOS.updateCartQuantity,
-    removeFromCart: currentPOS.removeFromCart,
-    clearCart: currentPOS.clearCart,
-    processTransaction: currentPOS.processTransaction,
-    addManualReceipt,
-    formatPrice: currentPOS.formatPrice,
-=======
     // Fallback for local storage when not logged in
     localPOS.addManualReceipt?.(receipt);
   };
@@ -72,7 +44,6 @@ export const POSProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = {
     ...currentPOS,
     addManualReceipt,
->>>>>>> sumber/main
   };
 
   return (

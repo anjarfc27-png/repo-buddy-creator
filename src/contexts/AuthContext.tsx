@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-=======
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
->>>>>>> sumber/main
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,22 +7,10 @@ interface AuthContextType {
   session: Session | null;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signInWithUsername: (username: string, password: string) => Promise<{ error?: any }>;
-<<<<<<< HEAD
-  signUp: (email: string, username: string, password: string, whatsappNumber: string) => Promise<{ error?: any }>;
-  signOut: () => Promise<void>;
-  verifyAdminPassword: (password: string) => Promise<boolean>;
-  loading: boolean;
-  isApproved: boolean;
-  isAdmin: boolean;
-  isAdminCheckComplete: boolean;
-  isSubscriptionExpired: boolean;
-  subscriptionExpiredAt: string | null;
-=======
   signUp: (email: string, username: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   verifyAdminPassword: (password: string) => Promise<boolean>;
   loading: boolean;
->>>>>>> sumber/main
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,14 +19,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
-  const [isApproved, setIsApproved] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isAdminCheckComplete, setIsAdminCheckComplete] = useState(false);
-  const [isSubscriptionExpired, setIsSubscriptionExpired] = useState(false);
-  const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState<string | null>(null);
-=======
->>>>>>> sumber/main
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -50,21 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-<<<<<<< HEAD
-        
-        // Check approval status and role
-        if (session?.user) {
-          setIsAdminCheckComplete(false);
-          setTimeout(() => {
-            checkUserApprovalAndRole(session.user.id);
-          }, 0);
-        } else {
-          setIsApproved(false);
-          setIsAdmin(false);
-          setIsAdminCheckComplete(true);
-        }
-=======
->>>>>>> sumber/main
         setLoading(false);
       }
     );
@@ -73,98 +34,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-<<<<<<< HEAD
-      
-      if (session?.user) {
-        setIsAdminCheckComplete(false);
-        checkUserApprovalAndRole(session.user.id);
-      } else {
-        setIsAdminCheckComplete(true);
-      }
-=======
->>>>>>> sumber/main
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-<<<<<<< HEAD
-  const checkUserApprovalAndRole = async (userId: string) => {
-    try {
-      // Check if user is admin first
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      const isUserAdmin = !!roles && !rolesError;
-      setIsAdmin(isUserAdmin);
-      
-      // Check profile approval status
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('is_approved')
-        .eq('user_id', userId)
-        .maybeSingle();
-      
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        // If admin, bypass approval check
-        setIsApproved(isUserAdmin ? true : false);
-      } else {
-        // Admin always approved, regular users check is_approved
-        setIsApproved(isUserAdmin ? true : (profile?.is_approved ?? false));
-      }
-      
-      // Subscription check - disabled
-      setIsSubscriptionExpired(false);
-      setSubscriptionExpiredAt(null);
-      
-    } catch (error) {
-      console.error('Error checking user status:', error);
-      setIsApproved(false);
-      setIsAdmin(false);
-      setIsSubscriptionExpired(false);
-      setSubscriptionExpiredAt(null);
-    } finally {
-      setIsAdminCheckComplete(true);
-    }
-  };
-
-  const signUp = async (email: string, username: string, password: string, whatsappNumber: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username,
-          whatsapp_number: whatsappNumber
-        },
-        emailRedirectTo: `${window.location.origin}/waiting-approval`
-      }
-    });
-    
-    if (error) return { error };
-    
-    // Notify admin about new registration
-    if (data.user) {
-      try {
-        await supabase.functions.invoke('notify-admin-new-user', {
-          body: {
-            userEmail: email,
-            username: username,
-          },
-        });
-      } catch (notifyError) {
-        console.error('Failed to notify admin:', notifyError);
-        // Don't block signup if notification fails
-      }
-    }
-    
-=======
   const signUp = async (email: string, username: string, password: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
@@ -178,28 +53,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     });
->>>>>>> sumber/main
     return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-<<<<<<< HEAD
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (error) return { error };
-    
-    // User approval will be checked by ProtectedRoute
-    // So we don't block login here, just let them in
-    
-=======
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
->>>>>>> sumber/main
     return { error };
   };
 
@@ -263,14 +124,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut,
     verifyAdminPassword,
     loading,
-<<<<<<< HEAD
-    isApproved,
-    isAdmin,
-    isAdminCheckComplete,
-    isSubscriptionExpired,
-    subscriptionExpiredAt,
-=======
->>>>>>> sumber/main
   };
 
   return (

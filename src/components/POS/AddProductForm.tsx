@@ -1,27 +1,13 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-=======
 import { useState } from 'react';
->>>>>>> sumber/main
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-<<<<<<< HEAD
-import { Plus, X, Scan } from 'lucide-react';
-import { Product } from '@/types/pos';
-import { QuantitySelector } from './QuantitySelector';
-import { toast } from 'sonner';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
-import { Capacitor } from '@capacitor/core';
-import { useStore } from '@/contexts/StoreContext';
-=======
 import { Plus, X } from 'lucide-react';
 import { Product } from '@/types/pos';
 import { QuantitySelector } from './QuantitySelector';
->>>>>>> sumber/main
 
 interface AddProductFormProps {
   onAddProduct: (product: Omit<Product, 'id'>) => void;
@@ -30,22 +16,13 @@ interface AddProductFormProps {
   onClose: () => void;
 }
 
-<<<<<<< HEAD
-export default function AddProductForm({ onAddProduct, onUpdateProduct, products = [], onClose }: AddProductFormProps) {
-=======
 export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], onClose }: AddProductFormProps) => {
->>>>>>> sumber/main
   const [formData, setFormData] = useState({
     name: '',
     costPrice: '',
     sellPrice: '',
     stock: '',
     category: '',
-<<<<<<< HEAD
-    code: '',
-    barcode: '',
-=======
->>>>>>> sumber/main
     isPhotocopy: false,
   });
   const [isService, setIsService] = useState(false);
@@ -53,18 +30,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
-<<<<<<< HEAD
-  const [isScanning, setIsScanning] = useState(false);
-  const { currentStore } = useStore();
-  const isAtkStore = currentStore?.category === 'atk';
-
-  useEffect(() => {
-    if (currentStore?.category !== 'atk' && formData.isPhotocopy) {
-      setFormData(prev => ({ ...prev, isPhotocopy: false }));
-    }
-  }, [currentStore?.category, formData.isPhotocopy]);
-=======
->>>>>>> sumber/main
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,32 +38,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
       return;
     }
 
-<<<<<<< HEAD
-    // Check if code or barcode already exists
-    if (formData.code && formData.code.trim()) {
-      const existingCode = products.find(p => 
-        p.code && p.code.toLowerCase() === formData.code.toLowerCase() &&
-        p.name.toLowerCase().trim() !== formData.name.toLowerCase().trim()
-      );
-      if (existingCode) {
-        toast.error(`Kode "${formData.code}" sudah digunakan oleh produk "${existingCode.name}"`);
-        return;
-      }
-    }
-
-    if (formData.barcode && formData.barcode.trim()) {
-      const existingBarcode = products.find(p => 
-        p.barcode && p.barcode.toLowerCase() === formData.barcode.toLowerCase() &&
-        p.name.toLowerCase().trim() !== formData.name.toLowerCase().trim()
-      );
-      if (existingBarcode) {
-        toast.error(`Barcode "${formData.barcode}" sudah digunakan oleh produk "${existingBarcode.name}"`);
-        return;
-      }
-    }
-
-=======
->>>>>>> sumber/main
     // Check if product with same name already exists
     const existingProduct = products.find(p => 
       p.name.toLowerCase().trim() === formData.name.toLowerCase().trim()
@@ -126,11 +65,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
         sellPrice: parseFloat(formData.sellPrice),
         stock: (formData.isPhotocopy || isService) ? 0 : (stockQuantity || 0),
         category: formData.category || undefined,
-<<<<<<< HEAD
-        code: formData.code || undefined,
-        barcode: formData.barcode || undefined,
-=======
->>>>>>> sumber/main
         isPhotocopy: formData.isPhotocopy,
       });
     }
@@ -142,11 +76,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
       sellPrice: '',
       stock: '',
       category: '',
-<<<<<<< HEAD
-      code: '',
-      barcode: '',
-=======
->>>>>>> sumber/main
       isPhotocopy: false,
     });
     setStockQuantity(0);
@@ -204,87 +133,12 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
       sellPrice: product.sellPrice.toString(),
       stock: '',
       category: product.category || '',
-<<<<<<< HEAD
-      code: product.code || '',
-      barcode: product.barcode || '',
-=======
->>>>>>> sumber/main
       isPhotocopy: product.isPhotocopy || false,
     });
     setShowSuggestions(false);
     setSuggestions([]);
   };
 
-<<<<<<< HEAD
-  const handleScanBarcode = async () => {
-    try {
-      if (!Capacitor.isNativePlatform()) {
-        toast.error('Barcode scanner hanya tersedia di aplikasi mobile');
-        return;
-      }
-
-      const status = await BarcodeScanner.checkPermission({ force: true });
-      if (!status.granted) {
-        toast.error('Izin kamera diperlukan untuk scan barcode');
-        return;
-      }
-
-      setIsScanning(true);
-      document.body.classList.add('scanner-active');
-      await BarcodeScanner.hideBackground();
-
-      const result = await BarcodeScanner.startScan();
-
-      document.body.classList.remove('scanner-active');
-      await BarcodeScanner.showBackground();
-      setIsScanning(false);
-
-      if (result.hasContent) {
-        const scannedCode = result.content;
-        const foundProduct = products.find(p => 
-          p.barcode === scannedCode || p.code === scannedCode
-        );
-
-        if (foundProduct) {
-          // Found existing product - fill form for stock update
-          setFormData({
-            name: foundProduct.name,
-            costPrice: foundProduct.costPrice.toString(),
-            sellPrice: foundProduct.sellPrice.toString(),
-            stock: '',
-            category: foundProduct.category || '',
-            code: foundProduct.code || '',
-            barcode: foundProduct.barcode || '',
-            isPhotocopy: foundProduct.isPhotocopy || false,
-          });
-          toast.success(`Produk ditemukan: ${foundProduct.name}. Masukkan jumlah stok.`);
-        } else {
-          // New product - set barcode and let user fill details
-          setFormData(prev => ({
-            ...prev,
-            barcode: scannedCode,
-          }));
-          toast.success(`Barcode discan: ${scannedCode}. Lengkapi data produk.`);
-        }
-      }
-    } catch (error) {
-      console.error('Barcode scan error:', error);
-      document.body.classList.remove('scanner-active');
-      await BarcodeScanner.showBackground();
-      setIsScanning(false);
-      toast.error('Gagal scan barcode');
-    }
-  };
-
-  const stopScanning = async () => {
-    await BarcodeScanner.stopScan();
-    document.body.classList.remove('scanner-active');
-    await BarcodeScanner.showBackground();
-    setIsScanning(false);
-  };
-
-=======
->>>>>>> sumber/main
   return (
     <Card className="pos-card">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -367,43 +221,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                   />
                 </div>
                 
-<<<<<<< HEAD
-
-                <div>
-                  <Label htmlFor="code">Kode Produk (opsional)</Label>
-                  <Input
-                    id="code"
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                    placeholder="Kode produk untuk input cepat"
-                    className="h-9 sm:h-10 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="barcode">Barcode (opsional)</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="barcode"
-                      type="text"
-                      value={formData.barcode}
-                      onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                      placeholder="Barcode untuk scanner"
-                      className="h-9 sm:h-10 text-sm flex-1"
-                    />
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleScanBarcode} 
-                      disabled={isScanning}
-                      className="h-9 sm:h-10"
-                    >
-                      <Scan className="h-4 w-4" />
-                    </Button>
-                  </div>
-=======
                 <div>
                   <Label htmlFor="category">Kategori</Label>
                   <Select 
@@ -422,7 +239,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                       <SelectItem value="Lainnya">Lainnya</SelectItem>
                     </SelectContent>
                   </Select>
->>>>>>> sumber/main
                 </div>
 
                 <div className="md:col-span-2">
@@ -439,22 +255,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                   />
                 </div>
                 
-<<<<<<< HEAD
-                {isAtkStore && (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="isPhotocopy"
-                      checked={formData.isPhotocopy}
-                      onChange={(e) => setFormData({ ...formData, isPhotocopy: e.target.checked })}
-                      className="rounded border border-input"
-                    />
-                    <Label htmlFor="isPhotocopy" className="text-sm">
-                      Layanan Fotocopy (Tiered Pricing) - Hanya untuk Toko ATK
-                    </Label>
-                  </div>
-                )}
-=======
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -467,7 +267,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                     Layanan Fotocopy (Tiered Pricing)
                   </Label>
                 </div>
->>>>>>> sumber/main
               </div>
               
               <div className="flex gap-2 pt-4">
@@ -533,17 +332,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kategori" />
                     </SelectTrigger>
-<<<<<<< HEAD
-                      <SelectContent>
-                        {isAtkStore && (
-                          <SelectItem value="Fotocopy">Fotocopy</SelectItem>
-                        )}
-                        <SelectItem value="Laminasi">Laminasi</SelectItem>
-                        <SelectItem value="Jilid">Jilid</SelectItem>
-                        <SelectItem value="Scan">Scan</SelectItem>
-                        <SelectItem value="Lainnya">Lainnya</SelectItem>
-                      </SelectContent>
-=======
                     <SelectContent>
                       <SelectItem value="Fotocopy">Fotocopy</SelectItem>
                       <SelectItem value="Laminasi">Laminasi</SelectItem>
@@ -551,7 +339,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
                       <SelectItem value="Scan">Scan</SelectItem>
                       <SelectItem value="Lainnya">Lainnya</SelectItem>
                     </SelectContent>
->>>>>>> sumber/main
                   </Select>
                 </div>
               </div>
@@ -569,26 +356,6 @@ export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], o
           </TabsContent>
         </Tabs>
       </CardContent>
-<<<<<<< HEAD
-
-      {isScanning && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
-          <div className="text-white text-center mb-8">
-            <p className="text-xl mb-2">Arahkan kamera ke barcode</p>
-            <p className="text-sm text-gray-400">Barcode akan otomatis terdeteksi</p>
-          </div>
-          <div className="absolute bottom-8">
-            <Button onClick={stopScanning} variant="outline" size="lg">
-              Batal
-            </Button>
-          </div>
-        </div>
-      )}
-    </Card>
-  );
-}
-=======
     </Card>
   );
 };
->>>>>>> sumber/main

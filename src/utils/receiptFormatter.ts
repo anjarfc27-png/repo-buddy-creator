@@ -30,11 +30,7 @@ export const formatReceiptId = (receipt: Receipt): string => {
 export const formatReceiptDetailedInfo = (receipt: Receipt): string => {
   const formattedId = formatReceiptId(receipt);
   const date = receipt.timestamp.toLocaleDateString('id-ID');
-<<<<<<< HEAD
-  const time = receipt.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-=======
   const time = receipt.timestamp.toLocaleTimeString('id-ID');
->>>>>>> sumber/main
   
   return `${formattedId} - ${date} ${time}`;
 };
