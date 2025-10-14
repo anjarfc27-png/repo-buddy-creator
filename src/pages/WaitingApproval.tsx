@@ -106,8 +106,8 @@ export const WaitingApproval = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <img src={kasirqLogo} alt="KasirQ Logo" className="w-16 h-16" />
+          <div className="flex flex-col items-center mb-6">
+            <img src={kasirqLogo} alt="KasirQ Logo" className="w-20 h-20 mb-3" />
             <h1 className="text-3xl font-bold text-primary">KasirQ</h1>
           </div>
           <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
