@@ -86,7 +86,30 @@ export const SubscriptionManagement = () => {
 
     setExtending(true);
     try {
-      toast.info('Fitur subscription memerlukan kolom subscription_expired_at di database. Silakan tambahkan kolom tersebut terlebih dahulu.');
+      const months = parseInt(duration);
+      
+      // Hitung tanggal baru
+      const currentExpired = selectedUser.subscription_expired_at 
+        ? new Date(selectedUser.subscription_expired_at)
+        : new Date();
+      
+      // Jika sudah expired, mulai dari sekarang
+      const startDate = currentExpired < new Date() ? new Date() : currentExpired;
+      
+      // Tambahkan bulan
+      const newExpiredDate = new Date(startDate);
+      newExpiredDate.setMonth(newExpiredDate.getMonth() + months);
+
+      // Update ke database
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_expired_at: newExpiredDate.toISOString() } as any)
+        .eq('user_id', selectedUser.user_id);
+
+      if (error) throw error;
+
+      toast.success(`Subscription berhasil diperpanjang ${months} bulan`);
+      fetchUsers(); // Refresh data
     } catch (error) {
       console.error('Error extending subscription:', error);
       toast.error('Gagal memperpanjang subscription');
