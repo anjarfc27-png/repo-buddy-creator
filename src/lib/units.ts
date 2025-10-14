@@ -8,7 +8,11 @@ export interface UnitConversion {
 export const getUnitDisplay = (quantity: number, productName?: string, category?: string): UnitConversion[] => {
   const conversions: UnitConversion[] = [];
   
+<<<<<<< HEAD
   // For paper category
+=======
+  // For paper category, use rim as base unit
+>>>>>>> sumber/main
   if (category === 'Kertas') {
     conversions.push({
       unit: 'rim',
@@ -16,6 +20,10 @@ export const getUnitDisplay = (quantity: number, productName?: string, category?
       display: `${quantity} rim (${quantity * 500} lembar)`
     });
 
+<<<<<<< HEAD
+=======
+    // Karton conversion for paper (5 rim = 1 karton)
+>>>>>>> sumber/main
     if (quantity >= 5) {
       const karton = Math.floor(quantity / 5);
       const remainder = quantity % 5;
@@ -28,7 +36,11 @@ export const getUnitDisplay = (quantity: number, productName?: string, category?
       }
     }
   } else {
+<<<<<<< HEAD
     // Standard display for all other categories
+=======
+    // Always show the base quantity for non-paper items
+>>>>>>> sumber/main
     conversions.push({
       unit: 'pcs',
       quantity,
@@ -99,16 +111,26 @@ export const getUnitMultiplier = (unit: string, category?: string): number => {
     case 'gros':
       return 144;
     case 'karton':
+<<<<<<< HEAD
       return category === 'Kertas' ? 5 : 1;
     case 'rim':
       return 1;
+=======
+      return category === 'Kertas' ? 5 : 1; // For paper, 5 rim = 1 karton
+    case 'rim':
+      return 1; // Base unit for paper
+>>>>>>> sumber/main
     default:
       return 1;
   }
 };
 
 export const getUnitOptions = (productName?: string, category?: string) => {
+<<<<<<< HEAD
   // For paper category
+=======
+  // For paper category, only show rim and karton
+>>>>>>> sumber/main
   if (category === 'Kertas') {
     return [
       { value: 'rim', label: 'Rim (500 lembar)', multiplier: 1 },
@@ -116,7 +138,11 @@ export const getUnitOptions = (productName?: string, category?: string) => {
     ];
   }
 
+<<<<<<< HEAD
   // Default units
+=======
+  // Standard units for other products
+>>>>>>> sumber/main
   return [
     { value: 'pcs', label: 'Pcs', multiplier: 1 },
     { value: 'pax', label: 'Pax (10 pcs)', multiplier: 10 },
@@ -124,4 +150,8 @@ export const getUnitOptions = (productName?: string, category?: string) => {
     { value: 'kodi', label: 'Kodi (20 pcs)', multiplier: 20 },
     { value: 'gros', label: 'Gros (144 pcs)', multiplier: 144 }
   ];
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> sumber/main

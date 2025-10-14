@@ -28,14 +28,20 @@ export const POSProvider = ({ children }: { children: ReactNode }) => {
   const supabasePOS = useSupabasePOS();
   const localPOS = usePOS();
 
+<<<<<<< HEAD
   // Always use Supabase when user is logged in for real-time sync
   const currentPOS = user ? supabasePOS : localPOS;
 
   const addManualReceipt = async (receipt: Receipt) => {
+=======
+  const addManualReceipt = async (receipt: Receipt) => {
+    // Always use Supabase if user is logged in for consistent data
+>>>>>>> sumber/main
     if (user && supabasePOS.addManualReceipt) {
       await supabasePOS.addManualReceipt(receipt);
       return;
     }
+<<<<<<< HEAD
     localPOS.addManualReceipt?.(receipt);
   };
 
@@ -55,6 +61,18 @@ export const POSProvider = ({ children }: { children: ReactNode }) => {
     processTransaction: currentPOS.processTransaction,
     addManualReceipt,
     formatPrice: currentPOS.formatPrice,
+=======
+    // Fallback for local storage when not logged in
+    localPOS.addManualReceipt?.(receipt);
+  };
+
+  // Always use Supabase when user is logged in for real-time sync
+  const currentPOS = user ? supabasePOS : localPOS;
+
+  const contextValue = {
+    ...currentPOS,
+    addManualReceipt,
+>>>>>>> sumber/main
   };
 
   return (

@@ -3,6 +3,7 @@ import { Receipt } from '@/types/pos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+<<<<<<< HEAD
 import { FileText, TrendingUp, DollarSign, Package, MessageCircle } from 'lucide-react';
 import { format, subDays, subWeeks, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -11,6 +12,11 @@ import { useStore } from '@/contexts/StoreContext';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+=======
+import { FileText, TrendingUp, DollarSign, Package } from 'lucide-react';
+import { format, subDays, subWeeks, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
+import { id } from 'date-fns/locale';
+>>>>>>> sumber/main
 
 interface SalesReportProps {
   receipts: Receipt[];
@@ -21,7 +27,10 @@ type ReportPeriod = '1d' | '7d' | '30d' | '60d' | '365d';
 
 export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>('1d');
+<<<<<<< HEAD
   const { currentStore } = useStore();
+=======
+>>>>>>> sumber/main
 
   const getDateRange = (period: ReportPeriod) => {
     const now = new Date();
@@ -72,6 +81,7 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
   };
 
   const handlePrint = () => {
+<<<<<<< HEAD
     printA4Report({
       receipts: filteredReceipts,
       formatPrice,
@@ -205,6 +215,99 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
           </Button>
           <Select value={selectedPeriod} onValueChange={(value: ReportPeriod) => setSelectedPeriod(value)}>
             <SelectTrigger className="w-full sm:w-48">
+=======
+    const printContent = `
+      <div style="font-family: monospace; max-width: 300px; margin: 0 auto;">
+        <h2 style="text-align: center; margin-bottom: 20px;">LAPORAN PENJUALAN</h2>
+        <p style="text-align: center; margin-bottom: 20px;">${getPeriodLabel(selectedPeriod)}</p>
+        <p style="text-align: center; margin-bottom: 30px;">${format(start, 'dd/MM/yyyy', { locale: id })} - ${format(end, 'dd/MM/yyyy', { locale: id })}</p>
+        
+        <div style="border-top: 1px dashed #000; margin: 20px 0; padding-top: 10px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Total Transaksi:</span>
+            <span>${stats.totalTransactions}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Total Item:</span>
+            <span>${stats.totalItems}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Total Diskon:</span>
+            <span>${formatPrice(stats.totalDiscount)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Total Penjualan:</span>
+            <span>${formatPrice(stats.totalSales)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold;">
+            <span>Total Keuntungan:</span>
+            <span>${formatPrice(stats.totalProfit)}</span>
+          </div>
+        </div>
+        
+        <div style="border-top: 1px dashed #000; margin: 20px 0; padding-top: 10px;">
+          <h3 style="margin-bottom: 10px;">Detail Transaksi:</h3>
+          ${filteredReceipts.map(receipt => `
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #ccc;">
+              <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>${receipt.id}</span>
+                <span>${format(new Date(receipt.timestamp), 'dd/MM HH:mm', { locale: id })}</span>
+              </div>
+              ${receipt.items.map(item => `
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin: 2px 0;">
+                  <span>${item.product.name} x${item.quantity}</span>
+                  <span>${formatPrice((item.finalPrice || item.product.sellPrice) * item.quantity)}</span>
+                </div>
+              `).join('')}
+              ${receipt.discount > 0 ? `<div style="display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                <span>Diskon:</span>
+                <span>-${formatPrice(receipt.discount)}</span>
+              </div>` : ''}
+              <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 5px;">
+                <span>Total:</span>
+                <span>${formatPrice(receipt.total)}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <p style="text-align: center; margin-top: 30px; font-size: 12px;">
+          Dicetak pada ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: id })}
+        </p>
+      </div>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Laporan Penjualan - ${getPeriodLabel(selectedPeriod)}</title>
+            <style>
+              body { margin: 0; padding: 20px; }
+              @media print {
+                body { margin: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            ${printContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Laporan Penjualan</h2>
+        <div className="flex gap-2">
+          <Select value={selectedPeriod} onValueChange={(value: ReportPeriod) => setSelectedPeriod(value)}>
+            <SelectTrigger className="w-48">
+>>>>>>> sumber/main
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -215,6 +318,13 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
               <SelectItem value="365d">1 Tahun Terakhir</SelectItem>
             </SelectContent>
           </Select>
+<<<<<<< HEAD
+=======
+          <Button onClick={handlePrint} variant="outline">
+            <FileText className="w-4 h-4 mr-2" />
+            Cetak Laporan
+          </Button>
+>>>>>>> sumber/main
         </div>
       </div>
 

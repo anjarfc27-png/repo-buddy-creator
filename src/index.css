@@ -17,11 +17,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 15%;
 
+<<<<<<< HEAD
     /* POS Primary - Deep blue */
     --primary: 214 85% 40%;
     --primary-foreground: 0 0% 98%;
     --primary-light: 214 85% 50%;
     --primary-glow: 214 85% 70%;
+=======
+    /* POS Primary - Professional blue */
+    --primary: 214 95% 45%;
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 214 95% 65%;
+    --primary-glow: 214 95% 80%;
+>>>>>>> sumber/main
 
     /* POS Success - Transaction success green */
     --success: 142 76% 36%;
@@ -134,6 +142,7 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+<<<<<<< HEAD
     /* iOS safe area support */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -164,6 +173,8 @@
       height: 100%;
       -webkit-overflow-scrolling: touch;
     }
+=======
+>>>>>>> sumber/main
   }
 }
 
@@ -221,6 +232,7 @@
       padding: 20px;
     }
   }
+<<<<<<< HEAD
 }
 
 /* Barcode Scanner Styles */
@@ -253,4 +265,6 @@ body.scanner-active .scanner-ui {
   .safe-right {
     padding-right: env(safe-area-inset-right);
   }
+=======
+>>>>>>> sumber/main
 }

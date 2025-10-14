@@ -29,6 +29,7 @@ export const ProductGrid = ({ products, onAddToCart, onPhotocopyClick }: Product
   };
 
   const handleAddToCart = (product: Product) => {
+<<<<<<< HEAD
     // Check if stock is available
     if (product.stock <= 0 && !product.isPhotocopy) {
       import('sonner').then(({ toast }) => {
@@ -65,6 +66,11 @@ export const ProductGrid = ({ products, onAddToCart, onPhotocopyClick }: Product
       });
       return;
     }
+=======
+    // Use getTotalQuantity if available, otherwise use base quantity
+    const getTotalQuantity = getTotalQuantityRefs[product.id];
+    const quantity = getTotalQuantity ? getTotalQuantity() : (quantities[product.id] || 1);
+>>>>>>> sumber/main
     
     onAddToCart(product, quantity);
     setQuantities(prev => ({ ...prev, [product.id]: 0 }));

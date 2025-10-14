@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+<<<<<<< HEAD
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Search } from 'lucide-react';
+=======
+import { ArrowLeft } from 'lucide-react';
+>>>>>>> sumber/main
 import { TransactionHistory } from '@/components/Reports/TransactionHistory';
 import { Receipt as ReceiptComponent } from '@/components/POS/Receipt';
 import { usePOSContext } from '@/contexts/POSContext';
@@ -12,7 +16,10 @@ import { Link } from 'react-router-dom';
 export const ReportsPage = () => {
   const { receipts, formatPrice } = usePOSContext();
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
+<<<<<<< HEAD
   const [searchQuery, setSearchQuery] = useState('');
+=======
+>>>>>>> sumber/main
 
   const handleViewReceipt = (receipt: Receipt) => {
     setViewingReceipt(receipt);
@@ -30,6 +37,7 @@ export const ReportsPage = () => {
 
   if (viewingReceipt) {
     return (
+<<<<<<< HEAD
       <div className="min-h-screen w-full bg-background">
         <div className="container mx-auto p-2 sm:p-4 max-w-4xl">
           <div className="space-y-4">
@@ -53,11 +61,33 @@ export const ReportsPage = () => {
             />
           </div>
         </div>
+=======
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleBackToReports}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke Laporan
+          </Button>
+          <h1 className="text-2xl font-bold">Detail Transaksi</h1>
+        </div>
+
+        <ReceiptComponent
+          receipt={viewingReceipt}
+          formatPrice={formatPrice}
+          onBack={handleBackToReports}
+        />
+>>>>>>> sumber/main
       </div>
     );
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen w-full bg-background">
       <div className="container mx-auto p-2 sm:p-4 md:p-6 max-w-7xl">
         <div className="space-y-4 sm:space-y-6">
@@ -111,6 +141,30 @@ export const ReportsPage = () => {
           </div>
         </div>
       </div>
+=======
+    <div className="container mx-auto p-4 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Laporan Penjualan</h1>
+          <p className="text-muted-foreground">
+            Kelola dan pantau riwayat transaksi Anda
+          </p>
+        </div>
+        <Link to="/">
+          <Button variant="outline" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke POS
+          </Button>
+        </Link>
+      </div>
+
+      <TransactionHistory
+        receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-'))}
+        formatPrice={formatPrice}
+        onViewReceipt={handleViewReceipt}
+        onPrintReceipt={handlePrintReceipt}
+      />
+>>>>>>> sumber/main
     </div>
   );
 };

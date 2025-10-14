@@ -6,8 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { getUnitDisplay, getUnitOptions, getUnitMultiplier } from '@/lib/units';
+<<<<<<< HEAD
 import { useStore } from '@/contexts/StoreContext';
 import { StoreCategory } from '@/types/store';
+=======
+>>>>>>> sumber/main
 
 interface QuantitySelectorProps {
   quantity: number;
@@ -22,7 +25,10 @@ interface QuantitySelectorProps {
   onPriceChange?: (price: number) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   onGetTotalQuantity?: (getTotalQuantity: () => number) => void;
+<<<<<<< HEAD
   showUnitConversions?: boolean;
+=======
+>>>>>>> sumber/main
 }
 
 export const QuantitySelector = ({
@@ -37,11 +43,16 @@ export const QuantitySelector = ({
   currentPrice,
   onPriceChange,
   onKeyDown,
+<<<<<<< HEAD
   onGetTotalQuantity,
   showUnitConversions = false
 }: QuantitySelectorProps) => {
   const { currentStore } = useStore();
   const storeCategory = currentStore?.category as StoreCategory;
+=======
+  onGetTotalQuantity
+}: QuantitySelectorProps) => {
+>>>>>>> sumber/main
   const [selectedUnit, setSelectedUnit] = useState('pcs');
   const [unitQuantity, setUnitQuantity] = useState(0);
   const [customPrice, setCustomPrice] = useState<string>('');
@@ -121,11 +132,15 @@ export const QuantitySelector = ({
           size="sm"
           variant="outline"
           className="h-8 w-8 p-0"
+<<<<<<< HEAD
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
             handleQuantityChange(quantity - 1);
           }}
+=======
+          onClick={() => handleQuantityChange(quantity - 1)}
+>>>>>>> sumber/main
         >
           <Minus className="h-3 w-3" />
         </Button>
@@ -135,7 +150,10 @@ export const QuantitySelector = ({
           value={quantity || ''}
           onChange={handleQuantityInputChange}
           onKeyDown={handleKeyDown}
+<<<<<<< HEAD
           onFocus={(e) => e.target.select()}
+=======
+>>>>>>> sumber/main
           className="h-8 w-20 text-center text-sm"
           min="0"
           max={maxStock}
@@ -147,11 +165,15 @@ export const QuantitySelector = ({
           size="sm"
           variant="outline"
           className="h-8 w-8 p-0"
+<<<<<<< HEAD
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
             handleQuantityChange(quantity + 1);
           }}
+=======
+          onClick={() => handleQuantityChange(quantity + 1)}
+>>>>>>> sumber/main
           disabled={maxStock !== undefined && quantity >= maxStock}
         >
           <Plus className="h-3 w-3" />
@@ -177,17 +199,27 @@ export const QuantitySelector = ({
               type="number"
               value={unitQuantity || ''}
               onChange={(e) => handleUnitQuantityChange(parseInt(e.target.value) || 0)}
+<<<<<<< HEAD
               onFocus={(e) => e.target.select()}
+=======
+>>>>>>> sumber/main
               className="h-8 w-16 text-center text-sm"
               min="0"
               placeholder="0"
               inputMode="numeric"
             />
             <Select value={selectedUnit} onValueChange={handleUnitChange}>
+<<<<<<< HEAD
               <SelectTrigger className="h-8 flex-1 min-w-[120px]">
                 <SelectValue placeholder="Pilih unit" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
+=======
+              <SelectTrigger className="h-8 flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+>>>>>>> sumber/main
                 {unitOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -195,6 +227,7 @@ export const QuantitySelector = ({
                 ))}
               </SelectContent>
             </Select>
+<<<<<<< HEAD
             <Button
               size="sm"
               variant="outline"
@@ -213,10 +246,13 @@ export const QuantitySelector = ({
             >
               <Plus className="h-3 w-3" />
             </Button>
+=======
+>>>>>>> sumber/main
           </div>
         </div>
       )}
 
+<<<<<<< HEAD
       {/* Display unit conversions - Only in cart */}
       {showUnitConversions && unitDisplay.length > 0 && quantity > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -238,6 +274,37 @@ export const QuantitySelector = ({
       )}
 
       {/* Bulk pricing editor - Hidden as per request */}
+=======
+      {/* Display unit conversions */}
+      {unitDisplay.length > 0 && quantity > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {unitDisplay.slice(1).map((conversion, index) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              {conversion.display}
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Bulk pricing editor */}
+      {canEditPrice && onPriceChange && (
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">
+            Harga khusus:
+          </Label>
+          <Input
+            type="number"
+            value={customPrice}
+            onChange={(e) => handlePriceChange(e.target.value)}
+            className="h-8 text-sm"
+            placeholder="Harga per lusin"
+            min="0"
+            inputMode="decimal"
+            onFocus={(e) => e.target.select()}
+          />
+        </div>
+      )}
+>>>>>>> sumber/main
     </div>
   );
 };

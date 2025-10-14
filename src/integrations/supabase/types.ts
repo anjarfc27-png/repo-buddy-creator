@@ -14,6 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
+<<<<<<< HEAD
       products: {
         Row: {
           barcode: string | null
@@ -103,11 +104,89 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+=======
+      daily_reports: {
+        Row: {
+          created_at: string
+          id: string
+          photocopy_income: number | null
+          report_date: string
+          total_profit: number | null
+          total_sales: number | null
+          total_transactions: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          photocopy_income?: number | null
+          report_date: string
+          total_profit?: number | null
+          total_sales?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          photocopy_income?: number | null
+          report_date?: string
+          total_profit?: number | null
+          total_sales?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          barcode: string | null
+          category: string
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: string
+          is_photocopy: boolean
+          name: string
+          price: number
+          sell_price: number
+          stock: number
+          updated_at: string
+        }
+        Insert: {
+          barcode?: string | null
+          category: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_photocopy?: boolean
+          name: string
+          price: number
+          sell_price?: number
+          stock?: number
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string | null
+          category?: string
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_photocopy?: boolean
+          name?: string
+          price?: number
+          sell_price?: number
+          stock?: number
+          updated_at?: string
+>>>>>>> sumber/main
         }
         Relationships: []
       }
       receipt_items: {
         Row: {
+<<<<<<< HEAD
           cost_price: number | null
           created_at: string | null
           final_price: number | null
@@ -144,6 +223,38 @@ export type Database = {
           quantity?: number
           receipt_id?: string
           total_price?: number | null
+=======
+          cost_price: number
+          id: string
+          product_id: string | null
+          product_name: string
+          profit: number
+          quantity: number
+          receipt_id: string
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          cost_price: number
+          id?: string
+          product_id?: string | null
+          product_name: string
+          profit: number
+          quantity: number
+          receipt_id: string
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          cost_price?: number
+          id?: string
+          product_id?: string | null
+          product_name?: string
+          profit?: number
+          quantity?: number
+          receipt_id?: string
+          total_price?: number
+>>>>>>> sumber/main
           unit_price?: number
         }
         Relationships: [
@@ -165,12 +276,18 @@ export type Database = {
       }
       receipts: {
         Row: {
+<<<<<<< HEAD
           created_at: string | null
           discount: number | null
+=======
+          created_at: string
+          discount: number
+>>>>>>> sumber/main
           id: string
           invoice_number: string | null
           payment_method: string | null
           profit: number
+<<<<<<< HEAD
           store_id: string | null
           subtotal: number
           total: number
@@ -191,10 +308,31 @@ export type Database = {
         Update: {
           created_at?: string | null
           discount?: number | null
+=======
+          subtotal: number
+          total: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          discount?: number
+          id: string
+          invoice_number?: string | null
+          payment_method?: string | null
+          profit?: number
+          subtotal?: number
+          total?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          discount?: number
+>>>>>>> sumber/main
           id?: string
           invoice_number?: string | null
           payment_method?: string | null
           profit?: number
+<<<<<<< HEAD
           store_id?: string | null
           subtotal?: number
           total?: number
@@ -355,10 +493,143 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+=======
+          subtotal?: number
+          total?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      shopping_items: {
+        Row: {
+          created_at: string
+          current_stock: number | null
+          id: string
+          is_completed: boolean
+          name: string
+          notes: string | null
+          quantity: number | null
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stock?: number | null
+          id?: string
+          is_completed?: boolean
+          name: string
+          notes?: string | null
+          quantity?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stock?: number | null
+          id?: string
+          is_completed?: boolean
+          name?: string
+          notes?: string | null
+          quantity?: number | null
+          unit?: string | null
+          updated_at?: string
+>>>>>>> sumber/main
           user_id?: string
         }
         Relationships: []
       }
+<<<<<<< HEAD
+=======
+      transaction_items: {
+        Row: {
+          id: string
+          price: number
+          product_id: string | null
+          product_name: string
+          quantity: number
+          subtotal: number
+          transaction_id: string
+        }
+        Insert: {
+          id?: string
+          price: number
+          product_id?: string | null
+          product_name: string
+          quantity: number
+          subtotal: number
+          transaction_id: string
+        }
+        Update: {
+          id?: string
+          price?: number
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          subtotal?: number
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_items_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          cashier_name: string | null
+          discount_amount: number | null
+          discount_percent: number | null
+          final_amount: number
+          id: string
+          is_manual_note: boolean | null
+          notes: string | null
+          payment_method: string
+          total_amount: number
+          transaction_code: string
+          transaction_date: string
+        }
+        Insert: {
+          cashier_name?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          final_amount: number
+          id?: string
+          is_manual_note?: boolean | null
+          notes?: string | null
+          payment_method: string
+          total_amount: number
+          transaction_code: string
+          transaction_date?: string
+        }
+        Update: {
+          cashier_name?: string | null
+          discount_amount?: number | null
+          discount_percent?: number | null
+          final_amount?: number
+          id?: string
+          is_manual_note?: boolean | null
+          notes?: string | null
+          payment_method?: string
+          total_amount?: number
+          transaction_code?: string
+          transaction_date?: string
+        }
+        Relationships: []
+      }
+>>>>>>> sumber/main
     }
     Views: {
       [_ in never]: never
@@ -368,6 +639,7 @@ export type Database = {
         Args: { identifier: string }
         Returns: {
           email: string
+<<<<<<< HEAD
           username: string
         }[]
       }
@@ -390,6 +662,13 @@ export type Database = {
         | "pakaian"
         | "farmasi"
         | "lainnya"
+=======
+        }[]
+      }
+    }
+    Enums: {
+      [_ in never]: never
+>>>>>>> sumber/main
     }
     CompositeTypes: {
       [_ in never]: never
@@ -516,6 +795,7 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
+<<<<<<< HEAD
     Enums: {
       app_role: ["admin", "user"],
       store_category: [
@@ -529,5 +809,8 @@ export const Constants = {
         "lainnya",
       ],
     },
+=======
+    Enums: {},
+>>>>>>> sumber/main
   },
 } as const

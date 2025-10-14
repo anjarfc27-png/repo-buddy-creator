@@ -1,4 +1,5 @@
 import { Receipt as ReceiptType } from '@/types/pos';
+<<<<<<< HEAD
 import { Store } from '@/types/store';
 
 export const formatThermalReceipt = (
@@ -6,6 +7,10 @@ export const formatThermalReceipt = (
   formatPrice: (price: number) => string,
   store?: Store | null
 ): string => {
+=======
+
+export const formatThermalReceipt = (receipt: ReceiptType, formatPrice: (price: number) => string): string => {
+>>>>>>> sumber/main
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
@@ -13,7 +18,10 @@ export const formatThermalReceipt = (
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+<<<<<<< HEAD
       hour12: false
+=======
+>>>>>>> sumber/main
     }).format(date);
   };
 
@@ -30,6 +38,7 @@ export const formatThermalReceipt = (
     return new Intl.NumberFormat('id-ID').format(amount);
   };
 
+<<<<<<< HEAD
   const storeName = store?.name?.toUpperCase() || 'TOKO';
   const storeAddress = store?.address || '';
   const storePhone = store?.phone || '';
@@ -50,6 +59,14 @@ a.n. ${store.bank_account_holder || ''}`
 ${BOLD_ON}${storeName}${BOLD_OFF}
 ${BOLD_ON}================================${BOLD_OFF}
 ${storeAddress ? storeAddress + '\n' : ''}${storePhone ? 'Telp/WA: ' + storePhone + '\n' : ''}${storeHours ? storeHours + '\n' : ''}
+=======
+  return `${ESC}@${CENTER}${BOLD_ON}================================${BOLD_OFF}
+${BOLD_ON}TOKO ANJAR FOTOCOPY & ATK${BOLD_OFF}
+${BOLD_ON}================================${BOLD_OFF}
+Jl. Raya Gajah - Dempet
+(Depan Koramil Gajah)
+Telp/WA: 0895630183347
+>>>>>>> sumber/main
 
 ${BOLD_ON}================================${BOLD_OFF}
 ${BOLD_ON}STRUK PENJUALAN${BOLD_OFF}
@@ -77,7 +94,11 @@ Diskon: ${' '.repeat(Math.max(0, 17 - `Rp ${formatAmount(receipt.discount)}`.len
 ${BOLD_ON}--------------------------------${BOLD_OFF}
 ${BOLD_ON}TOTAL: ${' '.repeat(Math.max(0, 18 - `Rp ${formatAmount(receipt.total)}`.length))}Rp ${formatAmount(receipt.total)}${BOLD_OFF}
 
+<<<<<<< HEAD
 Metode: ${BOLD_ON}${receipt.paymentMethod?.toUpperCase() || 'CASH'}${BOLD_OFF}${paymentInfo}
+=======
+Metode: ${BOLD_ON}${receipt.paymentMethod?.toUpperCase() || 'CASH'}${BOLD_OFF}
+>>>>>>> sumber/main
 
 ${CENTER}${BOLD_ON}================================${BOLD_OFF}
 ${BOLD_ON}TERIMA KASIH ATAS${BOLD_OFF}
@@ -89,11 +110,15 @@ ${BOLD_ON}================================${BOLD_OFF}
 ${CUT}`;
 };
 
+<<<<<<< HEAD
 export const formatMobileA4ThermalReceipt = (
   receipt: ReceiptType, 
   formatPrice: (price: number) => string,
   store?: Store | null
 ): string => {
+=======
+export const formatMobileA4ThermalReceipt = (receipt: ReceiptType, formatPrice: (price: number) => string): string => {
+>>>>>>> sumber/main
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
@@ -101,7 +126,10 @@ export const formatMobileA4ThermalReceipt = (
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+<<<<<<< HEAD
       hour12: false
+=======
+>>>>>>> sumber/main
     }).format(date);
   };
 
@@ -121,6 +149,7 @@ export const formatMobileA4ThermalReceipt = (
   };
 
   const lineWidth = 48; // A4 thermal paper width
+<<<<<<< HEAD
   const storeName = store?.name?.toUpperCase() || 'TOKO';
   const storeAddress = store?.address || '';
   const storePhone = store?.phone || '';
@@ -140,6 +169,14 @@ Atas Nama: ${store.bank_account_holder || ''}`
 ${BOLD_ON}${DOUBLE_HEIGHT}      ${storeName}      ${BOLD_OFF}${NORMAL_SIZE}
 ${BOLD_ON}${DOUBLE_HEIGHT}================================================${BOLD_OFF}${NORMAL_SIZE}
 ${CENTER}${storeAddress ? storeAddress + '\n' : ''}${storePhone ? 'Telp/WA: ' + storePhone + '\n' : ''}${storeHours ? storeHours + '\n' : ''}
+=======
+
+  return `${ESC}@${CENTER}${BOLD_ON}${DOUBLE_HEIGHT}================================================${BOLD_OFF}${NORMAL_SIZE}
+${BOLD_ON}${DOUBLE_HEIGHT}      TOKO ANJAR FOTOCOPY & ATK      ${BOLD_OFF}${NORMAL_SIZE}
+${BOLD_ON}${DOUBLE_HEIGHT}================================================${BOLD_OFF}${NORMAL_SIZE}
+${CENTER}Jl. Raya Gajah - Dempet (Depan Koramil Gajah)
+Telp/WA: 0895630183347
+>>>>>>> sumber/main
 
 ${BOLD_ON}================================================${BOLD_OFF}
 ${BOLD_ON}${CENTER}           STRUK PENJUALAN           ${BOLD_OFF}
@@ -169,7 +206,11 @@ Diskon:${' '.repeat(Math.max(0, lineWidth - 7 - `Rp ${formatAmount(receipt.disco
 ${BOLD_ON}------------------------------------------------${BOLD_OFF}
 ${BOLD_ON}${DOUBLE_HEIGHT}TOTAL:${' '.repeat(Math.max(0, (lineWidth/2) - 6 - `Rp ${formatAmount(receipt.total)}`.length))}Rp ${formatAmount(receipt.total)}${BOLD_OFF}${NORMAL_SIZE}
 
+<<<<<<< HEAD
 Metode Pembayaran: ${BOLD_ON}${receipt.paymentMethod?.toUpperCase() || 'CASH'}${BOLD_OFF}${paymentInfoA4}
+=======
+Metode Pembayaran: ${BOLD_ON}${receipt.paymentMethod?.toUpperCase() || 'CASH'}${BOLD_OFF}
+>>>>>>> sumber/main
 
 ${CENTER}${BOLD_ON}================================================${BOLD_OFF}
 ${BOLD_ON}${DOUBLE_HEIGHT}        TERIMA KASIH ATAS        ${BOLD_OFF}${NORMAL_SIZE}
@@ -182,11 +223,15 @@ ${BOLD_ON}================================================${BOLD_OFF}
 ${CUT}`;
 };
 
+<<<<<<< HEAD
 export const formatPrintReceipt = (
   receipt: ReceiptType, 
   formatPrice: (price: number) => string,
   store?: Store | null
 ): string => {
+=======
+export const formatPrintReceipt = (receipt: ReceiptType, formatPrice: (price: number) => string): string => {
+>>>>>>> sumber/main
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
@@ -194,6 +239,7 @@ export const formatPrintReceipt = (
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+<<<<<<< HEAD
       hour12: false
     }).format(date);
   };
@@ -233,6 +279,21 @@ export const formatPrintReceipt = (
           ${storeAddress ? `<p style="font-size: 14px; color: #666; margin-bottom: 4px;">${storeAddress}</p>` : ''}
           ${storePhone ? `<p style="font-size: 14px; color: #666; margin-bottom: 4px;">Telp/WA: ${storePhone}</p>` : ''}
           ${storeHours ? `<p style="font-size: 14px; color: #666; margin-bottom: 0;">${storeHours}</p>` : ''}
+=======
+    }).format(date);
+  };
+
+  return `
+      <div style="font-family: -ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; max-width: 380px; margin: 0 auto; padding: 20px; background: white;">
+        <div style="text-align: center; padding-bottom: 16px;">
+          <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Toko Anjar Fotocopy & ATK</h2>
+          <p style="font-size: 14px; color: #666; margin-bottom: 4px;">
+            Jl. Raya Gajah - Dempet (depan Koramil Gajah)
+          </p>
+          <p style="font-size: 14px; color: #666; margin-bottom: 0;">
+            Telp/WA : 0895630183347
+          </p>
+>>>>>>> sumber/main
         </div>
 
         <div style="border-top: 1px solid #e5e7eb; margin: 16px 0;"></div>
@@ -287,6 +348,7 @@ export const formatPrintReceipt = (
 
         <div style="border-top: 1px solid #e5e7eb; margin: 16px 0;"></div>
 
+<<<<<<< HEAD
         <div style="font-size: 14px; margin: 8px 0;">
           <p style="margin-bottom: 4px;">Metode Pembayaran: <strong>${receipt.paymentMethod?.toUpperCase() || 'CASH'}</strong></p>
         </div>
@@ -298,16 +360,28 @@ export const formatPrintReceipt = (
         <div style="text-align: center; font-size: 14px; color: #666;">
           <p style="margin-bottom: 8px;">Terima kasih atas kunjungan Anda!</p>
           <p style="margin-bottom: 8px;">Semoga Hari Anda Menyenangkan</p>
+=======
+        <div style="text-align: center; font-size: 14px; color: #666;">
+          <p style="margin-bottom: 8px;">Terima kasih atas kunjungan Anda!</p>
+          <p style="margin-bottom: 8px;">Semoga Hari Anda Menyenangkan</p>
+          <p style="margin-top: 16px; font-family: monospace;">
+            Kasir: Admin | ${receipt.paymentMethod?.toUpperCase() || 'CASH'}
+          </p>
+>>>>>>> sumber/main
         </div>
       </div>
     `;
 };
 
+<<<<<<< HEAD
 export const formatMobileA4PrintReceipt = (
   receipt: ReceiptType, 
   formatPrice: (price: number) => string,
   store?: Store | null
 ): string => {
+=======
+export const formatMobileA4PrintReceipt = (receipt: ReceiptType, formatPrice: (price: number) => string): string => {
+>>>>>>> sumber/main
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('id-ID', {
       year: 'numeric',
@@ -315,7 +389,10 @@ export const formatMobileA4PrintReceipt = (
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+<<<<<<< HEAD
       hour12: false
+=======
+>>>>>>> sumber/main
     }).format(date);
   };
 
@@ -324,6 +401,7 @@ export const formatMobileA4PrintReceipt = (
     return new Intl.NumberFormat('id-ID').format(amount);
   };
 
+<<<<<<< HEAD
   const storeName = store?.name?.toUpperCase() || 'TOKO';
   const storeAddress = store?.address || '';
   const storePhone = store?.phone || '';
@@ -355,6 +433,14 @@ export const formatMobileA4PrintReceipt = (
           <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">${storeName}</h1>
           ${storeAddress ? `<p style="font-size: 16px; margin-bottom: 5px;">${storeAddress}</p>` : ''}
           ${storePhone ? `<p style="font-size: 16px; margin-bottom: 0;">Telp/WA: ${storePhone}</p>` : ''}
+=======
+  return `
+      <div style="font-family: monospace; width: 100%; max-width: 100%; margin: 0; padding: 20px; box-sizing: border-box;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">TOKO ANJAR FOTOCOPY & ATK</h1>
+          <p style="font-size: 16px; margin-bottom: 5px;">Jl. Raya Gajah - Dempet (Depan Koramil Gajah)</p>
+          <p style="font-size: 16px; margin-bottom: 0;">Telp/WA: 0895630183347</p>
+>>>>>>> sumber/main
         </div>
         
         <div style="text-align: center; margin-bottom: 30px;">
@@ -394,6 +480,7 @@ export const formatMobileA4PrintReceipt = (
           </div>
         </div>
         
+<<<<<<< HEAD
         <div style="border-top: 2px solid #000; margin: 30px 0; padding-top: 20px;">
           <div style="font-size: 16px; margin-bottom: 10px;">
             Metode Pembayaran: <strong>${receipt.paymentMethod?.toUpperCase() || 'CASH'}</strong>
@@ -405,6 +492,12 @@ export const formatMobileA4PrintReceipt = (
         <div style="text-align: center; margin-top: 40px; font-size: 16px;">
           <p style="margin-bottom: 10px; font-weight: bold;">Terima kasih atas kunjungan Anda!</p>
           <p style="margin-bottom: 10px; font-weight: bold;">Semoga Hari Anda Menyenangkan</p>
+=======
+        <div style="text-align: center; margin-top: 40px; font-size: 16px;">
+          <p style="margin-bottom: 10px; font-weight: bold;">Terima kasih atas kunjungan Anda!</p>
+          <p style="margin-bottom: 10px; font-weight: bold;">Semoga Hari Anda Menyenangkan</p>
+          <p style="margin-top: 20px; font-size: 14px;">Kasir: Admin | ${receipt.paymentMethod?.toUpperCase() || 'CASH'}</p>
+>>>>>>> sumber/main
         </div>
       </div>
     `;

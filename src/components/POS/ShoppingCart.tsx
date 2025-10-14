@@ -16,7 +16,10 @@ import { QuantitySelector } from './QuantitySelector';
 import { QuickProductSearch } from './QuickProductSearch';
 import { Product } from '@/types/pos';
 import { useBluetoothContext } from '@/contexts/BluetoothContext';
+<<<<<<< HEAD
 import { PaymentMethodSelector } from './PaymentMethodSelector';
+=======
+>>>>>>> sumber/main
 
 interface ShoppingCartProps {
   cart: CartItem[];
@@ -112,6 +115,7 @@ export const ShoppingCart = ({
     setIsProcessing(true);
     
     try {
+<<<<<<< HEAD
       // Check if already connected
       if (!isConnected) {
         toast.info('Menghubungkan ke printer...');
@@ -119,14 +123,26 @@ export const ShoppingCart = ({
         if (!connected) {
           toast.error('Gagal terhubung ke printer thermal. Pastikan printer menyala dan dalam jangkauan.');
           setIsProcessing(false);
+=======
+      // If not connected, try to connect first
+      if (!isConnected) {
+        const connected = await connect();
+        if (!connected) {
+          toast.error('Gagal terhubung ke printer thermal. Pastikan printer menyala dan dalam jangkauan.');
+>>>>>>> sumber/main
           return;
         }
       }
 
+<<<<<<< HEAD
       // Process transaction
       const receipt = await processTransaction(paymentMethod, discountAmount);
       if (receipt) {
         // Print directly since we're already connected
+=======
+      const receipt = await processTransaction(paymentMethod, discountAmount);
+      if (receipt) {
+>>>>>>> sumber/main
         try {
           const thermalContent = formatThermalReceipt(receipt, formatPrice);
           const success = await thermalPrinter.print(thermalContent);
@@ -137,7 +153,11 @@ export const ShoppingCart = ({
             setDiscount(0);
             setDiscountType('amount');
           } else {
+<<<<<<< HEAD
             toast.error('Gagal mencetak nota. Printer mungkin terputus.');
+=======
+            toast.error('Gagal mencetak nota. Pastikan printer terhubung.');
+>>>>>>> sumber/main
           }
         } catch (error) {
           console.error('Print error:', error);
@@ -252,16 +272,79 @@ export const ShoppingCart = ({
                   {formatPrice(item.finalPrice || item.product.sellPrice)} × {item.quantity}
                 </div>
                 
+<<<<<<< HEAD
                  
+=======
+                {/* Bulk Pricing Display */}
+                {item.quantity >= 12 && (
+                  <div className="mb-2 p-2 bg-primary/5 rounded border">
+                    <div className="text-xs font-medium text-primary mb-1">Harga Khusus:</div>
+                    <div className="space-y-1 text-xs">
+                      {/* Per Lusin (12 pcs) */}
+                      {item.quantity >= 12 && (
+                        <div className="flex justify-between">
+                          <span>Per Lusin ({Math.floor(item.quantity / 12)} lusin):</span>
+                          <span className="font-medium">
+                            {formatPrice((item.finalPrice || item.product.sellPrice) * 12)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Per Kodi (20 pcs) */}
+                      {item.quantity >= 20 && (
+                        <div className="flex justify-between">
+                          <span>Per Kodi ({Math.floor(item.quantity / 20)} kodi):</span>
+                          <span className="font-medium">
+                            {formatPrice((item.finalPrice || item.product.sellPrice) * 20)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Per Gros (144 pcs) */}
+                      {item.quantity >= 144 && (
+                        <div className="flex justify-between">
+                          <span>Per Gros ({Math.floor(item.quantity / 144)} gros):</span>
+                          <span className="font-medium">
+                            {formatPrice((item.finalPrice || item.product.sellPrice) * 144)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Per Rim (500 sheets for paper) */}
+                      {item.product.category === 'Kertas' && item.quantity >= 500 && (
+                        <div className="flex justify-between">
+                          <span>Per Rim ({Math.floor(item.quantity / 500)} rim):</span>
+                          <span className="font-medium">
+                            {formatPrice((item.finalPrice || item.product.sellPrice) * 500)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Total for current quantity */}
+                      <div className="flex justify-between pt-1 border-t border-primary/20">
+                        <span className="font-medium">Total ({item.quantity} pcs):</span>
+                        <span className="font-bold text-primary">
+                          {formatPrice((item.finalPrice || item.product.sellPrice) * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+>>>>>>> sumber/main
                 <QuantitySelector
                   quantity={item.quantity}
                   productName={item.product.name}
                   category={item.product.category}
+<<<<<<< HEAD
                   maxStock={item.product.isPhotocopy ? undefined : item.product.stock}
+=======
+>>>>>>> sumber/main
                   onQuantityChange={(quantity) => {
                     if (quantity === 0) {
                       removeFromCart(item.product.id);
                     } else {
+<<<<<<< HEAD
                       // Validate stock for non-photocopy items
                       if (!item.product.isPhotocopy && quantity > item.product.stock) {
                         toast.error('Stok Tidak Cukup', {
@@ -269,12 +352,21 @@ export const ShoppingCart = ({
                         });
                         return;
                       }
+=======
+>>>>>>> sumber/main
                       updateCartQuantity(item.product.id, quantity, item.finalPrice);
                     }
                   }}
                   onRemove={() => removeFromCart(item.product.id)}
+<<<<<<< HEAD
                   showUnitSelector={true}
                   showUnitConversions={true}
+=======
+                  allowBulkPricing={true}
+                  currentPrice={item.quantity >= 12 ? (item.finalPrice || item.product.sellPrice) * 12 : item.finalPrice || item.product.sellPrice}
+                  onPriceChange={(price) => handlePriceChange(item.product.id, price)}
+                  showUnitSelector={true}
+>>>>>>> sumber/main
                 />
               </div>
               
@@ -290,7 +382,24 @@ export const ShoppingCart = ({
         <Separator />
         
         <div className="space-y-3 sm:space-y-4">
+<<<<<<< HEAD
           <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
+=======
+          <div className="space-y-1 sm:space-y-2">
+            <Label className="text-xs sm:text-sm font-medium">Metode Pembayaran</Label>
+            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cash">Tunai</SelectItem>
+                <SelectItem value="debit">Kartu Debit</SelectItem>
+                <SelectItem value="credit">Kartu Kredit</SelectItem>
+                <SelectItem value="qris">QRIS</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+>>>>>>> sumber/main
 
           <div className="space-y-1 sm:space-y-2">
             <Label className="text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2">

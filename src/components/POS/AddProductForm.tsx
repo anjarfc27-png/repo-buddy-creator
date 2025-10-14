@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
+=======
+import { useState } from 'react';
+>>>>>>> sumber/main
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+<<<<<<< HEAD
 import { Plus, X, Scan } from 'lucide-react';
 import { Product } from '@/types/pos';
 import { QuantitySelector } from './QuantitySelector';
@@ -12,6 +17,11 @@ import { toast } from 'sonner';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
 import { useStore } from '@/contexts/StoreContext';
+=======
+import { Plus, X } from 'lucide-react';
+import { Product } from '@/types/pos';
+import { QuantitySelector } from './QuantitySelector';
+>>>>>>> sumber/main
 
 interface AddProductFormProps {
   onAddProduct: (product: Omit<Product, 'id'>) => void;
@@ -20,15 +30,22 @@ interface AddProductFormProps {
   onClose: () => void;
 }
 
+<<<<<<< HEAD
 export default function AddProductForm({ onAddProduct, onUpdateProduct, products = [], onClose }: AddProductFormProps) {
+=======
+export const AddProductForm = ({ onAddProduct, onUpdateProduct, products = [], onClose }: AddProductFormProps) => {
+>>>>>>> sumber/main
   const [formData, setFormData] = useState({
     name: '',
     costPrice: '',
     sellPrice: '',
     stock: '',
     category: '',
+<<<<<<< HEAD
     code: '',
     barcode: '',
+=======
+>>>>>>> sumber/main
     isPhotocopy: false,
   });
   const [isService, setIsService] = useState(false);
@@ -36,6 +53,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+<<<<<<< HEAD
   const [isScanning, setIsScanning] = useState(false);
   const { currentStore } = useStore();
   const isAtkStore = currentStore?.category === 'atk';
@@ -45,6 +63,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       setFormData(prev => ({ ...prev, isPhotocopy: false }));
     }
   }, [currentStore?.category, formData.isPhotocopy]);
+=======
+>>>>>>> sumber/main
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +73,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       return;
     }
 
+<<<<<<< HEAD
     // Check if code or barcode already exists
     if (formData.code && formData.code.trim()) {
       const existingCode = products.find(p => 
@@ -76,6 +97,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       }
     }
 
+=======
+>>>>>>> sumber/main
     // Check if product with same name already exists
     const existingProduct = products.find(p => 
       p.name.toLowerCase().trim() === formData.name.toLowerCase().trim()
@@ -103,8 +126,11 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         sellPrice: parseFloat(formData.sellPrice),
         stock: (formData.isPhotocopy || isService) ? 0 : (stockQuantity || 0),
         category: formData.category || undefined,
+<<<<<<< HEAD
         code: formData.code || undefined,
         barcode: formData.barcode || undefined,
+=======
+>>>>>>> sumber/main
         isPhotocopy: formData.isPhotocopy,
       });
     }
@@ -116,8 +142,11 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       sellPrice: '',
       stock: '',
       category: '',
+<<<<<<< HEAD
       code: '',
       barcode: '',
+=======
+>>>>>>> sumber/main
       isPhotocopy: false,
     });
     setStockQuantity(0);
@@ -175,14 +204,18 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       sellPrice: product.sellPrice.toString(),
       stock: '',
       category: product.category || '',
+<<<<<<< HEAD
       code: product.code || '',
       barcode: product.barcode || '',
+=======
+>>>>>>> sumber/main
       isPhotocopy: product.isPhotocopy || false,
     });
     setShowSuggestions(false);
     setSuggestions([]);
   };
 
+<<<<<<< HEAD
   const handleScanBarcode = async () => {
     try {
       if (!Capacitor.isNativePlatform()) {
@@ -250,6 +283,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
     setIsScanning(false);
   };
 
+=======
+>>>>>>> sumber/main
   return (
     <Card className="pos-card">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -332,6 +367,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                   />
                 </div>
                 
+<<<<<<< HEAD
 
                 <div>
                   <Label htmlFor="code">Kode Produk (opsional)</Label>
@@ -367,6 +403,26 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                       <Scan className="h-4 w-4" />
                     </Button>
                   </div>
+=======
+                <div>
+                  <Label htmlFor="category">Kategori</Label>
+                  <Select 
+                    value={formData.category} 
+                    onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih kategori" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Fotocopy">Fotocopy</SelectItem>
+                      <SelectItem value="Alat Tulis">Alat Tulis</SelectItem>
+                      <SelectItem value="ATK">ATK</SelectItem>
+                      <SelectItem value="Kertas">Kertas</SelectItem>
+                      <SelectItem value="Pramuka">Pramuka</SelectItem>
+                      <SelectItem value="Lainnya">Lainnya</SelectItem>
+                    </SelectContent>
+                  </Select>
+>>>>>>> sumber/main
                 </div>
 
                 <div className="md:col-span-2">
@@ -383,6 +439,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                   />
                 </div>
                 
+<<<<<<< HEAD
                 {isAtkStore && (
                   <div className="flex items-center space-x-2">
                     <input
@@ -397,6 +454,20 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                     </Label>
                   </div>
                 )}
+=======
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isPhotocopy"
+                    checked={formData.isPhotocopy}
+                    onChange={(e) => setFormData({ ...formData, isPhotocopy: e.target.checked })}
+                    className="rounded border border-input"
+                  />
+                  <Label htmlFor="isPhotocopy" className="text-sm">
+                    Layanan Fotocopy (Tiered Pricing)
+                  </Label>
+                </div>
+>>>>>>> sumber/main
               </div>
               
               <div className="flex gap-2 pt-4">
@@ -462,6 +533,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                     <SelectTrigger>
                       <SelectValue placeholder="Pilih kategori" />
                     </SelectTrigger>
+<<<<<<< HEAD
                       <SelectContent>
                         {isAtkStore && (
                           <SelectItem value="Fotocopy">Fotocopy</SelectItem>
@@ -471,6 +543,15 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                         <SelectItem value="Scan">Scan</SelectItem>
                         <SelectItem value="Lainnya">Lainnya</SelectItem>
                       </SelectContent>
+=======
+                    <SelectContent>
+                      <SelectItem value="Fotocopy">Fotocopy</SelectItem>
+                      <SelectItem value="Laminasi">Laminasi</SelectItem>
+                      <SelectItem value="Jilid">Jilid</SelectItem>
+                      <SelectItem value="Scan">Scan</SelectItem>
+                      <SelectItem value="Lainnya">Lainnya</SelectItem>
+                    </SelectContent>
+>>>>>>> sumber/main
                   </Select>
                 </div>
               </div>
@@ -488,6 +569,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
           </TabsContent>
         </Tabs>
       </CardContent>
+<<<<<<< HEAD
 
       {isScanning && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
@@ -505,3 +587,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
     </Card>
   );
 }
+=======
+    </Card>
+  );
+};
+>>>>>>> sumber/main
