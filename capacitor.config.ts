@@ -1,18 +1,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.kasirq.pos',
-  appName: 'KasirQ - POS',
+  appId: 'com.anjar.tokoanjar',
+  appName: 'anjarpos5-22',
   webDir: 'dist',
-  // iOS status bar configuration
-  ios: {
-    contentInset: 'always'
-  },
-  // Android status bar configuration  
-  android: {
-    backgroundColor: '#00ACC1',
-    allowMixedContent: true
-  },
   // Note: server.url dihapus agar APK memuat aset lokal (tidak membuka situs Lovable)
   // Untuk live-reload saat development, bisa sementara tambahkan kembali:
   // server: {
