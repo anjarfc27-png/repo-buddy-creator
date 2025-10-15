@@ -423,7 +423,7 @@ Profit: ${formatPrice(receipt.profit)}
           }
           .scanner-controls {
             position: absolute;
-            top: 20px;
+            top: max(calc(env(safe-area-inset-top, 20px) + 20px), 60px);
             left: 0;
             right: 0;
             display: flex;
@@ -580,11 +580,9 @@ Profit: ${formatPrice(receipt.profit)}
   };
 
   return (
-    <div className="min-h-screen w-full bg-background">
+    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+70px)]">
       {/* Header - Fixed with safe area padding for status bar */}
-      <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full">
-        {/* White spacer for status bar */}
-        <div className="h-12 bg-background"></div>
+      <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full safe-top">
         <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
             <div 

@@ -216,7 +216,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
           }
           .scanner-controls {
             position: absolute;
-            top: 20px;
+            top: max(calc(env(safe-area-inset-top, 20px) + 20px), 60px);
             left: 0;
             right: 0;
             display: flex;
