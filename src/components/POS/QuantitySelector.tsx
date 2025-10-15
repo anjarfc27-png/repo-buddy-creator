@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { getUnitDisplay, getUnitOptions, getUnitMultiplier } from '@/lib/units';
+import { useStore } from '@/contexts/StoreContext';
+import { StoreCategory } from '@/types/store';
 
 interface QuantitySelectorProps {
   quantity: number;
@@ -20,6 +22,7 @@ interface QuantitySelectorProps {
   onPriceChange?: (price: number) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   onGetTotalQuantity?: (getTotalQuantity: () => number) => void;
+  showUnitConversions?: boolean;
 }
 
 export const QuantitySelector = ({
@@ -34,8 +37,11 @@ export const QuantitySelector = ({
   currentPrice,
   onPriceChange,
   onKeyDown,
-  onGetTotalQuantity
+  onGetTotalQuantity,
+  showUnitConversions = false
 }: QuantitySelectorProps) => {
+  const { currentStore } = useStore();
+  const storeCategory = currentStore?.category as StoreCategory;
   const [selectedUnit, setSelectedUnit] = useState('pcs');
   const [unitQuantity, setUnitQuantity] = useState(0);
   const [customPrice, setCustomPrice] = useState<string>('');
@@ -115,7 +121,11 @@ export const QuantitySelector = ({
           size="sm"
           variant="outline"
           className="h-8 w-8 p-0"
-          onClick={() => handleQuantityChange(quantity - 1)}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handleQuantityChange(quantity - 1);
+          }}
         >
           <Minus className="h-3 w-3" />
         </Button>
@@ -125,6 +135,7 @@ export const QuantitySelector = ({
           value={quantity || ''}
           onChange={handleQuantityInputChange}
           onKeyDown={handleKeyDown}
+          onFocus={(e) => e.target.select()}
           className="h-8 w-20 text-center text-sm"
           min="0"
           max={maxStock}
@@ -136,7 +147,11 @@ export const QuantitySelector = ({
           size="sm"
           variant="outline"
           className="h-8 w-8 p-0"
-          onClick={() => handleQuantityChange(quantity + 1)}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handleQuantityChange(quantity + 1);
+          }}
           disabled={maxStock !== undefined && quantity >= maxStock}
         >
           <Plus className="h-3 w-3" />
@@ -162,16 +177,17 @@ export const QuantitySelector = ({
               type="number"
               value={unitQuantity || ''}
               onChange={(e) => handleUnitQuantityChange(parseInt(e.target.value) || 0)}
+              onFocus={(e) => e.target.select()}
               className="h-8 w-16 text-center text-sm"
               min="0"
               placeholder="0"
               inputMode="numeric"
             />
             <Select value={selectedUnit} onValueChange={handleUnitChange}>
-              <SelectTrigger className="h-8 flex-1">
-                <SelectValue />
+              <SelectTrigger className="h-8 flex-1 min-w-[120px]">
+                <SelectValue placeholder="Pilih unit" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 {unitOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -179,39 +195,49 @@ export const QuantitySelector = ({
                 ))}
               </SelectContent>
             </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 w-8 p-0 shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                if (unitQuantity > 0) {
+                  const multiplier = getUnitMultiplier(selectedUnit, category);
+                  const additionalQuantity = unitQuantity * multiplier;
+                  handleQuantityChange(quantity + additionalQuantity);
+                  setUnitQuantity(0);
+                }
+              }}
+              disabled={!unitQuantity || unitQuantity <= 0}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Display unit conversions */}
-      {unitDisplay.length > 0 && quantity > 0 && (
+      {/* Display unit conversions - Only in cart */}
+      {showUnitConversions && unitDisplay.length > 0 && quantity > 0 && (
         <div className="flex flex-wrap gap-1">
-          {unitDisplay.slice(1).map((conversion, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {conversion.display}
-            </Badge>
-          ))}
+          {(() => {
+            // Only show the most relevant conversion
+            const conversions = unitDisplay.slice(1);
+            if (conversions.length === 0) return null;
+            
+            // Find the largest applicable conversion
+            const relevantConversion = conversions[conversions.length - 1];
+            
+            return (
+              <Badge key={relevantConversion.unit} variant="outline" className="text-xs">
+                {relevantConversion.display}
+              </Badge>
+            );
+          })()}
         </div>
       )}
 
-      {/* Bulk pricing editor */}
-      {canEditPrice && onPriceChange && (
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">
-            Harga khusus:
-          </Label>
-          <Input
-            type="number"
-            value={customPrice}
-            onChange={(e) => handlePriceChange(e.target.value)}
-            className="h-8 text-sm"
-            placeholder="Harga per lusin"
-            min="0"
-            inputMode="decimal"
-            onFocus={(e) => e.target.select()}
-          />
-        </div>
-      )}
+      {/* Bulk pricing editor - Hidden as per request */}
     </div>
   );
 };

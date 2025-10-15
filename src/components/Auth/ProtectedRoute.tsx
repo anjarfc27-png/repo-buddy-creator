@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isApproved, isAdminCheckComplete, isAdmin } = useAuth();
 
-  if (loading) {
+  if (loading || !isAdminCheckComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -22,6 +22,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Admin always has access, bypass approval check
+  if (isAdmin) {
+    return <>{children}</>;
+  }
+
+  // Regular users need approval
+  if (!isApproved) {
+    return <Navigate to="/waiting-approval" replace />;
   }
 
   return <>{children}</>;

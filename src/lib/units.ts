@@ -8,7 +8,7 @@ export interface UnitConversion {
 export const getUnitDisplay = (quantity: number, productName?: string, category?: string): UnitConversion[] => {
   const conversions: UnitConversion[] = [];
   
-  // For paper category, use rim as base unit
+  // For paper category
   if (category === 'Kertas') {
     conversions.push({
       unit: 'rim',
@@ -16,7 +16,6 @@ export const getUnitDisplay = (quantity: number, productName?: string, category?
       display: `${quantity} rim (${quantity * 500} lembar)`
     });
 
-    // Karton conversion for paper (5 rim = 1 karton)
     if (quantity >= 5) {
       const karton = Math.floor(quantity / 5);
       const remainder = quantity % 5;
@@ -29,7 +28,7 @@ export const getUnitDisplay = (quantity: number, productName?: string, category?
       }
     }
   } else {
-    // Always show the base quantity for non-paper items
+    // Standard display for all other categories
     conversions.push({
       unit: 'pcs',
       quantity,
@@ -100,16 +99,16 @@ export const getUnitMultiplier = (unit: string, category?: string): number => {
     case 'gros':
       return 144;
     case 'karton':
-      return category === 'Kertas' ? 5 : 1; // For paper, 5 rim = 1 karton
+      return category === 'Kertas' ? 5 : 1;
     case 'rim':
-      return 1; // Base unit for paper
+      return 1;
     default:
       return 1;
   }
 };
 
 export const getUnitOptions = (productName?: string, category?: string) => {
-  // For paper category, only show rim and karton
+  // For paper category
   if (category === 'Kertas') {
     return [
       { value: 'rim', label: 'Rim (500 lembar)', multiplier: 1 },
@@ -117,7 +116,7 @@ export const getUnitOptions = (productName?: string, category?: string) => {
     ];
   }
 
-  // Standard units for other products
+  // Default units
   return [
     { value: 'pcs', label: 'Pcs', multiplier: 1 },
     { value: 'pax', label: 'Pax (10 pcs)', multiplier: 10 },

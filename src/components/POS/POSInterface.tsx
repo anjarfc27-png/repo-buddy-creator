@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PhotocopyDialog } from './PhotocopyDialog';
 import { PhotocopyService } from './PhotocopyService';
-import { WiFiPrinterManager } from './WiFiPrinterManager';
 import { AdminProtection } from '@/components/Auth/AdminProtection';
 import { 
   LazyProductGrid,
@@ -10,10 +9,9 @@ import {
   LazyReceipt,
   LazyAddProductForm,
   LazySalesReport,
-  LazyManualReceiptReport,
   LazyStockManagement,
   LazyReceiptHistory,
-  LazyManualInvoice,
+  LazyQuickInvoice,
   LazyShoppingList,
   LazyBluetoothManager,
   ComponentLoader
@@ -37,11 +35,18 @@ import {
   BarChart3,
   LogOut,
   Settings,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle,
+  Scan
 } from 'lucide-react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useStore } from '@/contexts/StoreContext';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { Capacitor } from '@capacitor/core';
+import { toast } from 'sonner';
 
 export const POSInterface = () => {
+  const navigate = useNavigate();
   const {
     products,
     cart,
@@ -59,15 +64,28 @@ export const POSInterface = () => {
   } = usePOSContext();
 
   const { signOut } = useAuth();
-  const location = useLocation();
+  const { currentStore } = useStore();
   const [lastReceipt, setLastReceipt] = useState<ReceiptType | null>(null);
-  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptType | null>(location.state?.viewReceipt || null);
+  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptType | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [photocopyProduct, setPhotocopyProduct] = useState<Product | null>(null);
   const [showPhotocopyDialog, setShowPhotocopyDialog] = useState(false);
   const [currentTab, setCurrentTab] = useState('pos');
   const [showAdminProtection, setShowAdminProtection] = useState(false);
   const [pendingAdminAction, setPendingAdminAction] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+
+  // Handle location state for viewing receipts from navigation
+  useEffect(() => {
+    try {
+      const state = (window.history.state && window.history.state.usr) as any;
+      if (state?.viewReceipt) {
+        setSelectedReceipt(state.viewReceipt);
+      }
+    } catch (error) {
+      console.log('No receipt from navigation state');
+    }
+  }, []);
 
   // Global Enter key support for thermal printing
   useEffect(() => {
@@ -118,6 +136,9 @@ export const POSInterface = () => {
         setCurrentTab('stock-management');
         break;
       case 'stock':
+        setCurrentTab('stock');
+        break;
+      case 'low-stock':
         setCurrentTab('low-stock');
         break;
     }
@@ -133,6 +154,7 @@ export const POSInterface = () => {
       setCurrentTab(pendingAdminAction);
       setPendingAdminAction(null);
     }
+    setShowAdminProtection(false);
   };
 
   const handleLogout = async () => {
@@ -183,7 +205,7 @@ export const POSInterface = () => {
       
       // Try thermal printing first
       if (thermalPrinter.isConnected()) {
-        const receiptText = formatThermalReceipt(receipt, formatPrice);
+        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -195,7 +217,7 @@ export const POSInterface = () => {
       // Fallback to thermal printer connection attempt
       const connected = await thermalPrinter.connect();
       if (connected) {
-        const receiptText = formatThermalReceipt(receipt, formatPrice);
+        const receiptText = formatThermalReceipt(receipt, formatPrice, currentStore);
         const printed = await thermalPrinter.print(receiptText);
         
         if (printed) {
@@ -217,13 +239,18 @@ export const POSInterface = () => {
   };
 
   const handleBrowserPrint = (receipt: ReceiptType) => {
+    const storeName = currentStore?.name || 'TOKO';
+    const storeAddress = currentStore?.address || '';
+    const storePhone = currentStore?.phone || '';
+    
     const printContent = `
 ===============================
-   TOKO ANJAR
+   ${storeName.toUpperCase()}
 ===============================
+${storeAddress ? storeAddress + '\n' : ''}${storePhone ? 'Telp: ' + storePhone + '\n' : ''}
 Invoice: ${receipt.id}
 Tanggal: ${new Date(receipt.timestamp).toLocaleDateString('id-ID')}
-Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID')}
+Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
 -------------------------------
 
 ${receipt.items.map(item => `
@@ -285,17 +312,22 @@ Profit: ${formatPrice(receipt.profit)}
     const searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
     const productName = product.name.toLowerCase();
     const productCategory = product.category?.toLowerCase() || '';
+    const productCode = product.code?.toLowerCase() || '';
+    const productBarcode = product.barcode?.toLowerCase() || '';
     
-    // Check if all search words are found in product name or category
+    // Check if all search words are found in product name, code, barcode, or category
     return searchWords.every(word => 
-      productName.includes(word) || productCategory.includes(word)
+      productName.includes(word) || 
+      productCategory.includes(word) ||
+      productCode.includes(word) ||
+      productBarcode.includes(word)
     );
   });
 
   // Memoized calculations for dashboard statistics to improve performance and ensure reactivity
   const dashboardStats = useMemo(() => {
     const totalProducts = products.length;
-    const lowStockProducts = products.filter(product => product.stock <= 24 && !product.isPhotocopy).length;
+    const lowStockProductsArray = products.filter(product => product.stock <= 24 && !product.isPhotocopy);
     
     const today = new Date();
     const todayString = today.toDateString();
@@ -328,7 +360,7 @@ Profit: ${formatPrice(receipt.profit)}
     
     return {
       totalProducts,
-      lowStockProducts,
+      lowStockProductsArray,
       todayRevenue,
       todayProfit,
       todayManualRevenue,
@@ -336,7 +368,8 @@ Profit: ${formatPrice(receipt.profit)}
     };
   }, [products, receipts]);
 
-  const { totalProducts, lowStockProducts, todayRevenue, todayProfit, todayManualRevenue, todayPhotocopyEarnings } = dashboardStats;
+  const { totalProducts, lowStockProductsArray, todayRevenue, todayProfit, todayManualRevenue, todayPhotocopyEarnings } = dashboardStats;
+  const lowStockCount = lowStockProductsArray.length;
 
   // Welcome message based on time
   const getWelcomeMessage = () => {
@@ -353,27 +386,231 @@ Profit: ${formatPrice(receipt.profit)}
     return true;
   };
 
+  const handleBarcodeScanner = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      toast.error('Scan barcode hanya tersedia di aplikasi mobile');
+      return;
+    }
+
+    try {
+      setIsScanning(true);
+      
+      // Check permission
+      const status = await BarcodeScanner.checkPermission({ force: true });
+      
+      if (!status.granted) {
+        toast.error('Izin kamera tidak diberikan');
+        setIsScanning(false);
+        return;
+      }
+
+      // Make background transparent and show scanner UI
+      document.body.classList.add('scanner-active');
+      
+      // Add scanner overlay with focus guide
+      const scannerOverlay = document.createElement('div');
+      scannerOverlay.id = 'scanner-overlay';
+      scannerOverlay.innerHTML = `
+        <style>
+          #scanner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: transparent;
+          }
+          .scanner-controls {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10001;
+          }
+          .scanner-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+          }
+          .scanner-focus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+          }
+          .scanner-focus::before,
+          .scanner-focus::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ff0000;
+          }
+          .scanner-focus::before {
+            top: -4px;
+            left: -4px;
+            border-right: none;
+            border-bottom: none;
+          }
+          .scanner-focus::after {
+            top: -4px;
+            right: -4px;
+            border-left: none;
+            border-bottom: none;
+          }
+          .scanner-focus-bottom::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: -4px;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ff0000;
+            border-right: none;
+            border-top: none;
+          }
+          .scanner-focus-bottom::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ff0000;
+            border-left: none;
+            border-top: none;
+          }
+          .scanner-text {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            z-index: 10001;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 24px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+          }
+        </style>
+        <div class="scanner-controls">
+          <button id="scanner-back" class="scanner-btn">← Kembali</button>
+          <button id="scanner-flash" class="scanner-btn">💡 Flash</button>
+        </div>
+        <div class="scanner-focus scanner-focus-bottom"></div>
+        <div class="scanner-text">Arahkan kamera ke barcode</div>
+      `;
+      document.body.appendChild(scannerOverlay);
+      
+      // Handle back button
+      let scanCancelled = false;
+      document.getElementById('scanner-back')?.addEventListener('click', async () => {
+        scanCancelled = true;
+        await BarcodeScanner.stopScan();
+        document.body.classList.remove('scanner-active');
+        document.getElementById('scanner-overlay')?.remove();
+        setIsScanning(false);
+      });
+      
+      // Handle flash toggle
+      let flashOn = false;
+      document.getElementById('scanner-flash')?.addEventListener('click', async () => {
+        flashOn = !flashOn;
+        const btn = document.getElementById('scanner-flash');
+        if (btn) {
+          btn.textContent = flashOn ? '💡 Flash ON' : '💡 Flash';
+          btn.style.background = flashOn ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+        }
+      });
+      
+      // Start scanning
+      const result = await BarcodeScanner.startScan();
+      
+      // Remove overlay and transparency
+      document.body.classList.remove('scanner-active');
+      document.getElementById('scanner-overlay')?.remove();
+      setIsScanning(false);
+
+      if (!scanCancelled && result.hasContent) {
+        // Search for product by barcode or code
+        const foundProduct = products.find(p => 
+          p.barcode?.toLowerCase() === result.content?.toLowerCase() ||
+          p.code?.toLowerCase() === result.content?.toLowerCase() ||
+          p.name.toLowerCase().includes(result.content?.toLowerCase() || '')
+        );
+
+        if (foundProduct) {
+          if (foundProduct.isPhotocopy && currentStore?.category === 'atk') {
+            handlePhotocopyClick(foundProduct);
+          } else {
+            addToCart(foundProduct, 1);
+          }
+          toast.success(`Produk "${foundProduct.name}" ditambahkan ke keranjang`);
+        } else {
+          toast.error(`Produk dengan kode "${result.content}" tidak ditemukan`);
+        }
+      }
+    } catch (error) {
+      console.error('Barcode scan error:', error);
+      document.body.classList.remove('scanner-active');
+      document.getElementById('scanner-overlay')?.remove();
+      setIsScanning(false);
+      toast.error('Terjadi kesalahan saat scanning');
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
-      {/* Header */}
-      <header className="border-b bg-card shadow-sm w-full">
-        <div className="w-full px-2 sm:px-4 py-3 sm:py-4">
+      {/* Header - Fixed with safe area padding for status bar */}
+      <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full">
+        {/* White spacer for status bar */}
+        <div className="h-12 bg-background"></div>
+        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex items-center gap-2">
-                <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <div 
+              onClick={() => navigate('/settings', { replace: true })} 
+              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <div>
                 <div className="hidden sm:block">
-                  <h1 className="text-lg sm:text-2xl font-bold">Kasir Toko Anjar</h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Jalan Gajah - Dempet (Depan Koramil)
-                  </p>
+                  <h1 className="text-lg sm:text-2xl font-bold">
+                    Kasir POS Multi Toko
+                  </h1>
+                  {currentStore?.address && (
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {currentStore.address}
+                    </p>
+                  )}
                   <p className="text-xs sm:text-sm text-primary font-medium">
-                    {getWelcomeMessage()}, Admin Kasir
+                    {getWelcomeMessage()}, {currentStore?.cashier_name || 'Admin Kasir'}
                   </p>
                 </div>
                 {/* Mobile compact header */}
                 <div className="sm:hidden">
-                  <h1 className="text-sm font-bold">Toko Anjar</h1>
+                  <h1 className="text-sm font-bold">
+                    {currentStore?.name || 'Toko'}
+                  </h1>
                   <p className="text-xs text-primary">
                     {getWelcomeMessage()}
                   </p>
@@ -452,54 +689,42 @@ Profit: ${formatPrice(receipt.profit)}
         </div>
       </header>
 
-        {/* Dashboard Stats */}
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        {/* Dashboard Stats with top padding for fixed header and status bar */}
+      <div className="w-full px-2 sm:px-4 py-2 sm:py-4 mt-28 sm:mt-32">
+        <div className="grid grid-cols-1 gap-2 sm:gap-4 mb-4 sm:mb-6">
+          {/* Full width card on top */}
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('revenue')}>
             <CardContent className="flex items-center p-4">
               <DollarSign className="h-8 w-8 text-success mr-3" />
               <div>
-                <div className="text-2xl font-bold text-success">
-                  {formatPrice(todayRevenue)}
-                </div>
-                <div className="text-sm text-muted-foreground">Penjualan Hari Ini</div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('profit')}>
-            <CardContent className="flex items-center p-4">
-              <TrendingUp className="h-8 w-8 text-primary mr-3" />
-              <div>
-                <div className="text-2xl font-bold text-primary">
-                  {formatPrice(todayProfit)}
-                </div>
-                <div className="text-sm text-muted-foreground">Keuntungan Hari Ini</div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setCurrentTab('manual-reports')}>
-            <CardContent className="flex items-center p-4">
-              <Package className="h-8 w-8 text-warning mr-3" />
-              <div>
-                <div className="text-2xl font-bold text-warning">
-                  {formatPrice(todayManualRevenue)}
-                </div>
-                <div className="text-sm text-muted-foreground">Pendapatan Manual</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Penjualan Hari Ini</p>
+                <p className="text-lg sm:text-2xl font-bold">{formatPrice(todayRevenue)}</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('stock')}>
-            <CardContent className="flex items-center p-4">
-              <Users className="h-8 w-8 text-error mr-3" />
+          {/* Two cards side by side */}
+          <div className="grid grid-cols-2 gap-2 sm:gap-4">
+            <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('profit')}>
+              <CardContent className="flex items-center p-4">
+                <TrendingUp className="h-8 w-8 text-primary mr-3" />
+                <div>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Keuntungan Hari Ini</p>
+                  <p className="text-lg sm:text-2xl font-bold">{formatPrice(todayProfit)}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('low-stock')}>
+              <CardContent className="flex items-center p-4">
+                <AlertTriangle className="h-8 w-8 text-warning mr-3" />
               <div>
-                <div className="text-2xl font-bold">{lowStockProducts}</div>
-                <div className="text-sm text-muted-foreground">Stok Menipis</div>
-              </div>
-            </CardContent>
-          </Card>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Stok Menipis</p>
+                  <p className="text-lg sm:text-2xl font-bold">{lowStockCount}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <Tabs value={currentTab} onValueChange={(value) => {
@@ -509,32 +734,29 @@ Profit: ${formatPrice(receipt.profit)}
             setCurrentTab(value);
           }
         }} className="w-full">
-          <TabsList className="flex flex-wrap w-full h-auto p-1 gap-1 justify-start sm:grid sm:grid-cols-8 sm:gap-1">
-            <TabsTrigger value="pos" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+          <TabsList className="grid grid-cols-4 sm:flex sm:flex-wrap w-full h-auto p-1 gap-1 sm:justify-start">
+            <TabsTrigger value="pos" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Kasir
             </TabsTrigger>
-            <TabsTrigger value="manual-invoice" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
-              Nota Manual
+            <TabsTrigger value="quick-invoice" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
+              Nota Cepat
             </TabsTrigger>
-            <TabsTrigger value="shopping-list" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+            <TabsTrigger value="shopping-list" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Daftar Belanja
             </TabsTrigger>
-            <TabsTrigger value="stock" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+            <TabsTrigger value="stock" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Stok
             </TabsTrigger>
-            <TabsTrigger value="receipt" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+            <TabsTrigger value="low-stock" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
+              Stok Menipis
+            </TabsTrigger>
+            <TabsTrigger value="receipt" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Nota
             </TabsTrigger>
-            <TabsTrigger value="wifi-print" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
-              Cetak WiFi
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+            <TabsTrigger value="reports" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Laporan
             </TabsTrigger>
-            <TabsTrigger value="manual-reports" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
-              Laporan Manual
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3">
+            <TabsTrigger value="admin" className="text-xs px-2 py-2 sm:text-sm sm:px-3 sm:py-3 rounded-md">
               Admin
             </TabsTrigger>
           </TabsList>
@@ -553,7 +775,7 @@ Profit: ${formatPrice(receipt.profit)}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6">
-                    <div className="mb-3 sm:mb-4">
+                    <div className="mb-3 sm:mb-4 space-y-2">
                       <div className="relative">
                         <Search className="absolute left-3 top-2.5 sm:top-3 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -570,14 +792,14 @@ Profit: ${formatPrice(receipt.profit)}
                               <div
                                 key={product.id}
                                 className="p-2 hover:bg-muted cursor-pointer border-b last:border-b-0"
-                                onClick={() => {
-                                  if (product.isPhotocopy) {
-                                    handlePhotocopyClick(product);
-                                  } else {
-                                    addToCart(product, 1);
-                                  }
-                                  setSearchTerm('');
-                                }}
+                                 onClick={() => {
+                                   if (product.isPhotocopy && currentStore?.category === 'atk') {
+                                     handlePhotocopyClick(product);
+                                   } else {
+                                     addToCart(product, 1);
+                                   }
+                                   setSearchTerm('');
+                                 }}
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="flex-1">
@@ -620,19 +842,33 @@ Profit: ${formatPrice(receipt.profit)}
                           </div>
                         )}
                       </div>
+                      
+                      {/* Barcode Scanner Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleBarcodeScanner}
+                        disabled={isScanning}
+                        className="w-full h-8 sm:h-10"
+                      >
+                        <Scan className="h-4 w-4 mr-2" />
+                        {isScanning ? 'Scanning...' : 'Scan Barcode'}
+                      </Button>
                     </div>
                     <div className="space-y-4">
-                      {/* Layanan Fotocopy */}
-                      <PhotocopyService 
-                        onAddToCart={addToCart}
-                        formatPrice={formatPrice}
-                      />
+                      {/* Layanan Fotocopy - only for ATK stores */}
+                      {currentStore?.category === 'atk' && (
+                        <PhotocopyService 
+                          onAddToCart={addToCart}
+                          formatPrice={formatPrice}
+                        />
+                      )}
                       
                       <Suspense fallback={<ComponentLoader />}>
                         <LazyProductGrid 
                           products={filteredProducts}
                           onAddToCart={addToCart}
-                          onPhotocopyClick={handlePhotocopyClick}
+                          onPhotocopyClick={currentStore?.category === 'atk' ? handlePhotocopyClick : undefined}
                         />
                       </Suspense>
                     </div>
@@ -661,48 +897,33 @@ Profit: ${formatPrice(receipt.profit)}
           </TabsContent>
 
           <TabsContent value="stock" className="space-y-4">
-            <Tabs defaultValue="products" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="products">Stok Produk</TabsTrigger>
-                <TabsTrigger value="low-stock">Stok Menipis</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="products" className="space-y-4">
-                <Suspense fallback={<ComponentLoader />}>
-                  <LazyStockManagement 
-                    products={products}
-                    onUpdateProduct={updateProduct}
-                    onDeleteProduct={deleteProduct}
-                    formatPrice={formatPrice}
-                    showLowStockOnly={false}
-                    readOnly={true}
-                  />
-                </Suspense>
-              </TabsContent>
-              
-              <TabsContent value="low-stock" className="space-y-4">
-                <Suspense fallback={<ComponentLoader />}>
-                  <LazyStockManagement 
-                    products={products}
-                    onUpdateProduct={updateProduct}
-                    onDeleteProduct={deleteProduct}
-                    formatPrice={formatPrice}
-                    showLowStockOnly={true}
-                    readOnly={true}
-                  />
-                </Suspense>
-              </TabsContent>
-            </Tabs>
+            <Suspense fallback={<ComponentLoader />}>
+              <LazyStockManagement 
+                products={products}
+                onUpdateProduct={updateProduct}
+                onDeleteProduct={deleteProduct}
+                formatPrice={formatPrice}
+                showLowStockOnly={false}
+                readOnly={true}
+              />
+            </Suspense>
           </TabsContent>
 
-          <TabsContent value="manual-invoice" className="space-y-4">
+          <TabsContent value="quick-invoice" className="space-y-4">
             <Suspense fallback={<ComponentLoader />}>
-              <LazyManualInvoice 
+              <LazyQuickInvoice 
                 onCreateInvoice={handleManualInvoice}
                 formatPrice={formatPrice}
                 receipts={receipts}
                 onPrintReceipt={handlePrintThermal}
                 products={products}
+                cart={cart}
+                updateCartQuantity={updateCartQuantity}
+                removeFromCart={removeFromCart}
+                clearCart={clearCart}
+                processTransaction={handleProcessTransaction}
+                addToCart={addToCart}
+                onViewReceipt={handleViewReceipt}
               />
             </Suspense>
           </TabsContent>
@@ -713,23 +934,55 @@ Profit: ${formatPrice(receipt.profit)}
             </Suspense>
           </TabsContent>
 
-          <TabsContent value="wifi-print" className="space-y-4">
-            <Card>
+          {/* Low Stock Tab */}
+          <TabsContent value="low-stock" className="mt-0 space-y-4">
+            <Card className="pos-card">
               <CardHeader>
-                <CardTitle>Cetak via WiFi</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-warning" />
+                  Stok Menipis
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <WiFiPrinterManager onPrint={handleWiFiDirectPrint} />
+                {lowStockProductsArray.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-2 text-success" />
+                    <p>Tidak ada stok yang menipis</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {lowStockProductsArray.map((product) => (
+                      <div
+                        key={product.id}
+                        className="flex items-center justify-between p-3 border rounded-md bg-card hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{product.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Stok: {product.stock} {product.category ? `• ${product.category}` : ''}
+                          </p>
+                        </div>
+                        <Badge variant="destructive">{product.stock} tersisa</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="admin" className="space-y-4">
+          <TabsContent value="admin" className="space-y-2 sm:space-y-4">
             <Tabs defaultValue="add-product" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="add-product">Tambah Produk</TabsTrigger>
-                <TabsTrigger value="stock-management">Kelola Stok</TabsTrigger>
-                <TabsTrigger value="advanced-reports">Laporan Lanjutan</TabsTrigger>
+              <TabsList className="flex flex-wrap w-full h-auto gap-1 p-1 sm:grid sm:grid-cols-3">
+                <TabsTrigger value="add-product" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
+                  Tambah Produk
+                </TabsTrigger>
+                <TabsTrigger value="stock-management" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
+                  Kelola Stok
+                </TabsTrigger>
+                <TabsTrigger value="advanced-reports" className="flex-1 text-xs sm:text-sm px-2 py-2 sm:px-3 sm:py-3 rounded-md">
+                  Laporan
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="add-product" className="space-y-4">
@@ -787,19 +1040,8 @@ Profit: ${formatPrice(receipt.profit)}
           <TabsContent value="reports" className="space-y-4">
             <Suspense fallback={<ComponentLoader />}>
               <LazySalesReport 
-                receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-'))} 
+                receipts={receipts.filter(receipt => !receipt.isManual && !receipt.id.startsWith('MNL-') && !receipt.id.startsWith('QCK-'))} 
                 formatPrice={formatPrice}
-              />
-            </Suspense>
-          </TabsContent>
-
-          <TabsContent value="manual-reports" className="space-y-2 sm:space-y-4 mt-2 sm:mt-4">
-            <Suspense fallback={<ComponentLoader />}>
-              <LazyManualReceiptReport 
-                receipts={receipts} 
-                formatPrice={formatPrice}
-                onViewReceipt={handleViewReceipt}
-                onPrintReceipt={handlePrintThermal}
               />
             </Suspense>
           </TabsContent>
@@ -814,8 +1056,8 @@ Profit: ${formatPrice(receipt.profit)}
           description="Masukkan kata sandi admin untuk mengakses menu admin"
         />
 
-        {/* Photocopy Dialog */}
-        {photocopyProduct && (
+        {/* Photocopy Dialog - only for ATK stores */}
+        {currentStore?.category === 'atk' && photocopyProduct && (
           <PhotocopyDialog
             isOpen={showPhotocopyDialog}
             onClose={() => {

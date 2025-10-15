@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
+import { useStore } from '@/contexts/StoreContext';
 
 interface AdminProtectionProps {
   isOpen: boolean;
@@ -12,20 +13,26 @@ interface AdminProtectionProps {
   onSuccess: () => void;
   title?: string;
   description?: string;
+  useSettingsPassword?: boolean; // Add flag to use settings password instead
 }
 
 export const AdminProtection = ({ 
   isOpen, 
   onClose, 
   onSuccess, 
-  title = "Admin Authentication Required",
-  description = "Masukkan kata sandi admin untuk melanjutkan"
+  title = "Autentikasi Admin Diperlukan",
+  description = "Masukkan kata sandi admin untuk melanjutkan",
+  useSettingsPassword = false
 }: AdminProtectionProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { currentStore } = useStore();
 
-  const ADMIN_PASSWORD = '122344566';
+  // Use settings password or admin password based on prop
+  const REQUIRED_PASSWORD = useSettingsPassword 
+    ? ((currentStore as any)?.settings_password || '12234566')
+    : ((currentStore as any)?.admin_password || '122344566');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,16 +42,21 @@ export const AdminProtection = ({
     // Simulate a brief delay for security
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (password === ADMIN_PASSWORD) {
-      toast.success('Akses admin berhasil!');
-      onSuccess();
-      onClose();
+    console.log('Password check:', { entered: password, required: REQUIRED_PASSWORD, useSettings: useSettingsPassword });
+
+    if (password === REQUIRED_PASSWORD) {
+      const successMsg = useSettingsPassword ? 'Akses pengaturan berhasil!' : 'Akses admin berhasil!';
+      toast.success(successMsg);
       setPassword('');
+      setError('');
+      setIsLoading(false);
+      onSuccess();
+      // Don't auto-close, let parent component handle it
     } else {
-      setError('Kata sandi admin salah!');
+      const errorMsg = useSettingsPassword ? 'Kode pengaturan salah!' : 'Kata sandi admin salah!';
+      setError(errorMsg);
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   const handleClose = () => {
@@ -55,7 +67,7 @@ export const AdminProtection = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md mx-auto rounded-2xl shadow-2xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -63,13 +75,15 @@ export const AdminProtection = ({
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="adminPassword">Kata Sandi Admin</Label>
+            <Label htmlFor="adminPassword">
+              {useSettingsPassword ? 'Kode Pengaturan' : 'Kata Sandi Admin'}
+            </Label>
             <Input
               id="adminPassword"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Masukkan kata sandi admin"
+              placeholder={useSettingsPassword ? 'Masukkan kode pengaturan' : 'Masukkan kata sandi admin'}
               required
               autoFocus
             />

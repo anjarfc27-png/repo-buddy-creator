@@ -61,42 +61,64 @@ export const useShoppingList = () => {
 
     loadItems();
 
-    const channel = supabase
-      .channel('shopping_items_changes')
+    const realtimeChannel = supabase
+      .channel(`shopping_list_${user.id}`)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'shopping_items',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          if (payload.eventType === 'INSERT') {
-            const newItem: ShoppingItem = {
-              ...payload.new as any,
-              created_at: new Date((payload.new as any).created_at),
-              updated_at: new Date((payload.new as any).updated_at)
-            };
-            setItems(prev => [newItem, ...prev.filter(item => item.id !== newItem.id)]);
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedItem: ShoppingItem = {
-              ...payload.new as any,
-              created_at: new Date((payload.new as any).created_at),
-              updated_at: new Date((payload.new as any).updated_at)
-            };
-            setItems(prev => prev.map(item => 
+          const newItem: ShoppingItem = {
+            ...payload.new as any,
+            created_at: new Date((payload.new as any).created_at),
+            updated_at: new Date((payload.new as any).updated_at)
+          };
+          setItems((currentItems) => [newItem, ...currentItems]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'shopping_items',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const updatedItem: ShoppingItem = {
+            ...payload.new as any,
+            created_at: new Date((payload.new as any).created_at),
+            updated_at: new Date((payload.new as any).updated_at)
+          };
+          setItems((currentItems) => 
+            currentItems.map((item) => 
               item.id === updatedItem.id ? updatedItem : item
-            ));
-          } else if (payload.eventType === 'DELETE') {
-            setItems(prev => prev.filter(item => item.id !== (payload.old as any).id));
-          }
+            )
+          );
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'shopping_items',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          setItems((currentItems) => 
+            currentItems.filter((item) => item.id !== (payload.old as any).id)
+          );
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(realtimeChannel);
     };
   }, [user]);
 

@@ -39,7 +39,9 @@ export const StockManagement = ({
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category?.toLowerCase().includes(searchTerm.toLowerCase());
+      product.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.barcode?.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (showLowStockOnly) {
       // 2 lusin = 24 unit, 1 kodi = 20 unit - use higher threshold
@@ -67,18 +69,18 @@ export const StockManagement = ({
   };
 
   const handleBulkStockAdd = (productId: string) => {
-    const addAmount = bulkStockInputs[productId] || 0;
-    if (addAmount > 0) {
+    const addAmount = bulkStockInputs[productId];
+    if (addAmount && addAmount > 0) {
       const product = products.find(p => p.id === productId);
       if (product) {
         console.log('StockManagement - Adding stock:', { productId, addAmount, currentStock: product.stock, newStock: product.stock + addAmount });
         onUpdateProduct(productId, { stock: product.stock + addAmount });
-        setBulkStockInputs(prev => ({ ...prev, [productId]: 0 }));
-        
-        // Force re-render by updating state
-        setTimeout(() => {
-          setBulkStockInputs(prev => ({ ...prev }));
-        }, 100);
+        // Clear the input after adding
+        setBulkStockInputs(prev => {
+          const updated = { ...prev };
+          delete updated[productId];
+          return updated;
+        });
       }
     }
   };
@@ -110,7 +112,7 @@ export const StockManagement = ({
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Cari produk..."
+              placeholder="Cari nama produk, kode produk, atau barcode..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -246,31 +248,52 @@ export const StockManagement = ({
               )}
 
               {!isService(product) && !readOnly && (
-                 <div className="mt-3 p-3 bg-muted/50 rounded border">
-                   <div className="text-xs font-medium mb-2">Tambah Stok:</div>
-                    <QuantitySelector
-                      quantity={bulkStockInputs[product.id] || 0}
-                      productName={product.name}
-                      category={product.category}
-                      onQuantityChange={(qty) => {
-                        console.log('StockManagement - Quantity changed for', product.name, ':', qty);
-                        setBulkStockInputs(prev => ({
-                          ...prev,
-                          [product.id]: qty
-                        }));
-                      }}
-                      showUnitSelector={true}
-                    />
-                   <Button
-                     size="sm"
-                     onClick={() => handleBulkStockAdd(product.id)}
-                     className="h-8 px-3 mt-2"
-                     disabled={!bulkStockInputs[product.id] || bulkStockInputs[product.id] <= 0}
-                   >
-                     <Plus className="h-3 w-3 mr-1" />
-                     Tambah
-                   </Button>
-                 </div>
+                   <div className="mt-3 p-3 bg-muted/50 rounded border">
+                     <div className="text-xs font-medium mb-2">Tambah Stok:</div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={bulkStockInputs[product.id] || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '') {
+                            setBulkStockInputs(prev => {
+                              const updated = { ...prev };
+                              delete updated[product.id];
+                              return updated;
+                            });
+                          } else {
+                            const qty = parseInt(value);
+                            setBulkStockInputs(prev => ({
+                              ...prev,
+                              [product.id]: qty
+                            }));
+                          }
+                        }}
+                        onFocus={(e) => {
+                          if (e.target.value === '0') {
+                            e.target.select();
+                          }
+                        }}
+                        className="h-8"
+                        placeholder="0"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleBulkStockAdd(product.id);
+                        }}
+                        className="h-8 px-3"
+                        disabled={!bulkStockInputs[product.id] || bulkStockInputs[product.id] <= 0}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Tambah
+                      </Button>
+                    </div>
+                  </div>
               )}
 
               {product.stock <= 24 && !isService(product) && (

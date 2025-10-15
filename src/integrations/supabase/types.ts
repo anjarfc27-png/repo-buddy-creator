@@ -14,116 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      daily_reports: {
-        Row: {
-          created_at: string
-          id: string
-          photocopy_income: number | null
-          report_date: string
-          total_profit: number | null
-          total_sales: number | null
-          total_transactions: number | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          photocopy_income?: number | null
-          report_date: string
-          total_profit?: number | null
-          total_sales?: number | null
-          total_transactions?: number | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          photocopy_income?: number | null
-          report_date?: string
-          total_profit?: number | null
-          total_sales?: number | null
-          total_transactions?: number | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       products: {
         Row: {
           barcode: string | null
-          category: string
+          category: string | null
+          code: string | null
           cost_price: number
-          created_at: string
-          description: string | null
+          created_at: string | null
           id: string
-          is_photocopy: boolean
+          is_photocopy: boolean | null
           name: string
-          price: number
           sell_price: number
-          stock: number
-          updated_at: string
+          stock: number | null
+          store_id: string | null
+          updated_at: string | null
         }
         Insert: {
           barcode?: string | null
-          category: string
-          cost_price?: number
-          created_at?: string
-          description?: string | null
+          category?: string | null
+          code?: string | null
+          cost_price: number
+          created_at?: string | null
           id?: string
-          is_photocopy?: boolean
+          is_photocopy?: boolean | null
           name: string
-          price: number
-          sell_price?: number
-          stock?: number
-          updated_at?: string
+          sell_price: number
+          stock?: number | null
+          store_id?: string | null
+          updated_at?: string | null
         }
         Update: {
           barcode?: string | null
-          category?: string
+          category?: string | null
+          code?: string | null
           cost_price?: number
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
           id?: string
-          is_photocopy?: boolean
+          is_photocopy?: boolean | null
           name?: string
-          price?: number
           sell_price?: number
-          stock?: number
+          stock?: number | null
+          store_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          admin_password: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          email: string
+          id: string
+          is_approved: boolean | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          admin_password?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_approved?: boolean | null
           updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          admin_password?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_approved?: boolean | null
+          updated_at?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }
       receipt_items: {
         Row: {
-          cost_price: number
+          cost_price: number | null
+          created_at: string | null
+          final_price: number | null
           id: string
           product_id: string | null
           product_name: string
-          profit: number
+          profit: number | null
           quantity: number
           receipt_id: string
-          total_price: number
+          total_price: number | null
           unit_price: number
         }
         Insert: {
-          cost_price: number
+          cost_price?: number | null
+          created_at?: string | null
+          final_price?: number | null
           id?: string
           product_id?: string | null
           product_name: string
-          profit: number
+          profit?: number | null
           quantity: number
           receipt_id: string
-          total_price: number
+          total_price?: number | null
           unit_price: number
         }
         Update: {
-          cost_price?: number
+          cost_price?: number | null
+          created_at?: string | null
+          final_price?: number | null
           id?: string
           product_id?: string | null
           product_name?: string
-          profit?: number
+          profit?: number | null
           quantity?: number
           receipt_id?: string
-          total_price?: number
+          total_price?: number | null
           unit_price?: number
         }
         Relationships: [
@@ -145,163 +165,197 @@ export type Database = {
       }
       receipts: {
         Row: {
-          created_at: string
-          discount: number
+          created_at: string | null
+          discount: number | null
           id: string
           invoice_number: string | null
           payment_method: string | null
           profit: number
+          store_id: string | null
           subtotal: number
           total: number
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          discount?: number
-          id: string
-          invoice_number?: string | null
-          payment_method?: string | null
-          profit?: number
-          subtotal?: number
-          total?: number
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          discount?: number
-          id?: string
-          invoice_number?: string | null
-          payment_method?: string | null
-          profit?: number
-          subtotal?: number
-          total?: number
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      shopping_items: {
-        Row: {
-          created_at: string
-          current_stock: number | null
-          id: string
-          is_completed: boolean
-          name: string
-          notes: string | null
-          quantity: number | null
-          unit: string | null
-          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string
-          current_stock?: number | null
-          id?: string
-          is_completed?: boolean
-          name: string
-          notes?: string | null
-          quantity?: number | null
-          unit?: string | null
-          updated_at?: string
+          created_at?: string | null
+          discount?: number | null
+          id: string
+          invoice_number?: string | null
+          payment_method?: string | null
+          profit: number
+          store_id?: string | null
+          subtotal: number
+          total: number
           user_id: string
         }
         Update: {
-          created_at?: string
-          current_stock?: number | null
+          created_at?: string | null
+          discount?: number | null
           id?: string
-          is_completed?: boolean
-          name?: string
-          notes?: string | null
-          quantity?: number | null
-          unit?: string | null
-          updated_at?: string
+          invoice_number?: string | null
+          payment_method?: string | null
+          profit?: number
+          store_id?: string | null
+          subtotal?: number
+          total?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      transaction_items: {
-        Row: {
-          id: string
-          price: number
-          product_id: string | null
-          product_name: string
-          quantity: number
-          subtotal: number
-          transaction_id: string
-        }
-        Insert: {
-          id?: string
-          price: number
-          product_id?: string | null
-          product_name: string
-          quantity: number
-          subtotal: number
-          transaction_id: string
-        }
-        Update: {
-          id?: string
-          price?: number
-          product_id?: string | null
-          product_name?: string
-          quantity?: number
-          subtotal?: number
-          transaction_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "transaction_items_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "receipts_store_id_fkey"
+            columns: ["store_id"]
             isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transaction_items_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "transactions"
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
       }
-      transactions: {
+      shopping_items: {
         Row: {
-          cashier_name: string | null
-          discount_amount: number | null
-          discount_percent: number | null
-          final_amount: number
+          created_at: string | null
+          current_stock: number | null
           id: string
-          is_manual_note: boolean | null
+          is_completed: boolean | null
+          name: string
           notes: string | null
-          payment_method: string
-          total_amount: number
-          transaction_code: string
-          transaction_date: string
+          quantity: number | null
+          store_id: string | null
+          unit: string | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          cashier_name?: string | null
-          discount_amount?: number | null
-          discount_percent?: number | null
-          final_amount: number
+          created_at?: string | null
+          current_stock?: number | null
           id?: string
-          is_manual_note?: boolean | null
+          is_completed?: boolean | null
+          name: string
           notes?: string | null
-          payment_method: string
-          total_amount: number
-          transaction_code: string
-          transaction_date?: string
+          quantity?: number | null
+          store_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          cashier_name?: string | null
-          discount_amount?: number | null
-          discount_percent?: number | null
-          final_amount?: number
+          created_at?: string | null
+          current_stock?: number | null
           id?: string
-          is_manual_note?: boolean | null
+          is_completed?: boolean | null
+          name?: string
           notes?: string | null
-          payment_method?: string
-          total_amount?: number
-          transaction_code?: string
-          transaction_date?: string
+          quantity?: number | null
+          store_id?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_items_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          address: string | null
+          admin_password: string | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_name: string | null
+          cashier_name: string | null
+          category: string
+          closing_hours: string | null
+          created_at: string | null
+          dana_number: string | null
+          ewallet_number: string | null
+          gopay_number: string | null
+          id: string
+          name: string
+          opening_hours: string | null
+          ovo_number: string | null
+          owner_id: string
+          phone: string | null
+          qris_image_url: string | null
+          settings_password: string | null
+          shopeepay_number: string | null
+          updated_at: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          address?: string | null
+          admin_password?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          cashier_name?: string | null
+          category: string
+          closing_hours?: string | null
+          created_at?: string | null
+          dana_number?: string | null
+          ewallet_number?: string | null
+          gopay_number?: string | null
+          id?: string
+          name: string
+          opening_hours?: string | null
+          ovo_number?: string | null
+          owner_id: string
+          phone?: string | null
+          qris_image_url?: string | null
+          settings_password?: string | null
+          shopeepay_number?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          address?: string | null
+          admin_password?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          cashier_name?: string | null
+          category?: string
+          closing_hours?: string | null
+          created_at?: string | null
+          dana_number?: string | null
+          ewallet_number?: string | null
+          gopay_number?: string | null
+          id?: string
+          name?: string
+          opening_hours?: string | null
+          ovo_number?: string | null
+          owner_id?: string
+          phone?: string | null
+          qris_image_url?: string | null
+          settings_password?: string | null
+          shopeepay_number?: string | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -314,11 +368,28 @@ export type Database = {
         Args: { identifier: string }
         Returns: {
           email: string
+          username: string
         }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      store_category:
+        | "sembako"
+        | "bangunan"
+        | "agen_sosis"
+        | "atk"
+        | "elektronik"
+        | "pakaian"
+        | "farmasi"
+        | "lainnya"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -445,6 +516,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      store_category: [
+        "sembako",
+        "bangunan",
+        "agen_sosis",
+        "atk",
+        "elektronik",
+        "pakaian",
+        "farmasi",
+        "lainnya",
+      ],
+    },
   },
 } as const

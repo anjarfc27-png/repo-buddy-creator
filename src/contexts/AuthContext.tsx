@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -7,10 +7,15 @@ interface AuthContextType {
   session: Session | null;
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signInWithUsername: (username: string, password: string) => Promise<{ error?: any }>;
-  signUp: (email: string, username: string, password: string) => Promise<{ error?: any }>;
+  signUp: (email: string, username: string, password: string, whatsapp?: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   verifyAdminPassword: (password: string) => Promise<boolean>;
   loading: boolean;
+  isApproved: boolean;
+  isAdmin: boolean;
+  isAdminCheckComplete: boolean;
+  isSubscriptionExpired: boolean;
+  subscriptionExpiredAt: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +24,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isApproved, setIsApproved] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdminCheckComplete, setIsAdminCheckComplete] = useState(false);
+  const [isSubscriptionExpired, setIsSubscriptionExpired] = useState(false);
+  const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState<string | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -26,6 +36,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Check approval status and role
+        if (session?.user) {
+          setIsAdminCheckComplete(false);
+          setTimeout(() => {
+            checkUserApprovalAndRole(session.user.id);
+          }, 0);
+        } else {
+          setIsApproved(false);
+          setIsAdmin(false);
+          setIsAdminCheckComplete(true);
+        }
         setLoading(false);
       }
     );
@@ -34,33 +56,107 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        setIsAdminCheckComplete(false);
+        checkUserApprovalAndRole(session.user.id);
+      } else {
+        setIsAdminCheckComplete(true);
+      }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, username: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
+  const checkUserApprovalAndRole = async (userId: string) => {
+    try {
+      // Check if user is admin first
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      const isUserAdmin = !!roles && !rolesError;
+      setIsAdmin(isUserAdmin);
+      
+      // Check profile approval status
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_approved')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        // If admin, bypass approval check
+        setIsApproved(isUserAdmin ? true : false);
+      } else {
+        // Admin always approved, regular users check is_approved
+        setIsApproved(isUserAdmin ? true : (profile?.is_approved ?? false));
+      }
+      
+      // Subscription check - disabled
+      setIsSubscriptionExpired(false);
+      setSubscriptionExpiredAt(null);
+      
+    } catch (error) {
+      console.error('Error checking user status:', error);
+      setIsApproved(false);
+      setIsAdmin(false);
+      setIsSubscriptionExpired(false);
+      setSubscriptionExpiredAt(null);
+    } finally {
+      setIsAdminCheckComplete(true);
+    }
+  };
+
+  const signUp = async (email: string, username: string, password: string, whatsapp?: string) => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
-          username: username
-        }
+          username: username,
+          whatsapp: whatsapp
+        },
+        emailRedirectTo: `${window.location.origin}/waiting-approval`
       }
     });
+    
+    if (error) return { error };
+    
+    // Notify admin about new registration
+    if (data.user) {
+      try {
+        await supabase.functions.invoke('notify-admin-new-user', {
+          body: {
+            userEmail: email,
+            username: username,
+          },
+        });
+      } catch (notifyError) {
+        console.error('Failed to notify admin:', notifyError);
+        // Don't block signup if notification fails
+      }
+    }
+    
     return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    if (error) return { error };
+    
+    // User approval will be checked by ProtectedRoute
+    // So we don't block login here, just let them in
+    
     return { error };
   };
 
@@ -124,6 +220,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signOut,
     verifyAdminPassword,
     loading,
+    isApproved,
+    isAdmin,
+    isAdminCheckComplete,
+    isSubscriptionExpired,
+    subscriptionExpiredAt,
   };
 
   return (

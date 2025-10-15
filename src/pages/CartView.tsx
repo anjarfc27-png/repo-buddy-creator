@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CartItem, Receipt as ReceiptType } from '@/types/pos';
+import { CartItem, Receipt as ReceiptType, Product } from '@/types/pos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart as CartIcon, ArrowLeft, Printer, CreditCard, Bluetooth } from 'lucide-react';
+import { ShoppingCart as CartIcon, ArrowLeft, Printer, CreditCard } from 'lucide-react';
 import { thermalPrinter } from '@/lib/thermal-printer';
 import { formatThermalReceipt, formatPrintReceipt } from '@/lib/receipt-formatter';
 import { usePOSContext } from '@/contexts/POSContext';
 import { useToast } from '@/hooks/use-toast';
+import { PaymentMethodSelector } from '@/components/POS/PaymentMethodSelector';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { QuickProductSearch } from '@/components/POS/QuickProductSearch';
 
 export const CartView = () => {
   const navigate = useNavigate();
-  const { cart, formatPrice, receipts, processTransaction, clearCart } = usePOSContext();
+  const { cart, formatPrice, receipts, processTransaction, clearCart, products, addToCart } = usePOSContext();
   const { toast } = useToast();
 
   const subtotal = cart.reduce((sum, item) => {
@@ -21,16 +26,20 @@ export const CartView = () => {
     return sum + (price * item.quantity);
   }, 0);
 
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [discount, setDiscount] = useState(0);
+
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     
-    const receipt = await processTransaction('cash', 0);
+    const receipt = await processTransaction(paymentMethod, discount);
     if (receipt) {
       toast({
         title: "Transaksi Berhasil",
         description: `Invoice ${receipt.id} telah dibuat`,
       });
       clearCart();
+      setDiscount(0);
       navigate('/', { state: { viewReceipt: receipt } });
     }
   };
@@ -38,7 +47,7 @@ export const CartView = () => {
   const handlePrintReceipt = async () => {
     if (cart.length === 0) return;
     
-    const receipt = await processTransaction('cash', 0);
+    const receipt = await processTransaction('cash', discount);
     if (receipt) {
       toast({
         title: "Transaksi Berhasil",
@@ -46,6 +55,7 @@ export const CartView = () => {
       });
       printReceipt(receipt);
       clearCart();
+      setDiscount(0);
       navigate('/');
     }
   };
@@ -53,9 +63,14 @@ export const CartView = () => {
   const handleThermalPrint = async () => {
     if (cart.length === 0) return;
     
-    const receipt = await processTransaction('cash', 0);
+    const receipt = await processTransaction('cash', discount);
     if (receipt) {
       try {
+        // Auto-connect and print without clicking twice
+        if (!thermalPrinter.isConnected()) {
+          await thermalPrinter.connect();
+        }
+        
         const thermalContent = formatThermalReceipt(receipt, formatPrice);
         const success = await thermalPrinter.print(thermalContent);
         
@@ -65,6 +80,7 @@ export const CartView = () => {
             description: `Invoice ${receipt.id} berhasil dicetak ke thermal printer!`,
           });
           clearCart();
+          setDiscount(0);
           navigate('/');
         } else {
           toast({
@@ -137,6 +153,17 @@ export const CartView = () => {
                 <CardTitle>Item dalam Keranjang</CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Quick Product Search */}
+                {products && products.length > 0 && (
+                  <div className="mb-4">
+                    <QuickProductSearch 
+                      products={products}
+                      onAddToCart={addToCart}
+                      formatPrice={formatPrice}
+                    />
+                  </div>
+                )}
+
                 {cart.length === 0 ? (
                   <div className="text-center py-8">
                     <CartIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -178,12 +205,46 @@ export const CartView = () => {
                     <span>Subtotal:</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="discount">Diskon (Rp)</Label>
+                    <Input
+                      id="discount"
+                      type="number"
+                      value={discount}
+                      onChange={(e) => setDiscount(Math.max(0, Math.min(subtotal, Number(e.target.value))))}
+                      placeholder="0"
+                      min="0"
+                      max={subtotal}
+                    />
+                  </div>
+                  
                   <Separator />
                   <div className="flex justify-between text-xl font-bold">
                     <span>Total:</span>
-                    <span className="text-primary">{formatPrice(subtotal)}</span>
+                    <span className="text-primary">{formatPrice(Math.max(0, subtotal - discount))}</span>
                   </div>
+                  
+                  <Separator />
+                  
+                  <PaymentMethodSelector 
+                    value={paymentMethod}
+                    onChange={setPaymentMethod}
+                  />
+                  
                   <div className="space-y-2">
+                    <QuickProductSearch 
+                      products={products}
+                      onAddToCart={(product) => {
+                        addToCart(product, 1);
+                        toast({
+                          title: "Produk ditambahkan",
+                          description: `${product.name} ditambahkan ke keranjang`,
+                        });
+                      }}
+                      formatPrice={formatPrice}
+                    />
+                    
                     <Button 
                       className="w-full" 
                       onClick={handleCheckout}
@@ -191,25 +252,17 @@ export const CartView = () => {
                       <CreditCard className="h-4 w-4 mr-2" />
                       Checkout
                     </Button>
-                    <Button 
-                      variant="outline"
-                      className="w-full" 
-                      onClick={handleThermalPrint}
-                    >
-                      <Printer className="h-4 w-4 mr-2" />
-                      Print Thermal
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="w-full" 
-                      onClick={handlePrintReceipt}
-                    >
-                      <Printer className="h-4 w-4 mr-2" />
-                      Print Browser
-                    </Button>
-                    <Button 
+                     <Button 
+                       variant="outline"
+                       className="w-full" 
+                       onClick={handleThermalPrint}
+                     >
+                       <Printer className="h-4 w-4 mr-2" />
+                       Print Thermal
+                     </Button>
+                     <Button
                       variant="secondary"
-                      className="w-full" 
+                      className="w-full"
                       onClick={() => navigate('/')}
                     >
                       Kembali ke Kasir
@@ -237,10 +290,10 @@ export const CartView = () => {
                      ) : (
                        receipts.slice(-10).reverse().map((receipt) => (
                          <div 
-                           key={receipt.id}
-                           className="flex flex-col p-3 bg-secondary/50 rounded border cursor-pointer hover:bg-secondary/70 transition-colors"
-                           onClick={() => navigate('/', { state: { viewReceipt: receipt } })}
-                         >
+                            key={receipt.id}
+                            className="flex flex-col p-3 bg-secondary/50 rounded border cursor-pointer hover:bg-secondary/70 transition-colors"
+                            onClick={() => navigate('/', { state: { viewReceipt: receipt } })}
+                          >
                            <div className="flex items-center justify-between mb-2">
                              <div className="font-medium text-sm">{receipt.id}</div>
                              <div className="font-semibold text-sm">
