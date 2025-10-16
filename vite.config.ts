@@ -23,7 +23,10 @@ export default defineConfig(({ mode }) => ({
       'react', 
       'react-dom',
       '@radix-ui/react-tooltip',
-      '@radix-ui/react-slot'
+      '@radix-ui/react-slot',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-popover'
     ],
   },
 }));
