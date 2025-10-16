@@ -10,6 +10,7 @@ import { Product } from '@/types/pos';
 import { QuantitySelector } from './QuantitySelector';
 import { toast } from 'sonner';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { CapacitorFlash } from '@capgo/capacitor-flash';
 import { Capacitor } from '@capacitor/core';
 import { useStore } from '@/contexts/StoreContext';
 
@@ -323,19 +324,34 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         await stopScanning();
       });
 
-      // Flash button handler
+      // Flash button handler with real flashlight control
       document.getElementById('scanner-flash-btn')?.addEventListener('click', async () => {
-        flashEnabled = !flashEnabled;
-        // Note: Flash toggle requires platform-specific implementation
-        // This is a placeholder for the UI
-        const flashBtn = document.getElementById('scanner-flash-btn');
-        if (flashBtn) {
-          flashBtn.textContent = flashEnabled ? '💡 Flash ON' : '💡 Flash';
-          flashBtn.style.background = flashEnabled ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+        try {
+          flashEnabled = !flashEnabled;
+          if (flashEnabled) {
+            await CapacitorFlash.switchOn({ intensity: 100 });
+          } else {
+            await CapacitorFlash.switchOff();
+          }
+          const flashBtn = document.getElementById('scanner-flash-btn');
+          if (flashBtn) {
+            flashBtn.textContent = flashEnabled ? '💡 Flash ON' : '💡 Flash';
+            flashBtn.style.background = flashEnabled ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+          }
+        } catch (error) {
+          console.error('Flash error:', error);
+          toast.error('Flash tidak tersedia pada perangkat ini');
         }
       });
 
       const result = await BarcodeScanner.startScan();
+
+      // Turn off flashlight if enabled
+      try {
+        await CapacitorFlash.switchOff();
+      } catch (e) {
+        // Ignore flash errors on cleanup
+      }
 
       document.body.classList.remove('scanner-active');
       await BarcodeScanner.showBackground();
@@ -375,6 +391,11 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       }
     } catch (error) {
       console.error('Barcode scan error:', error);
+      try {
+        await CapacitorFlash.switchOff();
+      } catch (e) {
+        // Ignore flash errors
+      }
       document.body.classList.remove('scanner-active');
       await BarcodeScanner.showBackground();
       setIsScanning(false);
@@ -385,6 +406,11 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
   };
 
   const stopScanning = async () => {
+    try {
+      await CapacitorFlash.switchOff();
+    } catch (e) {
+      // Ignore flash errors
+    }
     await BarcodeScanner.stopScan();
     document.body.classList.remove('scanner-active');
     await BarcodeScanner.showBackground();

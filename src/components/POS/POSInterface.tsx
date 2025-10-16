@@ -42,6 +42,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '@/contexts/StoreContext';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { CapacitorFlash } from '@capgo/capacitor-flash';
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 
@@ -528,25 +529,47 @@ Profit: ${formatPrice(receipt.profit)}
       let scanCancelled = false;
       document.getElementById('scanner-back')?.addEventListener('click', async () => {
         scanCancelled = true;
+        try {
+          await CapacitorFlash.switchOff();
+        } catch (e) {
+          // Ignore flash errors
+        }
         await BarcodeScanner.stopScan();
         document.body.classList.remove('scanner-active');
         document.getElementById('scanner-overlay')?.remove();
         setIsScanning(false);
       });
       
-      // Handle flash toggle
+      // Handle flash toggle with real flashlight control
       let flashOn = false;
       document.getElementById('scanner-flash')?.addEventListener('click', async () => {
-        flashOn = !flashOn;
-        const btn = document.getElementById('scanner-flash');
-        if (btn) {
-          btn.textContent = flashOn ? '💡 Flash ON' : '💡 Flash';
-          btn.style.background = flashOn ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+        try {
+          flashOn = !flashOn;
+          if (flashOn) {
+            await CapacitorFlash.switchOn({ intensity: 100 });
+          } else {
+            await CapacitorFlash.switchOff();
+          }
+          const btn = document.getElementById('scanner-flash');
+          if (btn) {
+            btn.textContent = flashOn ? '💡 Flash ON' : '💡 Flash';
+            btn.style.background = flashOn ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+          }
+        } catch (error) {
+          console.error('Flash error:', error);
+          toast.error('Flash tidak tersedia pada perangkat ini');
         }
       });
       
       // Start scanning
       const result = await BarcodeScanner.startScan();
+      
+      // Turn off flashlight if enabled
+      try {
+        await CapacitorFlash.switchOff();
+      } catch (e) {
+        // Ignore flash errors on cleanup
+      }
       
       // Remove overlay and transparency
       await BarcodeScanner.showBackground();
@@ -690,8 +713,8 @@ Profit: ${formatPrice(receipt.profit)}
         </div>
       </header>
 
-        {/* Dashboard Stats with top padding for fixed header and status bar */}
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-4 mt-4">
+      {/* Dashboard Stats with top padding for fixed header and status bar */}
+      <div className="w-full px-2 sm:px-4 py-2 sm:py-4">
         <div className="grid grid-cols-1 gap-2 sm:gap-4 mb-4 sm:mb-6">
           {/* Full width card on top */}
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('revenue')}>

@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ShoppingCart } from './ShoppingCart';
 import { CartItem, Receipt } from '@/types/pos';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { CapacitorFlash } from '@capgo/capacitor-flash';
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 import {
@@ -256,24 +257,46 @@ export const QuickInvoice = ({
       // Back button handler
       document.getElementById('scanner-back-btn')?.addEventListener('click', async () => {
         scanCancelled = true;
+        try {
+          await CapacitorFlash.switchOff();
+        } catch (e) {
+          // Ignore flash errors
+        }
         await BarcodeScanner.stopScan();
         document.body.classList.remove('scanner-active');
         document.getElementById('scanner-overlay')?.remove();
         setIsScanning(false);
       });
 
-      // Flash button handler
+      // Flash button handler with real flashlight control
       document.getElementById('scanner-flash-btn')?.addEventListener('click', async () => {
-        flashEnabled = !flashEnabled;
-        const flashBtn = document.getElementById('scanner-flash-btn');
-        if (flashBtn) {
-          flashBtn.textContent = flashEnabled ? '💡 Flash ON' : '💡 Flash';
-          flashBtn.style.background = flashEnabled ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+        try {
+          flashEnabled = !flashEnabled;
+          if (flashEnabled) {
+            await CapacitorFlash.switchOn({ intensity: 100 });
+          } else {
+            await CapacitorFlash.switchOff();
+          }
+          const flashBtn = document.getElementById('scanner-flash-btn');
+          if (flashBtn) {
+            flashBtn.textContent = flashEnabled ? '💡 Flash ON' : '💡 Flash';
+            flashBtn.style.background = flashEnabled ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
+          }
+        } catch (error) {
+          console.error('Flash error:', error);
+          toast.error('Flash tidak tersedia pada perangkat ini');
         }
       });
       
       // Start scanning
       const result = await BarcodeScanner.startScan();
+      
+      // Turn off flashlight if enabled
+      try {
+        await CapacitorFlash.switchOff();
+      } catch (e) {
+        // Ignore flash errors on cleanup
+      }
       
       // Remove transparency
       document.body.classList.remove('scanner-active');
