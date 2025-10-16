@@ -18,15 +18,20 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      react: path.resolve(__dirname, "node_modules/react"),
+      "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
     },
     dedupe: [
-      'react', 
-      'react-dom',
-      '@radix-ui/react-tooltip',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-toast',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-popover'
+      "react",
+      "react-dom",
+      "@radix-ui/react-tooltip",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-toast",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-popover",
     ],
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom"],
   },
 }));
