@@ -54,24 +54,24 @@ export const PPOB = () => {
   return (
     <div className="min-h-screen bg-gray-50 safe-top safe-bottom">
       {/* Header iOS Style */}
-      <div className="bg-white px-4 py-3 shadow-sm sticky top-0 z-10 safe-top border-b border-gray-100">
+      <div className="bg-white px-3 py-2 shadow-sm sticky top-0 z-10 safe-top border-b border-gray-100">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/pos')}
-              className="text-primary hover:bg-gray-100 h-9 w-9 rounded-full"
+              className="text-primary hover:bg-gray-100 h-8 w-8 rounded-full"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-xl font-semibold text-gray-900">PPOB</h1>
+            <h1 className="text-lg font-semibold text-gray-900">PPOB</h1>
           </div>
           
           <Button
             variant="ghost"
             onClick={() => toast.info('Fitur atur harga akan segera aktif')}
-            className="text-primary hover:bg-gray-100 text-sm rounded-full px-4"
+            className="text-primary hover:bg-gray-100 text-sm rounded-full px-3 h-8"
           >
             Atur Harga
           </Button>
@@ -80,8 +80,8 @@ export const PPOB = () => {
 
       {/* Tabs iOS Style */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="bg-white border-b border-gray-100 sticky top-[56px] z-10">
-          <TabsList className="w-full h-12 bg-transparent rounded-none border-0 grid grid-cols-2">
+        <div className="bg-white border-b border-gray-100 sticky top-[48px] z-10">
+          <TabsList className="w-full h-10 bg-transparent rounded-none border-0 grid grid-cols-2">
             <TabsTrigger 
               value="beranda" 
               className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none font-semibold text-gray-600"
@@ -97,7 +97,7 @@ export const PPOB = () => {
           </TabsList>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-4 space-y-4 pb-24">
+        <div className="max-w-6xl mx-auto px-4 py-3 space-y-3 pb-24">
           <TabsContent value="beranda" className="space-y-4 mt-0">
             {/* Deposit Card iOS Style */}
             <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 overflow-hidden rounded-2xl">
