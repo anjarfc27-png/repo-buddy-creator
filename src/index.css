@@ -232,8 +232,9 @@ body.scanner-active * {
   visibility: hidden;
 }
 
-body.scanner-active .scanner-ui {
-  visibility: visible;
+body.scanner-active .scanner-ui,
+body.scanner-active .scanner-ui * {
+  visibility: visible !important;
 }
 
 /* iOS safe area utilities */

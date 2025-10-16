@@ -203,6 +203,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       // Add scanner overlay with back button, flash toggle, and focus line
       const scannerOverlay = document.createElement('div');
       scannerOverlay.id = 'scanner-overlay';
+      scannerOverlay.className = 'scanner-ui';
       scannerOverlay.innerHTML = `
         <style>
           #scanner-overlay {

@@ -1,13 +1,13 @@
 // Service Worker untuk PWA - Optimized for Performance
-const CACHE_NAME = 'kasir-toko-anjar-v2';
-const STATIC_CACHE = 'static-v2';
-const API_CACHE = 'api-v2';
+const CACHE_NAME = 'kasir-toko-anjar-v3';
+const STATIC_CACHE = 'static-v3';
+const API_CACHE = 'api-v3';
 
 const staticAssets = [
   '/',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192.png?v=2',
+  '/icon-512.png?v=2'
 ];
 
 // Files to cache on first visit

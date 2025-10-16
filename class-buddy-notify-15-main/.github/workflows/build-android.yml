@@ -46,6 +46,11 @@ jobs:
     - name: Add Android platform
       run: npx cap add android
     
+    - name: Generate Capacitor Resources
+      run: |
+        npm install -g @capacitor/assets
+        npx capacitor-assets generate --android --iconBackgroundColor "#FFFFFF"
+    
     - name: Sync Capacitor
       run: npx cap sync android
     
