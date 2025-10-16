@@ -24,6 +24,8 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PPOB } from "@/pages/PPOB";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
 import { PPOBNavButton } from "@/components/Navigation/PPOBNavButton";
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { useAuth } from "@/contexts/AuthContext";
 
 // Create QueryClient outside component to prevent recreation on every render
 const queryClient = new QueryClient({
@@ -34,11 +36,82 @@ const queryClient = new QueryClient({
   },
 });
 
+const AppRoutes = () => {
+  const { loading, isAdminCheckComplete } = useAuth();
+  if (loading || !isAdminCheckComplete) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/pos" element={
+          <ProtectedRoute>
+            <POSInterface />
+          </ProtectedRoute>
+        } />
+        <Route path="/ppob" element={
+          <ProtectedRoute>
+            <PPOB />
+          </ProtectedRoute>
+        } />
+        <Route path="/cart" element={
+          <ProtectedRoute>
+            <CartView />
+          </ProtectedRoute>
+        } />
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            <ReportsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <StoreSettings />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/users" element={
+          <AdminRoute>
+            <UserManagement />
+          </AdminRoute>
+        } />
+        <Route path="/admin/subscriptions" element={
+          <AdminRoute>
+            <SubscriptionManagement />
+          </AdminRoute>
+        } />
+        <Route path="/backup-restore" element={
+          <AdminRoute>
+            <BackupRestorePage />
+          </AdminRoute>
+        } />
+        <Route path="/waiting-approval" element={<WaitingApproval />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <PPOBNavButton />
+    </>
+  );
+};
+
 const App = () => {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
       StatusBar.setStyle({ style: Style.Light }).catch(() => {});
+      // Request camera permission early for barcode scanning
+      BarcodeScanner.requestPermissions().catch(() => {});
     }
   }, []);
 
@@ -52,57 +125,7 @@ const App = () => {
             <BrowserRouter>
               <POSProvider>
                 <BluetoothProvider>
-                  <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/pos" element={
-                      <ProtectedRoute>
-                        <POSInterface />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/ppob" element={
-                      <ProtectedRoute>
-                        <PPOB />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/cart" element={
-                      <ProtectedRoute>
-                        <CartView />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/reports" element={
-                      <ProtectedRoute>
-                        <ReportsPage />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/settings" element={
-                      <ProtectedRoute>
-                        <StoreSettings />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/admin/users" element={
-                      <AdminRoute>
-                        <UserManagement />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/subscriptions" element={
-                      <AdminRoute>
-                        <SubscriptionManagement />
-                      </AdminRoute>
-                    } />
-                    <Route path="/backup-restore" element={
-                      <AdminRoute>
-                        <BackupRestorePage />
-                      </AdminRoute>
-                    } />
-                    <Route path="/waiting-approval" element={<WaitingApproval />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  <PPOBNavButton />
+                  <AppRoutes />
                 </BluetoothProvider>
               </POSProvider>
             </BrowserRouter>
