@@ -46,10 +46,17 @@ jobs:
     - name: Add Android platform
       run: npx cap add android
     
-    - name: Generate Capacitor Resources
+    - name: Copy icon resources
       run: |
-        npm install -g @capacitor/assets
-        npx capacitor-assets generate --android --iconBackgroundColor "#FFFFFF"
+        mkdir -p android/app/src/main/res
+        # Ensure icon files exist in resources folder before copying
+        if [ -d "resources" ]; then
+          echo "Resources folder found, generating icons..."
+          npm install -g @capacitor/assets
+          npx capacitor-assets generate --android --iconBackgroundColor "#3b82f6"
+        else
+          echo "No resources folder, skipping icon generation"
+        fi
     
     - name: Sync Capacitor
       run: npx cap sync android

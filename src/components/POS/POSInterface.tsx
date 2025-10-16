@@ -41,8 +41,8 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '@/contexts/StoreContext';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
-import { CapacitorFlash } from '@capgo/capacitor-flash';
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { Torch } from '@capawesome/capacitor-torch';
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 
@@ -389,219 +389,84 @@ Profit: ${formatPrice(receipt.profit)}
 
   const handleBarcodeScanner = async () => {
     if (!Capacitor.isNativePlatform()) {
-      toast.error('Scan barcode hanya tersedia di aplikasi mobile');
+      toast.error('Scanner hanya tersedia di aplikasi mobile');
       return;
     }
 
     try {
       setIsScanning(true);
-      await BarcodeScanner.hideBackground();
       
-      // Check permission
-      const status = await BarcodeScanner.checkPermission({ force: true });
+      // Request camera permissions
+      const { camera } = await BarcodeScanner.requestPermissions();
       
-      if (!status.granted) {
-        toast.error('Izin kamera tidak diberikan');
+      if (camera !== 'granted') {
+        toast.error('Izin kamera diperlukan untuk scanning');
         setIsScanning(false);
         return;
       }
 
-      // Make background transparent and show scanner UI
-      document.body.classList.add('scanner-active');
-      
-      // Add scanner overlay with focus guide
-      const scannerOverlay = document.createElement('div');
-      scannerOverlay.id = 'scanner-overlay';
-      scannerOverlay.className = 'scanner-ui';
-      scannerOverlay.innerHTML = `
-        <style>
-          #scanner-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: transparent;
+      // Add CSS class to hide body
+      document.querySelector('body')?.classList.add('barcode-scanner-active');
+
+      // Add scanner listener
+      const listener = await BarcodeScanner.addListener('barcodesScanned', async (event) => {
+        console.log('Barcodes scanned:', event.barcodes);
+        
+        if (event.barcodes && event.barcodes.length > 0) {
+          const barcode = event.barcodes[0];
+          
+          // Stop scanning and clean up
+          await listener.remove();
+          await BarcodeScanner.stopScan();
+          document.querySelector('body')?.classList.remove('barcode-scanner-active');
+          
+          // Turn off torch if enabled
+          try {
+            const { available } = await Torch.isAvailable();
+            if (available) {
+              const { enabled } = await Torch.isEnabled();
+              if (enabled) {
+                await Torch.disable();
+              }
+            }
+          } catch (e) {
+            console.log('Torch disable error:', e);
           }
-          .scanner-controls {
-            position: absolute;
-            top: max(calc(env(safe-area-inset-top, 20px) + 20px), 60px);
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 10001;
-          }
-          .scanner-btn {
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: 2px solid white;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-          }
-          .scanner-focus {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 250px;
-            height: 250px;
-            border: 3px solid #ff0000;
-            border-radius: 12px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-          }
-          .scanner-focus::before,
-          .scanner-focus::after {
-            content: '';
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border: 4px solid #ff0000;
-          }
-          .scanner-focus::before {
-            top: -4px;
-            left: -4px;
-            border-right: none;
-            border-bottom: none;
-          }
-          .scanner-focus::after {
-            top: -4px;
-            right: -4px;
-            border-left: none;
-            border-bottom: none;
-          }
-          .scanner-focus-bottom::before {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: -4px;
-            width: 50px;
-            height: 50px;
-            border: 4px solid #ff0000;
-            border-right: none;
-            border-top: none;
-          }
-          .scanner-focus-bottom::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            right: -4px;
-            width: 50px;
-            height: 50px;
-            border: 4px solid #ff0000;
-            border-left: none;
-            border-top: none;
-          }
-          .scanner-text {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 18px;
-            text-align: center;
-            z-index: 10001;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0, 0, 0, 0.6);
-            padding: 12px 24px;
-            border-radius: 8px;
-            backdrop-filter: blur(10px);
-          }
-        </style>
-        <div class="scanner-controls">
-          <button id="scanner-back" class="scanner-btn">← Kembali</button>
-          <button id="scanner-flash" class="scanner-btn">💡 Flash</button>
-        </div>
-        <div class="scanner-focus scanner-focus-bottom"></div>
-        <div class="scanner-text">Arahkan kamera ke barcode</div>
-      `;
-      document.body.appendChild(scannerOverlay);
-      
-      // Handle back button
-      let scanCancelled = false;
-      document.getElementById('scanner-back')?.addEventListener('click', async () => {
-        scanCancelled = true;
-        try {
-          await CapacitorFlash.switchOff();
-        } catch (e) {
-          // Ignore flash errors
-        }
-        await BarcodeScanner.stopScan();
-        document.body.classList.remove('scanner-active');
-        document.getElementById('scanner-overlay')?.remove();
-        setIsScanning(false);
-      });
-      
-      // Handle flash toggle with real flashlight control
-      let flashOn = false;
-      document.getElementById('scanner-flash')?.addEventListener('click', async () => {
-        try {
-          flashOn = !flashOn;
-          if (flashOn) {
-            await CapacitorFlash.switchOn({ intensity: 100 });
+          
+          setIsScanning(false);
+
+          // Search for product with matching barcode
+          const scannedBarcode = barcode.displayValue || barcode.rawValue;
+          const foundProduct = products.find(
+            (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
+          );
+
+          if (foundProduct) {
+            addToCart(foundProduct);
+            toast.success(`${foundProduct.name} ditambahkan ke keranjang`);
           } else {
-            await CapacitorFlash.switchOff();
+            toast.error('Produk dengan barcode ini tidak ditemukan');
           }
-          const btn = document.getElementById('scanner-flash');
-          if (btn) {
-            btn.textContent = flashOn ? '💡 Flash ON' : '💡 Flash';
-            btn.style.background = flashOn ? 'rgba(59, 130, 246, 0.8)' : 'rgba(0, 0, 0, 0.6)';
-          }
-        } catch (error) {
-          console.error('Flash error:', error);
-          toast.error('Flash tidak tersedia pada perangkat ini');
         }
       });
-      
+
       // Start scanning
-      const result = await BarcodeScanner.startScan();
-      
-      // Turn off flashlight if enabled
-      try {
-        await CapacitorFlash.switchOff();
-      } catch (e) {
-        // Ignore flash errors on cleanup
-      }
-      
-      // Remove overlay and transparency
-      await BarcodeScanner.showBackground();
-      document.body.classList.remove('scanner-active');
-      document.getElementById('scanner-overlay')?.remove();
-      setIsScanning(false);
-
-      if (!scanCancelled && result.hasContent) {
-        // Search for product by barcode or code
-        const foundProduct = products.find(p => 
-          p.barcode?.toLowerCase() === result.content?.toLowerCase() ||
-          p.code?.toLowerCase() === result.content?.toLowerCase() ||
-          p.name.toLowerCase().includes(result.content?.toLowerCase() || '')
-        );
-
-        if (foundProduct) {
-          if (foundProduct.isPhotocopy && currentStore?.category === 'atk') {
-            handlePhotocopyClick(foundProduct);
-          } else {
-            addToCart(foundProduct, 1);
-          }
-          toast.success(`Produk "${foundProduct.name}" ditambahkan ke keranjang`);
-        } else {
-          toast.error(`Produk dengan kode "${result.content}" tidak ditemukan`);
-        }
-      }
+      await BarcodeScanner.startScan();
     } catch (error) {
       console.error('Barcode scan error:', error);
-      document.body.classList.remove('scanner-active');
-      document.getElementById('scanner-overlay')?.remove();
+      await BarcodeScanner.removeAllListeners();
+      await BarcodeScanner.stopScan();
+      document.querySelector('body')?.classList.remove('barcode-scanner-active');
+      try {
+        const { available } = await Torch.isAvailable();
+        if (available) {
+          await Torch.disable();
+        }
+      } catch (e) {
+        console.log('Torch cleanup error:', e);
+      }
       setIsScanning(false);
-      toast.error('Terjadi kesalahan saat scanning');
+      toast.error('Terjadi kesalahan saat scanning: ' + (error as Error).message);
     }
   };
 
@@ -713,8 +578,8 @@ Profit: ${formatPrice(receipt.profit)}
         </div>
       </header>
 
-      {/* Dashboard Stats with top padding for fixed header and status bar */}
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-4">
+      {/* Dashboard Stats with minimal top padding */}
+      <div className="w-full px-2 sm:px-4 pt-1 pb-2 sm:pt-2 sm:pb-4">
         <div className="grid grid-cols-1 gap-2 sm:gap-4 mb-4 sm:mb-6">
           {/* Full width card on top */}
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('revenue')}>

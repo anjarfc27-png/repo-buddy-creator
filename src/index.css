@@ -224,16 +224,20 @@
 }
 
 /* Barcode Scanner Styles */
-body.scanner-active {
+body.scanner-active,
+body.barcode-scanner-active {
   background: transparent !important;
 }
 
-body.scanner-active * {
+body.scanner-active *,
+body.barcode-scanner-active * {
   visibility: hidden;
 }
 
 body.scanner-active .scanner-ui,
-body.scanner-active .scanner-ui * {
+body.scanner-active .scanner-ui *,
+body.barcode-scanner-active .barcode-scanner-modal,
+body.barcode-scanner-active .barcode-scanner-modal * {
   visibility: visible !important;
 }
 
