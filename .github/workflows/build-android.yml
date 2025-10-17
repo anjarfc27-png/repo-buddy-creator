@@ -52,7 +52,7 @@ jobs:
         npm install -g @capacitor/assets
         npx capacitor-assets generate --android --iconBackgroundColor "#3b82f6"
     
-- name: Sync Capacitor
+    - name: Sync Capacitor
       run: npx cap sync android
 
     - name: Patch AndroidManifest for camera permissions
