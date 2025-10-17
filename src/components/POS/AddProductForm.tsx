@@ -13,6 +13,7 @@ import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
 import { Torch } from '@capawesome/capacitor-torch';
 import { Capacitor } from '@capacitor/core';
 import { useStore } from '@/contexts/StoreContext';
+import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
 
 interface AddProductFormProps {
   onAddProduct: (product: Omit<Product, 'id'>) => void;
@@ -514,17 +515,7 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       </CardContent>
 
       {isScanning && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
-          <div className="text-white text-center mb-8">
-            <p className="text-xl mb-2">Arahkan kamera ke barcode</p>
-            <p className="text-sm text-gray-400">Barcode akan otomatis terdeteksi</p>
-          </div>
-          <div className="absolute bottom-8">
-            <Button onClick={stopScanning} variant="outline" size="lg">
-              Batal
-            </Button>
-          </div>
-        </div>
+        <BarcodeScannerUI onCancel={stopScanning} />
       )}
     </Card>
   );

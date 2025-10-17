@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
 
 interface QuickInvoiceProps {
   onCreateInvoice: (receipt: Receipt) => void;
@@ -180,7 +181,21 @@ export const QuickInvoice = ({
       toast.error('Gagal scan barcode');
     }
   };
-
+  
+  const stopScanning = async () => {
+    try {
+      const { available } = await Torch.isAvailable();
+      if (available) {
+        const { enabled } = await Torch.isEnabled();
+        if (enabled) await Torch.disable();
+      }
+    } catch (e) {}
+    await BarcodeScanner.removeAllListeners();
+    await BarcodeScanner.stopScan();
+    document.querySelector('body')?.classList.remove('barcode-scanner-active');
+    setIsScanning(false);
+  };
+  
   return (
     <>
       <Dialog open={showQuantityDialog} onOpenChange={setShowQuantityDialog}>
@@ -320,6 +335,7 @@ export const QuickInvoice = ({
         />
       </div>
     </div>
+    {isScanning && <BarcodeScannerUI onCancel={stopScanning} />}
     </>
   );
 };

@@ -55,13 +55,6 @@ jobs:
     - name: Sync Capacitor
       run: npx cap sync android
 
-    - name: Patch AndroidManifest for camera permissions
-      run: |
-        MANIFEST=android/app/src/main/AndroidManifest.xml
-        echo "Patching $MANIFEST"
-        sed -i '/<application/ i\    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-permission android:name="android.permission.VIBRATE" />\n    <uses-feature android:name="android.hardware.camera" android:required="false"/>\n    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>' $MANIFEST
-        echo "Permissions added:" 
-        grep -n "uses-permission" $MANIFEST || true
     
     - name: Build Android APK
       run: |

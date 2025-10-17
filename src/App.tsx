@@ -24,7 +24,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PPOB } from "@/pages/PPOB";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
 import { PPOBNavButton } from "@/components/Navigation/PPOBNavButton";
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+
 import { useAuth } from "@/contexts/AuthContext";
 
 // Create QueryClient outside component to prevent recreation on every render
@@ -110,8 +110,6 @@ const App = () => {
     if (Capacitor.isNativePlatform()) {
       StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
       StatusBar.setStyle({ style: Style.Light }).catch(() => {});
-      // Request camera permission early for barcode scanning
-      BarcodeScanner.requestPermissions().catch(() => {});
     }
   }, []);
 
