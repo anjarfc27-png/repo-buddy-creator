@@ -42,7 +42,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '@/contexts/StoreContext';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
-import { Torch } from '@capawesome/capacitor-torch';
+
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
@@ -409,47 +409,51 @@ Profit: ${formatPrice(receipt.profit)}
       // Add CSS class to hide body
       document.querySelector('body')?.classList.add('barcode-scanner-active');
 
-      // Add scanner listener
-      const listener = await BarcodeScanner.addListener('barcodesScanned', async (event) => {
-        console.log('Barcodes scanned:', event.barcodes);
+      // Add scanner listeners (plural & singular) to support all plugin event variants
+      let handled = false;
+
+      const onResult = async (raw: any) => {
+        if (handled) return;
+        handled = true;
+        const barcode = raw;
+
+        // Stop scanning and clean up
+        await BarcodeScanner.removeAllListeners();
+        await BarcodeScanner.stopScan();
+        document.querySelector('body')?.classList.remove('barcode-scanner-active');
         
+        // Turn off torch if enabled
+        try {
+          const { enabled } = await BarcodeScanner.isTorchEnabled();
+          if (enabled) {
+            await BarcodeScanner.disableTorch();
+          }
+        } catch (e) {
+          console.log('Torch disable error:', e);
+        }
+        
+        setIsScanning(false);
+
+        // Search for product with matching barcode
+        const scannedBarcode = barcode.displayValue || barcode.rawValue;
+        const foundProduct = products.find(
+          (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
+        );
+
+        if (foundProduct) {
+          addToCart(foundProduct);
+          toast.success(`${foundProduct.name} ditambahkan ke keranjang`);
+        } else {
+          toast.error('Produk dengan barcode ini tidak ditemukan');
+        }
+      };
+
+      await BarcodeScanner.addListener('barcodesScanned', async (event) => {
         if (event.barcodes && event.barcodes.length > 0) {
-          const barcode = event.barcodes[0];
-          
-          // Stop scanning and clean up
-          await listener.remove();
-          await BarcodeScanner.stopScan();
-          document.querySelector('body')?.classList.remove('barcode-scanner-active');
-          
-          // Turn off torch if enabled
-          try {
-            const { available } = await Torch.isAvailable();
-            if (available) {
-              const { enabled } = await Torch.isEnabled();
-              if (enabled) {
-                await Torch.disable();
-              }
-            }
-          } catch (e) {
-            console.log('Torch disable error:', e);
-          }
-          
-          setIsScanning(false);
-
-          // Search for product with matching barcode
-          const scannedBarcode = barcode.displayValue || barcode.rawValue;
-          const foundProduct = products.find(
-            (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
-          );
-
-          if (foundProduct) {
-            addToCart(foundProduct);
-            toast.success(`${foundProduct.name} ditambahkan ke keranjang`);
-          } else {
-            toast.error('Produk dengan barcode ini tidak ditemukan');
-          }
+          await onResult(event.barcodes[0]);
         }
       });
+
 
       // Start scanning
       await BarcodeScanner.startScan();
@@ -459,9 +463,9 @@ Profit: ${formatPrice(receipt.profit)}
       await BarcodeScanner.stopScan();
       document.querySelector('body')?.classList.remove('barcode-scanner-active');
       try {
-        const { available } = await Torch.isAvailable();
-        if (available) {
-          await Torch.disable();
+        const { enabled } = await BarcodeScanner.isTorchEnabled();
+        if (enabled) {
+          await BarcodeScanner.disableTorch();
         }
       } catch (e) {
         console.log('Torch cleanup error:', e);
@@ -473,11 +477,8 @@ Profit: ${formatPrice(receipt.profit)}
   
   const stopScanning = async () => {
     try {
-      const { available } = await Torch.isAvailable();
-      if (available) {
-        const { enabled } = await Torch.isEnabled();
-        if (enabled) await Torch.disable();
-      }
+      const { enabled } = await BarcodeScanner.isTorchEnabled();
+      if (enabled) await BarcodeScanner.disableTorch();
     } catch (e) {}
     await BarcodeScanner.removeAllListeners();
     await BarcodeScanner.stopScan();
@@ -486,10 +487,10 @@ Profit: ${formatPrice(receipt.profit)}
   };
   
   return (
-    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+36px)]">
+    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+28px)]">
       {/* Header - Fixed with safe area padding for status bar */}
       <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full safe-top">
-        <div className="w-full px-2 sm:px-4 py-0.5 sm:py-1">
+        <div className="w-full px-2 sm:px-4 py-0">
           <div className="flex items-center justify-between">
             <div 
               onClick={() => navigate('/settings', { replace: true })} 

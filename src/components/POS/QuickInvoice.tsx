@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ShoppingCart } from './ShoppingCart';
 import { CartItem, Receipt } from '@/types/pos';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
-import { Torch } from '@capawesome/capacitor-torch';
+
 import { Capacitor } from '@capacitor/core';
 import { toast } from 'sonner';
 import {
@@ -134,38 +134,44 @@ export const QuickInvoice = ({
 
       document.querySelector('body')?.classList.add('barcode-scanner-active');
 
-      const listener = await BarcodeScanner.addListener('barcodesScanned', async (event) => {
+      let handled = false;
+
+      const onResult = async (raw: any) => {
+        if (handled) return;
+        handled = true;
+        const barcode = raw;
+
+        await BarcodeScanner.removeAllListeners();
+        await BarcodeScanner.stopScan();
+        document.querySelector('body')?.classList.remove('barcode-scanner-active');
+        
+        try {
+          const { enabled } = await BarcodeScanner.isTorchEnabled();
+          if (enabled) await BarcodeScanner.disableTorch();
+        } catch (e) {}
+        
+        setIsScanning(false);
+
+        const scannedBarcode = barcode.displayValue || barcode.rawValue;
+        const foundProduct = products.find(
+          (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
+        );
+
+        if (foundProduct) {
+          setSelectedProduct(foundProduct);
+          setShowQuantityDialog(true);
+          setQuantityInput('');
+        } else {
+          toast.error('Produk dengan barcode ini tidak ditemukan');
+        }
+      };
+
+      await BarcodeScanner.addListener('barcodesScanned', async (event) => {
         if (event.barcodes && event.barcodes.length > 0) {
-          const barcode = event.barcodes[0];
-          
-          await listener.remove();
-          await BarcodeScanner.stopScan();
-          document.querySelector('body')?.classList.remove('barcode-scanner-active');
-          
-          try {
-            const { available } = await Torch.isAvailable();
-            if (available) {
-              const { enabled } = await Torch.isEnabled();
-              if (enabled) await Torch.disable();
-            }
-          } catch (e) {}
-          
-          setIsScanning(false);
-
-          const scannedBarcode = barcode.displayValue || barcode.rawValue;
-          const foundProduct = products.find(
-            (p) => p.barcode && p.barcode.toLowerCase() === scannedBarcode.toLowerCase()
-          );
-
-          if (foundProduct) {
-            setSelectedProduct(foundProduct);
-            setShowQuantityDialog(true);
-            setQuantityInput('');
-          } else {
-            toast.error('Produk dengan barcode ini tidak ditemukan');
-          }
+          await onResult(event.barcodes[0]);
         }
       });
+
 
       await BarcodeScanner.startScan();
     } catch (error) {
@@ -174,8 +180,8 @@ export const QuickInvoice = ({
       await BarcodeScanner.stopScan();
       document.querySelector('body')?.classList.remove('barcode-scanner-active');
       try {
-        const { available } = await Torch.isAvailable();
-        if (available) await Torch.disable();
+        const { enabled } = await BarcodeScanner.isTorchEnabled();
+        if (enabled) await BarcodeScanner.disableTorch();
       } catch (e) {}
       setIsScanning(false);
       toast.error('Gagal scan barcode');
@@ -184,11 +190,8 @@ export const QuickInvoice = ({
   
   const stopScanning = async () => {
     try {
-      const { available } = await Torch.isAvailable();
-      if (available) {
-        const { enabled } = await Torch.isEnabled();
-        if (enabled) await Torch.disable();
-      }
+      const { enabled } = await BarcodeScanner.isTorchEnabled();
+      if (enabled) await BarcodeScanner.disableTorch();
     } catch (e) {}
     await BarcodeScanner.removeAllListeners();
     await BarcodeScanner.stopScan();
