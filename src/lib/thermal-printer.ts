@@ -40,17 +40,9 @@ class ThermalPrinter {
         await BleClient.enable();
       }
       
-      // Request device from user with more flexible options
-      const device = await BleClient.requestDevice({
-        optionalServices: [
-          '000018f0-0000-1000-8000-00805f9b34fb', // Generic printer service
-          '49535343-fe7d-4ae5-8fa9-9fafd205e455', // HID service
-          '0000ff00-0000-1000-8000-00805f9b34fb', // Custom service
-          '6e400001-b5a3-f393-e0a9-e50e24dcca9e'  // UART service
-        ],
-        allowDuplicates: false,
-        scanMode: 1
-      });
+      // Request device from user - broad discovery for better compatibility
+      console.log('Requesting Bluetooth device...');
+      const device = await BleClient.requestDevice({});
 
       if (!device) {
         console.log('No device selected');
@@ -96,8 +88,10 @@ class ThermalPrinter {
         throw new Error('Koneksi timeout. Pastikan printer dalam jangkauan dan mode pairing aktif.');
       } else if (error.message?.includes('GATT_ERROR')) {
         throw new Error('Gagal terhubung ke printer. Coba restart printer dan ulangi koneksi.');
-      } else if (error.message?.includes('Device not found')) {
+      } else if (error.message?.includes('Device not found') || error.message?.includes('No device')) {
         throw new Error('Printer tidak ditemukan. Pastikan printer menyala dan dapat ditemukan.');
+      } else if (error.message?.includes('BLUETOOTH_SCAN') || error.message?.includes('BLUETOOTH_CONNECT')) {
+        throw new Error('Izin Bluetooth diperlukan (Android 12+). Silakan berikan izin di pengaturan aplikasi.');
       }
       
       return false;

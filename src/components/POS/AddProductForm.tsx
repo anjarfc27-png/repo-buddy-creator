@@ -10,8 +10,8 @@ import { Product } from '@/types/pos';
 import { QuantitySelector } from './QuantitySelector';
 import { toast } from 'sonner';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
-
 import { Capacitor } from '@capacitor/core';
+import { Torch } from '@capawesome/capacitor-torch';
 import { useStore } from '@/contexts/StoreContext';
 import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
 
@@ -198,6 +198,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         return;
       }
 
+      console.log('Starting barcode scan...');
+
       setIsScanning(true);
       document.querySelector('body')?.classList.add('barcode-scanner-active');
 
@@ -208,13 +210,15 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         handled = true;
         const scannedCode = raw.displayValue || raw.rawValue || raw;
 
+        console.log('Barcode scanned:', scannedCode);
+
         await BarcodeScanner.removeAllListeners();
         await BarcodeScanner.stopScan();
         document.querySelector('body')?.classList.remove('barcode-scanner-active');
         
         try {
-          const { enabled } = await BarcodeScanner.isTorchEnabled();
-          if (enabled) await BarcodeScanner.disableTorch();
+          const torchStatus = await Torch.isEnabled();
+          if (torchStatus.enabled) await Torch.disable();
         } catch (e) {}
         
         setIsScanning(false);
@@ -244,21 +248,26 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         }
       };
 
+      // Use barcodesScanned event (MLKit standard)
       await BarcodeScanner.addListener('barcodesScanned', async (event) => {
+        console.log('barcodesScanned event fired:', event);
         if (event.barcodes && event.barcodes.length > 0) {
           await onResult(event.barcodes[0]);
         }
       });
 
+      console.log('Listener added, starting scan...');
+
       await BarcodeScanner.startScan();
+      console.log('Scan started successfully');
     } catch (error) {
       console.error('Barcode scan error:', error);
       await BarcodeScanner.removeAllListeners();
       await BarcodeScanner.stopScan();
       document.querySelector('body')?.classList.remove('barcode-scanner-active');
       try {
-        const { enabled } = await BarcodeScanner.isTorchEnabled();
-        if (enabled) await BarcodeScanner.disableTorch();
+        const torchStatus = await Torch.isEnabled();
+        if (torchStatus.enabled) await Torch.disable();
       } catch (e) {}
       setIsScanning(false);
       toast.error('Gagal scan barcode');
@@ -267,8 +276,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
 
   const stopScanning = async () => {
     try {
-      const { enabled } = await BarcodeScanner.isTorchEnabled();
-      if (enabled) await BarcodeScanner.disableTorch();
+      const torchStatus = await Torch.isEnabled();
+      if (torchStatus.enabled) await Torch.disable();
     } catch (e) {}
     await BarcodeScanner.removeAllListeners();
     await BarcodeScanner.stopScan();

@@ -41,9 +41,9 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '@/contexts/StoreContext';
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
-
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { Torch } from '@capawesome/capacitor-torch';
 import { toast } from 'sonner';
 import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
 
@@ -422,11 +422,11 @@ Profit: ${formatPrice(receipt.profit)}
         await BarcodeScanner.stopScan();
         document.querySelector('body')?.classList.remove('barcode-scanner-active');
         
-        // Turn off torch if enabled
+      // Turn off torch if enabled
         try {
-          const { enabled } = await BarcodeScanner.isTorchEnabled();
-          if (enabled) {
-            await BarcodeScanner.disableTorch();
+          const torchStatus = await Torch.isEnabled();
+          if (torchStatus.enabled) {
+            await Torch.disable();
           }
         } catch (e) {
           console.log('Torch disable error:', e);
@@ -463,9 +463,9 @@ Profit: ${formatPrice(receipt.profit)}
       await BarcodeScanner.stopScan();
       document.querySelector('body')?.classList.remove('barcode-scanner-active');
       try {
-        const { enabled } = await BarcodeScanner.isTorchEnabled();
-        if (enabled) {
-          await BarcodeScanner.disableTorch();
+        const torchStatus = await Torch.isEnabled();
+        if (torchStatus.enabled) {
+          await Torch.disable();
         }
       } catch (e) {
         console.log('Torch cleanup error:', e);
@@ -477,8 +477,8 @@ Profit: ${formatPrice(receipt.profit)}
   
   const stopScanning = async () => {
     try {
-      const { enabled } = await BarcodeScanner.isTorchEnabled();
-      if (enabled) await BarcodeScanner.disableTorch();
+      const torchStatus = await Torch.isEnabled();
+      if (torchStatus.enabled) await Torch.disable();
     } catch (e) {}
     await BarcodeScanner.removeAllListeners();
     await BarcodeScanner.stopScan();
@@ -487,10 +487,10 @@ Profit: ${formatPrice(receipt.profit)}
   };
   
   return (
-    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+28px)]">
+    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+16px)]">
       {/* Header - Fixed with safe area padding for status bar */}
       <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full safe-top">
-        <div className="w-full px-2 sm:px-4 py-0">
+        <div className="w-full px-2 sm:px-4 py-2">
           <div className="flex items-center justify-between">
             <div 
               onClick={() => navigate('/settings', { replace: true })} 

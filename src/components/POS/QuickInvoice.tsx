@@ -8,8 +8,8 @@ import { useState, useRef, useEffect } from 'react';
 import { ShoppingCart } from './ShoppingCart';
 import { CartItem, Receipt } from '@/types/pos';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
-
 import { Capacitor } from '@capacitor/core';
+import { Torch } from '@capawesome/capacitor-torch';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -132,6 +132,8 @@ export const QuickInvoice = ({
         return;
       }
 
+      console.log('Starting barcode scan...');
+
       document.querySelector('body')?.classList.add('barcode-scanner-active');
 
       let handled = false;
@@ -141,13 +143,15 @@ export const QuickInvoice = ({
         handled = true;
         const barcode = raw;
 
+        console.log('Barcode scanned:', barcode);
+
         await BarcodeScanner.removeAllListeners();
         await BarcodeScanner.stopScan();
         document.querySelector('body')?.classList.remove('barcode-scanner-active');
         
         try {
-          const { enabled } = await BarcodeScanner.isTorchEnabled();
-          if (enabled) await BarcodeScanner.disableTorch();
+          const torchStatus = await Torch.isEnabled();
+          if (torchStatus.enabled) await Torch.disable();
         } catch (e) {}
         
         setIsScanning(false);
@@ -166,22 +170,26 @@ export const QuickInvoice = ({
         }
       };
 
+      // Use barcodesScanned event (MLKit standard)
       await BarcodeScanner.addListener('barcodesScanned', async (event) => {
+        console.log('barcodesScanned event fired:', event);
         if (event.barcodes && event.barcodes.length > 0) {
           await onResult(event.barcodes[0]);
         }
       });
 
+      console.log('Listener added, starting scan...');
 
       await BarcodeScanner.startScan();
+      console.log('Scan started successfully');
     } catch (error) {
       console.error('Barcode scan error:', error);
       await BarcodeScanner.removeAllListeners();
       await BarcodeScanner.stopScan();
       document.querySelector('body')?.classList.remove('barcode-scanner-active');
       try {
-        const { enabled } = await BarcodeScanner.isTorchEnabled();
-        if (enabled) await BarcodeScanner.disableTorch();
+        const torchStatus = await Torch.isEnabled();
+        if (torchStatus.enabled) await Torch.disable();
       } catch (e) {}
       setIsScanning(false);
       toast.error('Gagal scan barcode');
@@ -190,8 +198,8 @@ export const QuickInvoice = ({
   
   const stopScanning = async () => {
     try {
-      const { enabled } = await BarcodeScanner.isTorchEnabled();
-      if (enabled) await BarcodeScanner.disableTorch();
+      const torchStatus = await Torch.isEnabled();
+      if (torchStatus.enabled) await Torch.disable();
     } catch (e) {}
     await BarcodeScanner.removeAllListeners();
     await BarcodeScanner.stopScan();

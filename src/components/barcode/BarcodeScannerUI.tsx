@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { Torch } from '@capawesome/capacitor-torch';
 import { Button } from '@/components/ui/button';
 import { X, Zap, ZapOff } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export const BarcodeScannerUI = ({ onCancel }: BarcodeScannerUIProps) => {
 
   const checkTorchAvailability = async () => {
     try {
-      const { available } = await BarcodeScanner.isTorchAvailable();
+      const { available } = await Torch.isAvailable();
       setTorchAvailable(available);
     } catch (e) {
       setTorchAvailable(false);
@@ -26,7 +27,7 @@ export const BarcodeScannerUI = ({ onCancel }: BarcodeScannerUIProps) => {
 
   const toggleTorch = async () => {
     try {
-      await BarcodeScanner.toggleTorch();
+      await Torch.toggle();
       setTorchEnabled((prev) => !prev);
     } catch (error) {
       console.error('Torch toggle error:', error);
