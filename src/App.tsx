@@ -23,6 +23,7 @@ import { WaitingApproval } from "@/pages/WaitingApproval";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PPOB } from "@/pages/PPOB";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
+import { AnalyticsDashboard } from "@/pages/AnalyticsDashboard";
 import { PPOBNavButton } from "@/components/Navigation/PPOBNavButton";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,6 +66,11 @@ const AppRoutes = () => {
         <Route path="/ppob" element={
           <ProtectedRoute>
             <PPOB />
+          </ProtectedRoute>
+        } />
+        <Route path="/analytics" element={
+          <ProtectedRoute>
+            <AnalyticsDashboard />
           </ProtectedRoute>
         } />
         <Route path="/cart" element={
