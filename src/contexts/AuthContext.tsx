@@ -32,58 +32,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
-    
-    // Check for existing session first
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
+
+    // Set up auth state listener FIRST per best practices
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        setIsAdminCheckComplete(false);
+        // Defer Supabase calls to avoid deadlocks in callback
+        setTimeout(() => {
+          checkUserApprovalAndRole(session.user!.id);
+        }, 0);
+      } else {
+        setIsApproved(false);
+        setIsAdmin(false);
+        setIsAdminCheckComplete(true);
+      }
+    });
+
+    // THEN check for existing session
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
         if (!isMounted) return;
-        
+
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           setIsAdminCheckComplete(false);
-          await checkUserApprovalAndRole(session.user.id);
+          // Defer check to keep UI responsive
+          setTimeout(() => {
+            checkUserApprovalAndRole(session.user!.id);
+          }, 0);
         } else {
           setIsApproved(false);
           setIsAdmin(false);
           setIsAdminCheckComplete(true);
         }
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error('Error initializing auth:', error);
-        if (isMounted) {
-          setIsAdminCheckComplete(true);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!isMounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Check approval status and role
-        if (session?.user) {
-          setIsAdminCheckComplete(false);
-          await checkUserApprovalAndRole(session.user.id);
-        } else {
-          setIsApproved(false);
-          setIsAdmin(false);
-          setIsAdminCheckComplete(true);
-        }
-      }
-    );
+        if (isMounted) setIsAdminCheckComplete(true);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
     return () => {
       isMounted = false;
@@ -93,37 +89,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkUserApprovalAndRole = async (userId: string) => {
     try {
-      // Check if user is admin first
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      const isUserAdmin = !!roles && !rolesError;
+      // Fast, RLS-safe admin check using SECURITY DEFINER function
+      const { data: hasAdminRole, error: roleCheckError } = await supabase.rpc('has_role', {
+        _user_id: userId,
+        _role: 'admin' as any,
+      });
+
+      const isUserAdmin = !!hasAdminRole && !roleCheckError;
       setIsAdmin(isUserAdmin);
-      
-      // Check profile approval status
+
+      // Profiles check for approval (admin bypasses approval)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_approved')
         .eq('user_id', userId)
         .maybeSingle();
-      
+
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        // If admin, bypass approval check
         setIsApproved(isUserAdmin ? true : false);
       } else {
-        // Admin always approved, regular users check is_approved
         setIsApproved(isUserAdmin ? true : (profile?.is_approved ?? false));
       }
-      
+
       // Subscription check - disabled
       setIsSubscriptionExpired(false);
       setSubscriptionExpiredAt(null);
-      
     } catch (error) {
       console.error('Error checking user status:', error);
       setIsApproved(false);

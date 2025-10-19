@@ -7,9 +7,9 @@ interface AdminRouteProps {
 }
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, isAdminCheckComplete } = useAuth();
 
-  if (loading) {
+  if (loading || !isAdminCheckComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
