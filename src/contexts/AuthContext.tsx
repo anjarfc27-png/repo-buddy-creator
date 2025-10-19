@@ -31,42 +31,64 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [subscriptionExpiredAt, setSubscriptionExpiredAt] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let isMounted = true;
+    
+    // Check for existing session first
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          setIsAdminCheckComplete(false);
+          await checkUserApprovalAndRole(session.user.id);
+        } else {
+          setIsApproved(false);
+          setIsAdmin(false);
+          setIsAdminCheckComplete(true);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (isMounted) {
+          setIsAdminCheckComplete(true);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         // Check approval status and role
         if (session?.user) {
           setIsAdminCheckComplete(false);
-          setTimeout(() => {
-            checkUserApprovalAndRole(session.user.id);
-          }, 0);
+          await checkUserApprovalAndRole(session.user.id);
         } else {
           setIsApproved(false);
           setIsAdmin(false);
           setIsAdminCheckComplete(true);
         }
-        setLoading(false);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setIsAdminCheckComplete(false);
-        checkUserApprovalAndRole(session.user.id);
-      } else {
-        setIsAdminCheckComplete(true);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const checkUserApprovalAndRole = async (userId: string) => {
