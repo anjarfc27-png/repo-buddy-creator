@@ -492,11 +492,15 @@ Profit: ${formatPrice(receipt.profit)}
       <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full safe-top">
         <div className="w-full px-2 sm:px-4 py-2">
           <div className="flex items-center justify-between">
-            <div 
-              onClick={() => navigate('/settings', { replace: true })} 
-              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer"
-            >
-              <Store className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className="h-8 w-8 sm:h-10 sm:w-10 p-0"
+              >
+                <Store className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              </Button>
               <div>
                 <div className="hidden sm:block">
                   <h1 className="text-lg sm:text-2xl font-bold">

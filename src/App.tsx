@@ -24,7 +24,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PPOB } from "@/pages/PPOB";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
 import { AnalyticsDashboard } from "@/pages/AnalyticsDashboard";
-import { PPOBNavButton } from "@/components/Navigation/PPOBNavButton";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -106,7 +105,6 @@ const AppRoutes = () => {
         <Route path="/waiting-approval" element={<WaitingApproval />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <PPOBNavButton />
     </>
   );
 };

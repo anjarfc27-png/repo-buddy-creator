@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* POS Background colors */
-    --background: 240 10% 98%;
+    /* Clean iOS-style backgrounds */
+    --background: 0 0% 100%;
     --foreground: 220 15% 15%;
 
     /* Card and surface colors */
@@ -55,6 +55,10 @@
     --ring: 214 95% 45%;
 
     --radius: 0.75rem;
+    
+    /* iOS-style shadows */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 
     /* POS Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
@@ -170,11 +174,11 @@
 @layer components {
   /* POS Component Classes */
   .pos-card {
-    @apply bg-card border border-border rounded-xl shadow-[var(--shadow-soft)] transition-[var(--transition-smooth)];
+    @apply bg-card border-0 rounded-xl shadow-[var(--shadow-card)] transition-[var(--transition-smooth)];
   }
 
   .pos-card-hover {
-    @apply hover:shadow-[var(--shadow-medium)] hover:-translate-y-0.5;
+    @apply hover:shadow-[var(--shadow-card-hover)];
   }
 
   .pos-button-primary {

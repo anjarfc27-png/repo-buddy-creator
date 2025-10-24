@@ -60,7 +60,7 @@ export const PPOB = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/pos')}
+              onClick={() => navigate('/')}
               className="text-primary hover:bg-gray-100 h-8 w-8 rounded-full"
             >
               <ArrowLeft className="h-4 w-4" />

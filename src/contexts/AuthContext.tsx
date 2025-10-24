@@ -32,9 +32,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
+    let loadingTimeout: NodeJS.Timeout;
 
-    // Set up auth state listener FIRST per best practices
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // 10-second timeout fallback to prevent infinite loading
+    const setupTimeout = () => {
+      loadingTimeout = setTimeout(() => {
+        if (isMounted && loading) {
+          console.warn('Auth check timeout - forcing load complete');
+          setLoading(false);
+          setIsAdminCheckComplete(true);
+        }
+      }, 10000);
+    };
+
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
 
       setSession(session);
@@ -42,20 +54,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session?.user) {
         setIsAdminCheckComplete(false);
-        // Defer Supabase calls to avoid deadlocks in callback
-        setTimeout(() => {
-          checkUserApprovalAndRole(session.user!.id);
-        }, 0);
+        // Call directly without setTimeout
+        await checkUserApprovalAndRole(session.user.id);
       } else {
         setIsApproved(false);
         setIsAdmin(false);
         setIsAdminCheckComplete(true);
+        setLoading(false);
       }
     });
 
     // THEN check for existing session
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
+    const initAuth = async () => {
+      setupTimeout();
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
         if (!isMounted) return;
 
         setSession(session);
@@ -63,26 +78,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           setIsAdminCheckComplete(false);
-          // Defer check to keep UI responsive
-          setTimeout(() => {
-            checkUserApprovalAndRole(session.user!.id);
-          }, 0);
+          await checkUserApprovalAndRole(session.user.id);
         } else {
           setIsApproved(false);
           setIsAdmin(false);
           setIsAdminCheckComplete(true);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error initializing auth:', error);
-        if (isMounted) setIsAdminCheckComplete(true);
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+        if (isMounted) {
+          setIsAdminCheckComplete(true);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          clearTimeout(loadingTimeout);
+        }
+      }
+    };
+
+    initAuth();
 
     return () => {
       isMounted = false;
+      clearTimeout(loadingTimeout);
       subscription.unsubscribe();
     };
   }, []);

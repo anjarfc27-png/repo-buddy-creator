@@ -1,18 +1,17 @@
 import { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Store, Users, LogOut, Smartphone, BarChart3, Settings, FileText } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { StatsCard } from '@/components/Dashboard/StatsCard';
+import { QuickActions } from '@/components/Dashboard/QuickActions';
+import { MoreMenu } from '@/components/Dashboard/MoreMenu';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { signOut, isAdmin, loading, isAdminCheckComplete } = useAuth();
   const { currentStore } = useStore();
-
-  // No auto redirect - show dashboard for all users
 
   const handleLogout = async () => {
     try {
@@ -29,132 +28,60 @@ export const Dashboard = () => {
   // Show loading while checking admin status
   if (loading || !isAdminCheckComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // All approved users can see dashboard
-  const miniData = [
-    { name: 'Sen', value: 12 },
-    { name: 'Sel', value: 18 },
-    { name: 'Rab', value: 9 },
-    { name: 'Kam', value: 22 },
-    { name: 'Jum', value: 17 },
-    { name: 'Sab', value: 25 },
-    { name: 'Min', value: 14 },
+  // Quick action buttons for main features
+  const quickActions = [
+    { icon: Store, label: 'Kasir POS', path: '/pos' },
+    { icon: Smartphone, label: 'PPOB', path: '/ppob' },
+  ];
+
+  // More menu items
+  const moreMenuItems = [
+    { icon: BarChart3, label: 'Dashboard Analytics', path: '/analytics' },
+    { icon: FileText, label: 'Laporan', path: '/reports' },
+    { icon: Settings, label: 'Pengaturan Toko', path: '/settings' },
+    { icon: Users, label: 'Admin Panel', path: '/admin/users', adminOnly: true },
   ];
 
   return (
-    <div className="min-h-screen w-full">
-      {/* iOS-like header dengan aksen biru */}
-      <header className="bg-gradient-to-b from-primary/20 to-primary/5 pb-6 pt-[calc(env(safe-area-inset-top)+16px)]">
+    <div className="min-h-screen w-full bg-background">
+      {/* Clean iOS-style header */}
+      <header className="bg-background pb-4 pt-[calc(env(safe-area-inset-top)+16px)] border-b">
         <div className="max-w-md mx-auto px-4">
           <p className="text-xs text-muted-foreground">{currentStore?.name || 'Sistem Kasir'}</p>
-          <h1 className="text-3xl font-bold tracking-tight">Selamat Datang</h1>
+          <h1 className="text-2xl font-bold">Selamat Datang</h1>
           <p className="text-sm text-muted-foreground">Pilih menu untuk mulai bekerja</p>
         </div>
       </header>
 
-      <main className="max-w-md mx-auto px-4 -mt-6 space-y-4">
-        {/* Analytics preview */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              Ringkasan Hari Ini
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-32">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={miniData} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
-                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
-                <XAxis dataKey="name" hide />
-                <YAxis hide />
-                <Tooltip contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))' }} />
-                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <main className="max-w-md mx-auto px-4 py-6 space-y-6">
+        {/* Stats card with mini chart */}
+        <StatsCard 
+          title="Penjualan Hari Ini"
+          amount="Rp 2.450.000"
+          trend={12}
+        />
 
-        {/* Quick actions grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/pos')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Store className="h-6 w-6 text-primary" />
-                </div>
-                <span>Kasir POS</span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
+        {/* 2 Primary Actions */}
+        <QuickActions actions={quickActions} />
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/ppob')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Smartphone className="h-6 w-6 text-primary" />
-                </div>
-                <span>PPOB</span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/analytics')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <span>Dashboard Analytics</span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/reports')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <FileText className="h-6 w-6 text-primary" />
-                </div>
-                <span>Laporan</span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/settings')}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Settings className="h-6 w-6 text-primary" />
-                </div>
-                <span>Pengaturan Toko</span>
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          {isAdmin && (
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/admin/users')}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-primary/10">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <span>Admin Panel</span>
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          )}
-        </div>
+        {/* Collapsible More Menu */}
+        <MoreMenu items={moreMenuItems} isAdmin={isAdmin} />
 
         {/* Logout Button */}
-        <Button variant="outline" className="w-full" onClick={handleLogout}>
+        <Button 
+          variant="outline" 
+          className="w-full h-12 rounded-xl"
+          onClick={handleLogout}
+        >
           <LogOut className="h-4 w-4 mr-2" />
           Keluar
         </Button>
@@ -164,3 +91,4 @@ export const Dashboard = () => {
     </div>
   );
 };
+
