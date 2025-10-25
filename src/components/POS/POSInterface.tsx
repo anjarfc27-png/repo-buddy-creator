@@ -487,17 +487,17 @@ Profit: ${formatPrice(receipt.profit)}
   };
   
   return (
-    <div className="min-h-screen w-full bg-background pt-[calc(env(safe-area-inset-top)+16px)]">
+    <div className="min-h-screen w-full bg-background">
       {/* Header - Fixed with safe area padding for status bar */}
-      <header className="fixed top-0 z-50 border-b bg-card shadow-sm w-full safe-top">
-        <div className="w-full px-2 sm:px-4 py-2">
+      <header className="fixed top-0 z-50 border-b bg-card/80 backdrop-blur-xl shadow-sm w-full safe-top">
+        <div className="w-full px-2 sm:px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/')}
-                className="h-8 w-8 sm:h-10 sm:w-10 p-0"
+                className="h-10 w-10 rounded-full p-0"
               >
                 <Store className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </Button>

@@ -1,94 +1,116 @@
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Store, Users, LogOut, Smartphone, BarChart3, Settings, FileText } from 'lucide-react';
 import { useStore } from '@/contexts/StoreContext';
+import { usePOSContext } from '@/contexts/POSContext';
 import { StatsCard } from '@/components/Dashboard/StatsCard';
 import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { MoreMenu } from '@/components/Dashboard/MoreMenu';
+import { 
+  DollarSign, 
+  ShoppingCart, 
+  Package,
+  BarChart3,
+  FileText,
+  Settings,
+  Users,
+  LogOut,
+  Calendar
+} from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
 
 export const Dashboard = () => {
-  const navigate = useNavigate();
-  const { signOut, isAdmin, loading, isAdminCheckComplete } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const { currentStore } = useStore();
+  const { receipts, formatPrice } = usePOSContext();
+  const navigate = useNavigate();
+
+  const todayStats = useMemo(() => {
+    const today = new Date().toDateString();
+    const todayReceipts = receipts.filter(r => {
+      const receiptDate = new Date(r.timestamp).toDateString();
+      return receiptDate === today && !r.isManual && !r.id.startsWith('MNL-');
+    });
+    
+    const revenue = todayReceipts.reduce((sum, r) => sum + r.total, 0);
+    const profit = todayReceipts.reduce((sum, r) => sum + r.profit, 0);
+    const transactions = todayReceipts.length;
+    
+    return { revenue, profit, transactions };
+  }, [receipts]);
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      navigate('/pos');
+    }
+  }, [loading, isAdmin, navigate]);
 
   const handleLogout = async () => {
     try {
+      const { signOut } = await import('@/contexts/AuthContext');
       await signOut();
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
-  useEffect(() => {
-    document.title = 'Dashboard - KasirQ POS';
-  }, []);
+  const quickActions = [
+    { 
+      title: 'Kasir POS', 
+      icon: ShoppingCart, 
+      path: '/pos',
+      gradientFrom: 'from-blue-500',
+      gradientTo: 'to-blue-600'
+    },
+    { 
+      title: 'PPOB', 
+      icon: Package, 
+      path: '/ppob',
+      gradientFrom: 'from-emerald-500',
+      gradientTo: 'to-teal-600'
+    },
+  ];
 
-  // Show loading while checking admin status
-  if (loading || !isAdminCheckComplete) {
+  const moreMenuItems = [
+    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+    { icon: FileText, label: 'Laporan', path: '/reports' },
+    { icon: Settings, label: 'Pengaturan', path: '/settings' },
+    { icon: Users, label: 'Kelola User', path: '/admin/users', adminOnly: true },
+    { icon: Calendar, label: 'Kelola Subscription', path: '/admin/subscriptions', adminOnly: true },
+  ];
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // Quick action buttons for main features
-  const quickActions = [
-    { icon: Store, label: 'Kasir POS', path: '/pos' },
-    { icon: Smartphone, label: 'PPOB', path: '/ppob' },
-  ];
-
-  // More menu items
-  const moreMenuItems = [
-    { icon: BarChart3, label: 'Dashboard Analytics', path: '/analytics' },
-    { icon: FileText, label: 'Laporan', path: '/reports' },
-    { icon: Settings, label: 'Pengaturan Toko', path: '/settings' },
-    { icon: Users, label: 'Admin Panel', path: '/admin/users', adminOnly: true },
-  ];
+  if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen w-full bg-background">
-      {/* Clean iOS-style header */}
-      <header className="bg-background pb-4 pt-[calc(env(safe-area-inset-top)+16px)] border-b">
-        <div className="max-w-md mx-auto px-4">
-          <p className="text-xs text-muted-foreground">{currentStore?.name || 'Sistem Kasir'}</p>
-          <h1 className="text-2xl font-bold">Selamat Datang</h1>
-          <p className="text-sm text-muted-foreground">Pilih menu untuk mulai bekerja</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-blue-50/30 p-4 space-y-6 safe-top safe-bottom animate-fade-in-up">
+      <div className="flex items-center justify-between bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-4 rounded-2xl backdrop-blur-sm">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{currentStore?.name || 'Sistem Kasir'}</p>
         </div>
-      </header>
-
-      <main className="max-w-md mx-auto px-4 py-6 space-y-6">
-        {/* Stats card with mini chart */}
-        <StatsCard 
-          title="Penjualan Hari Ini"
-          amount="Rp 2.450.000"
-          trend={12}
-        />
-
-        {/* 2 Primary Actions */}
-        <QuickActions actions={quickActions} />
-
-        {/* Collapsible More Menu */}
-        <MoreMenu items={moreMenuItems} isAdmin={isAdmin} />
-
-        {/* Logout Button */}
-        <Button 
-          variant="outline" 
-          className="w-full h-12 rounded-xl"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Keluar
+        <Button variant="ghost" size="icon" onClick={handleLogout} className="h-10 w-10 hover:bg-red-500/10 hover:text-red-600">
+          <LogOut className="h-5 w-5" />
         </Button>
+      </div>
 
-        <div className="pb-6" />
-      </main>
+      <div className="grid grid-cols-3 gap-3">
+        <StatsCard title="Pendapatan" value={formatPrice(todayStats.revenue)} icon={DollarSign} trend="+12% vs kemarin" gradientFrom="from-blue-500" gradientTo="to-blue-600" />
+        <StatsCard title="Profit" value={formatPrice(todayStats.profit)} icon={DollarSign} trend="+8% vs kemarin" gradientFrom="from-emerald-500" gradientTo="to-teal-600" />
+        <StatsCard title="Transaksi" value={todayStats.transactions.toString()} icon={ShoppingCart} trend="Hari ini" gradientFrom="from-purple-500" gradientTo="to-pink-600" />
+      </div>
+
+      <QuickActions actions={quickActions} />
+      <MoreMenu items={moreMenuItems} isAdmin={isAdmin} />
     </div>
   );
 };
-

@@ -82,13 +82,13 @@ export const SubscriptionManagement = () => {
 
   const handleExtendSubscription = async () => {
     if (!selectedUser) return;
-
     setExtending(true);
     try {
-      toast.error('Fitur subscription belum tersedia. Silakan jalankan migration SQL terlebih dahulu.');
+      toast.info(`Subscription ${selectedUser.email} akan diperpanjang ${duration} bulan`);
+      toast.info('Fitur subscription akan aktif setelah migration SQL dijalankan');
       setShowExtendDialog(false);
     } catch (error) {
-      console.error('Error extending subscription:', error);
+      console.error('Error:', error);
       toast.error('Gagal memperpanjang subscription');
     } finally {
       setExtending(false);
