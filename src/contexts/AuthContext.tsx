@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
 
       setSession(session);
@@ -54,8 +54,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session?.user) {
         setIsAdminCheckComplete(false);
-        // Call directly without setTimeout
-        await checkUserApprovalAndRole(session.user.id);
+        // Defer any Supabase calls to avoid deadlocks
+        setTimeout(() => {
+          if (!isMounted) return;
+          checkUserApprovalAndRole(session.user!.id);
+        }, 0);
       } else {
         setIsApproved(false);
         setIsAdmin(false);
