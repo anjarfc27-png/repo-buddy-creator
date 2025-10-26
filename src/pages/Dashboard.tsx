@@ -5,6 +5,7 @@ import { usePOSContext } from '@/contexts/POSContext';
 import { StatsCard } from '@/components/Dashboard/StatsCard';
 import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { MoreMenu } from '@/components/Dashboard/MoreMenu';
+import { DashboardAnalytics } from '@/components/Dashboard/DashboardAnalytics';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   DollarSign, 
@@ -15,7 +16,8 @@ import {
   Settings,
   Users,
   LogOut,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -75,8 +77,10 @@ export const Dashboard = () => {
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: FileText, label: 'Laporan', path: '/reports' },
     { icon: Settings, label: 'Pengaturan', path: '/settings' },
+    { icon: MessageSquare, label: 'Kritik & Saran', path: '/feedback', adminOnly: false },
     { icon: Users, label: 'Kelola User', path: '/admin/users', adminOnly: true },
     { icon: Calendar, label: 'Kelola Subscription', path: '/admin/subscriptions', adminOnly: true },
+    { icon: MessageSquare, label: 'Lihat Feedback', path: '/admin/feedbacks', adminOnly: true },
   ];
 
   if (loading) {
@@ -103,7 +107,7 @@ export const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <StatsCard 
           title="Pendapatan" 
           value={formatPrice(todayStats.revenue)} 
@@ -129,6 +133,9 @@ export const Dashboard = () => {
           gradientTo="to-violet-600" 
         />
       </div>
+
+      {/* Analytics Section */}
+      <DashboardAnalytics />
 
       {/* Main Actions - Show all features without hiding */}
       <div className="grid grid-cols-2 gap-3">

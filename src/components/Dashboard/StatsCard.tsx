@@ -54,7 +54,7 @@ export const StatsCard = ({
             <Icon className="h-4 w-4 text-white" />
           </div>
         </div>
-        <p className="text-2xl font-bold text-foreground mb-1">{displayValue}</p>
+        <p className="text-lg sm:text-2xl font-bold text-foreground mb-1 truncate">{displayValue}</p>
         {trend && (
           <div className="flex items-center gap-1 text-muted-foreground">
             {trend.includes('+') ? (

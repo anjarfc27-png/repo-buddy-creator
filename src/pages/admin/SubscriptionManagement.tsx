@@ -193,17 +193,25 @@ export const SubscriptionManagement = () => {
               <Card key={user.user_id}>
                 <CardContent className="pt-6">
                   <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div className="space-y-2 flex-1">
+                  <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{user.username || user.email}</span>
                       </div>
                       <p className="text-sm text-muted-foreground">{user.email}</p>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
                         <Badge variant={variant} className="flex items-center gap-1">
                           <StatusIcon className="h-3 w-3" />
                           {status}
+                        </Badge>
+                        
+                        <Badge variant="outline" className="text-xs">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Bergabung {formatDistanceToNow(new Date(user.created_at), { 
+                            addSuffix: true, 
+                            locale: localeId 
+                          })}
                         </Badge>
                       </div>
                     </div>

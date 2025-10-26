@@ -21,8 +21,10 @@ import { AdminRoute } from "@/components/Auth/AdminRoute";
 import { UserManagement } from "@/components/Admin/UserManagement";
 import { WaitingApproval } from "@/pages/WaitingApproval";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { PPOB } from "@/pages/PPOB";
+import { FeedbackPage } from "@/pages/FeedbackPage";
+import { FeedbackManagement } from "@/pages/admin/FeedbackManagement";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
+import { PPOB } from "@/pages/PPOB";
 import { AnalyticsDashboard } from "@/pages/AnalyticsDashboard";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,6 +101,16 @@ const AppRoutes = () => {
           <AdminRoute>
             <SubscriptionManagement />
           </AdminRoute>
+        } />
+        <Route path="/admin/feedbacks" element={
+          <AdminRoute>
+            <FeedbackManagement />
+          </AdminRoute>
+        } />
+        <Route path="/feedback" element={
+          <ProtectedRoute>
+            <FeedbackPage />
+          </ProtectedRoute>
         } />
         <Route path="/backup-restore" element={
           <AdminRoute>
