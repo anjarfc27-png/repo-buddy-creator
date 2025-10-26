@@ -119,6 +119,7 @@ export const POSInterface = () => {
     const receipt = await processTransaction(paymentMethod, discount);
     if (receipt) {
       setLastReceipt(receipt);
+      // Stay on POS page after checkout - no navigation
     }
     return receipt;
   };
@@ -489,17 +490,17 @@ Profit: ${formatPrice(receipt.profit)}
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Header - Fixed with safe area padding for status bar */}
-      <header className="fixed top-0 z-50 border-b bg-card/80 backdrop-blur-xl shadow-sm w-full safe-top">
-        <div className="w-full px-2 sm:px-4 py-3">
+      <header className="fixed top-0 z-40 border-b bg-card/95 backdrop-blur-xl shadow-sm w-full safe-top">
+        <div className="w-full px-2 sm:px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/')}
-                className="h-10 w-10 rounded-full p-0"
+                className="h-9 w-9 rounded-lg"
               >
-                <Store className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <Store className="h-5 w-5 text-primary" />
               </Button>
               <div>
                 <div className="hidden sm:block">
@@ -598,8 +599,8 @@ Profit: ${formatPrice(receipt.profit)}
         </div>
       </header>
 
-      {/* Dashboard Stats with minimal top padding */}
-      <div className="w-full px-2 sm:px-4 pt-1 pb-2 sm:pt-2 sm:pb-4">
+      {/* Dashboard Stats - with proper spacing from fixed header */}
+      <div className="w-full px-2 sm:px-4 pt-16 sm:pt-20 pb-2 sm:pb-4">
         <div className="grid grid-cols-1 gap-2 sm:gap-4 mb-4 sm:mb-6">
           {/* Full width card on top */}
           <Card className="pos-card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleDashboardClick('revenue')}>

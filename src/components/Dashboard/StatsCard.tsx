@@ -46,23 +46,23 @@ export const StatsCard = ({
   }, [value]);
   
   return (
-    <Card className={`border-0 shadow-lg overflow-hidden bg-gradient-to-br ${gradientFrom} ${gradientTo} animate-fade-in-up`}>
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-white/90 font-medium">{title}</p>
-          <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-            <Icon className="h-5 w-5 text-white" />
+    <Card className="border shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="pt-4 pb-3">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-muted-foreground font-medium">{title}</p>
+          <div className={`p-2 rounded-lg bg-gradient-to-br ${gradientFrom} ${gradientTo}`}>
+            <Icon className="h-4 w-4 text-white" />
           </div>
         </div>
-        <p className="text-3xl font-bold text-white mb-2 animate-count-up">{displayValue}</p>
+        <p className="text-2xl font-bold text-foreground mb-1">{displayValue}</p>
         {trend && (
-          <div className="flex items-center gap-1 text-white/80">
+          <div className="flex items-center gap-1 text-muted-foreground">
             {trend.includes('+') ? (
-              <TrendingUp className="h-3 w-3" />
+              <TrendingUp className="h-3 w-3 text-green-600" />
             ) : trend.includes('-') ? (
-              <TrendingDown className="h-3 w-3" />
+              <TrendingDown className="h-3 w-3 text-red-600" />
             ) : null}
-            <p className="text-xs font-medium">{trend}</p>
+            <p className="text-xs">{trend}</p>
           </div>
         )}
       </CardContent>

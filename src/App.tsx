@@ -37,17 +37,20 @@ const queryClient = new QueryClient({
 });
 
 const AppRoutes = () => {
-  const { loading, isAdminCheckComplete } = useAuth();
+  const { loading, isAdminCheckComplete, isAdmin } = useAuth();
+  
+  // Faster loading check
   if (loading || !isAdminCheckComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto"></div>
+          <p className="text-sm text-muted-foreground">Memuat...</p>
         </div>
       </div>
     );
   }
+  
   return (
     <>
       <Routes>

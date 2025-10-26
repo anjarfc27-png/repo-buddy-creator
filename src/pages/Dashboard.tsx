@@ -5,6 +5,7 @@ import { usePOSContext } from '@/contexts/POSContext';
 import { StatsCard } from '@/components/Dashboard/StatsCard';
 import { QuickActions } from '@/components/Dashboard/QuickActions';
 import { MoreMenu } from '@/components/Dashboard/MoreMenu';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   DollarSign, 
   ShoppingCart, 
@@ -89,27 +90,84 @@ export const Dashboard = () => {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-blue-50/30 p-4 space-y-6 safe-top safe-bottom animate-fade-in-up">
-      <div className="flex items-center justify-between bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-4 rounded-2xl backdrop-blur-sm">
+    <div className="min-h-screen bg-background p-4 pb-20 space-y-6 safe-top safe-bottom animate-fade-in-up">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 rounded-xl border bg-card shadow-sm">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">{currentStore?.name || 'Sistem Kasir'}</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{currentStore?.name || 'Sistem Kasir'}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout} className="h-10 w-10 hover:bg-red-500/10 hover:text-red-600">
-          <LogOut className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={handleLogout} className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive">
+          <LogOut className="h-4 w-4" />
         </Button>
       </div>
 
+      {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-3">
-        <StatsCard title="Pendapatan" value={formatPrice(todayStats.revenue)} icon={DollarSign} trend="+12% vs kemarin" gradientFrom="from-blue-500" gradientTo="to-blue-600" />
-        <StatsCard title="Profit" value={formatPrice(todayStats.profit)} icon={DollarSign} trend="+8% vs kemarin" gradientFrom="from-emerald-500" gradientTo="to-teal-600" />
-        <StatsCard title="Transaksi" value={todayStats.transactions.toString()} icon={ShoppingCart} trend="Hari ini" gradientFrom="from-purple-500" gradientTo="to-pink-600" />
+        <StatsCard 
+          title="Pendapatan" 
+          value={formatPrice(todayStats.revenue)} 
+          icon={DollarSign} 
+          trend="+12% vs kemarin" 
+          gradientFrom="from-blue-500" 
+          gradientTo="to-blue-600" 
+        />
+        <StatsCard 
+          title="Profit" 
+          value={formatPrice(todayStats.profit)} 
+          icon={DollarSign} 
+          trend="+8% vs kemarin" 
+          gradientFrom="from-emerald-500" 
+          gradientTo="to-emerald-600" 
+        />
+        <StatsCard 
+          title="Transaksi" 
+          value={todayStats.transactions.toString()} 
+          icon={ShoppingCart} 
+          trend="Hari ini" 
+          gradientFrom="from-violet-500" 
+          gradientTo="to-violet-600" 
+        />
       </div>
 
-      <QuickActions actions={quickActions} />
-      <MoreMenu items={moreMenuItems} isAdmin={isAdmin} />
+      {/* Main Actions - Show all features without hiding */}
+      <div className="grid grid-cols-2 gap-3">
+        {quickActions.map((action) => (
+          <Card 
+            key={action.path}
+            className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5 border-2"
+            onClick={() => navigate(action.path)}
+          >
+            <CardContent className="p-4">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradientFrom} ${action.gradientTo} flex items-center justify-center mb-3`}>
+                <action.icon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-base">{action.title}</h3>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Additional Menu Items - All visible, no hiding */}
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground px-1">Menu Lainnya</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {moreMenuItems.map((item) => {
+            if (item.adminOnly && !isAdmin) return null;
+            return (
+              <Button
+                key={item.path}
+                variant="outline"
+                className="h-auto py-3 justify-start gap-3"
+                onClick={() => navigate(item.path)}
+              >
+                <item.icon className="h-4 w-4" />
+                <span className="text-sm">{item.label}</span>
+              </Button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

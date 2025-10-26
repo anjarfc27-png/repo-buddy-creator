@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let isMounted = true;
     let loadingTimeout: NodeJS.Timeout;
 
-    // 10-second timeout fallback to prevent infinite loading
+    // 5-second timeout - faster response for better UX
     const setupTimeout = () => {
       loadingTimeout = setTimeout(() => {
         if (isMounted && loading) {
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
           setIsAdminCheckComplete(true);
         }
-      }, 10000);
+      }, 5000);
     };
 
     // Set up auth state listener FIRST
@@ -54,7 +54,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session?.user) {
         setIsAdminCheckComplete(false);
-        await checkUserApprovalAndRole(session.user.id);
+        // Use faster, non-blocking check
+        checkUserApprovalAndRole(session.user.id);
       } else {
         setIsApproved(false);
         setIsAdmin(false);
@@ -77,7 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (session?.user) {
           setIsAdminCheckComplete(false);
-          await checkUserApprovalAndRole(session.user.id);
+          // Non-blocking check for faster loading
+          checkUserApprovalAndRole(session.user.id);
         } else {
           setIsApproved(false);
           setIsAdmin(false);
@@ -107,27 +109,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkUserApprovalAndRole = async (userId: string) => {
     try {
-      // Fast, RLS-safe admin check using SECURITY DEFINER function
-      const { data: hasAdminRole, error: roleCheckError } = await supabase.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin' as any,
-      });
+      // Run checks in parallel for speed
+      const [roleCheck, profileCheck] = await Promise.all([
+        supabase.rpc('has_role', {
+          _user_id: userId,
+          _role: 'admin' as any,
+        }),
+        supabase
+          .from('profiles')
+          .select('is_approved')
+          .eq('user_id', userId)
+          .maybeSingle()
+      ]);
 
-      const isUserAdmin = !!hasAdminRole && !roleCheckError;
+      const isUserAdmin = !!roleCheck.data && !roleCheck.error;
       setIsAdmin(isUserAdmin);
 
-      // Profiles check for approval (admin bypasses approval)
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('is_approved')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
+      // Admin bypasses approval check
+      if (profileCheck.error) {
+        console.error('Error fetching profile:', profileCheck.error);
         setIsApproved(isUserAdmin ? true : false);
       } else {
-        setIsApproved(isUserAdmin ? true : (profile?.is_approved ?? false));
+        setIsApproved(isUserAdmin ? true : (profileCheck.data?.is_approved ?? false));
       }
 
       // Subscription check - disabled
