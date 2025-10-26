@@ -20,7 +20,7 @@ import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 
 export const Dashboard = () => {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading, signOut } = useAuth();
   const { currentStore } = useStore();
   const { receipts, formatPrice } = usePOSContext();
   const navigate = useNavigate();
@@ -47,7 +47,6 @@ export const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      const { signOut } = await import('@/contexts/AuthContext');
       await signOut();
     } catch (error) {
       console.error('Logout error:', error);
