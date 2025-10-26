@@ -30,7 +30,7 @@ export const AnalyticsDashboard = () => {
   const { loading, isAdminCheckComplete } = useAuth();
   const { currentStore } = useStore();
   const { receipts, formatPrice, products } = usePOSContext();
-  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month'>('today');
+  const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | '3months' | 'year'>('today');
 
   useEffect(() => {
     document.title = "Analytics - KasirQ POS";
@@ -44,8 +44,12 @@ export const AnalyticsDashboard = () => {
       startDate = new Date(now.setHours(0, 0, 0, 0));
     } else if (timeRange === 'week') {
       startDate = new Date(now.setDate(now.getDate() - 7));
-    } else {
+    } else if (timeRange === 'month') {
       startDate = new Date(now.setMonth(now.getMonth() - 1));
+    } else if (timeRange === '3months') {
+      startDate = new Date(now.setMonth(now.getMonth() - 3));
+    } else {
+      startDate = new Date(now.setFullYear(now.getFullYear() - 1));
     }
 
     const filteredReceipts = receipts.filter(r => {
@@ -128,9 +132,9 @@ export const AnalyticsDashboard = () => {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-background via-background to-purple-50/30 animate-fade-in-up">
-      {/* Header with gradient */}
-      <header className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 pb-6 pt-[calc(env(safe-area-inset-top)+24px)] border-b backdrop-blur-sm">
+    <div className="min-h-screen w-full bg-background animate-fade-in-up">
+      {/* Header */}
+      <header className="bg-card pb-6 pt-[calc(env(safe-area-inset-top)+24px)] border-b">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center gap-3 mb-4">
             <Button
@@ -143,7 +147,7 @@ export const AnalyticsDashboard = () => {
             </Button>
             <div>
               <p className="text-sm text-muted-foreground">{currentStore?.name || "Sistem Kasir"}</p>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 Analytics Dashboard
               </h1>
             </div>
@@ -151,10 +155,12 @@ export const AnalyticsDashboard = () => {
 
           {/* Time Range Tabs */}
           <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full max-w-md">
-              <TabsTrigger value="today">Hari Ini</TabsTrigger>
-              <TabsTrigger value="week">7 Hari</TabsTrigger>
-              <TabsTrigger value="month">30 Hari</TabsTrigger>
+            <TabsList className="grid grid-cols-5 w-full">
+              <TabsTrigger value="today" className="text-xs sm:text-sm">Hari Ini</TabsTrigger>
+              <TabsTrigger value="week" className="text-xs sm:text-sm">7 Hari</TabsTrigger>
+              <TabsTrigger value="month" className="text-xs sm:text-sm">1 Bulan</TabsTrigger>
+              <TabsTrigger value="3months" className="text-xs sm:text-sm">3 Bulan</TabsTrigger>
+              <TabsTrigger value="year" className="text-xs sm:text-sm">1 Tahun</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -162,106 +168,165 @@ export const AnalyticsDashboard = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 animate-scale-in">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-3">
-                <DollarSign className="h-8 w-8 text-white" />
-                <TrendingUp className="h-5 w-5 text-white/80" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card className="border shadow-sm bg-card">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
+                <TrendingUp className="h-4 w-4 text-muted-foreground ml-auto" />
               </div>
-              <p className="text-sm text-white/80 mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-white">{formatPrice(analytics.revenue)}</p>
+              <p className="text-xs text-muted-foreground mb-1">Total Revenue</p>
+              <p className="text-xl font-bold text-foreground">{formatPrice(analytics.revenue)}</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-teal-600 animate-scale-in" style={{ animationDelay: '100ms' }}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-3">
-                <DollarSign className="h-8 w-8 text-white" />
-                <TrendingUp className="h-5 w-5 text-white/80" />
+          <Card className="border shadow-sm bg-card">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-green-500/10">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                </div>
+                <TrendingUp className="h-4 w-4 text-muted-foreground ml-auto" />
               </div>
-              <p className="text-sm text-white/80 mb-1">Total Profit</p>
-              <p className="text-2xl font-bold text-white">{formatPrice(analytics.profit)}</p>
+              <p className="text-xs text-muted-foreground mb-1">Total Profit</p>
+              <p className="text-xl font-bold text-foreground">{formatPrice(analytics.profit)}</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-600 animate-scale-in" style={{ animationDelay: '200ms' }}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-3">
-                <ShoppingCart className="h-8 w-8 text-white" />
-                <BarChart3 className="h-5 w-5 text-white/80" />
+          <Card className="border shadow-sm bg-card">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <ShoppingCart className="h-5 w-5 text-purple-600" />
+                </div>
+                <BarChart3 className="h-4 w-4 text-muted-foreground ml-auto" />
               </div>
-              <p className="text-sm text-white/80 mb-1">Transaksi</p>
-              <p className="text-2xl font-bold text-white">{analytics.transactions}</p>
+              <p className="text-xs text-muted-foreground mb-1">Transaksi</p>
+              <p className="text-xl font-bold text-foreground">{analytics.transactions}</p>
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-600 animate-scale-in" style={{ animationDelay: '300ms' }}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-3">
-                <Package className="h-8 w-8 text-white" />
-                <TrendingUp className="h-5 w-5 text-white/80" />
+          <Card className="border shadow-sm bg-card">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-lg bg-orange-500/10">
+                  <Package className="h-5 w-5 text-orange-600" />
+                </div>
+                <TrendingUp className="h-4 w-4 text-muted-foreground ml-auto" />
               </div>
-              <p className="text-sm text-white/80 mb-1">Rata-rata</p>
-              <p className="text-2xl font-bold text-white">{formatPrice(analytics.avgTransaction)}</p>
+              <p className="text-xs text-muted-foreground mb-1">Rata-rata</p>
+              <p className="text-xl font-bold text-foreground">{formatPrice(analytics.avgTransaction)}</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Chart */}
-        <Card className="border-0 shadow-lg animate-fade-in-up">
+        <Card className="border shadow-sm">
           <CardHeader>
-            <CardTitle>Performa Penjualan 7 Hari Terakhir</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Performa Penjualan 7 Hari Terakhir</CardTitle>
           </CardHeader>
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analytics.weeklyData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
                   </linearGradient>
                   <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.05}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
-                <Legend />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorRevenue)" name="Revenue" />
-                <Area type="monotone" dataKey="profit" stroke="hsl(142, 76%, 36%)" fillOpacity={1} fill="url(#colorProfit)" name="Profit" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: "hsl(var(--card))", 
+                    border: "1px solid hsl(var(--border))", 
+                    borderRadius: "8px",
+                    fontSize: "12px"
+                  }} 
+                />
+                <Legend wrapperStyle={{ fontSize: "12px" }} />
+                <Area 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorRevenue)" 
+                  name="Revenue" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="profit" 
+                  stroke="hsl(142, 76%, 36%)" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorProfit)" 
+                  name="Profit" 
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Additional Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Top Products */}
-          <Card className="border-0 shadow-lg animate-fade-in-up">
+          <Card className="border shadow-sm">
             <CardHeader>
-              <CardTitle>Top 5 Produk Terlaris</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Top 5 Produk Terlaris</CardTitle>
             </CardHeader>
             <CardContent className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={analytics.topProducts} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" width={100} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
-                  <Bar dataKey="quantity" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+                  <XAxis 
+                    type="number" 
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    width={100}
+                    fontSize={11}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: "hsl(var(--card))", 
+                      border: "1px solid hsl(var(--border))", 
+                      borderRadius: "8px",
+                      fontSize: "12px"
+                    }} 
+                  />
+                  <Bar 
+                    dataKey="quantity" 
+                    fill="hsl(var(--primary))" 
+                    radius={[0, 4, 4, 0]} 
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* Payment Methods */}
-          <Card className="border-0 shadow-lg animate-fade-in-up">
+          <Card className="border shadow-sm">
             <CardHeader>
-              <CardTitle>Metode Pembayaran</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Metode Pembayaran</CardTitle>
             </CardHeader>
             <CardContent className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -280,7 +345,14 @@ export const AnalyticsDashboard = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: "hsl(var(--card))", 
+                      border: "1px solid hsl(var(--border))", 
+                      borderRadius: "8px",
+                      fontSize: "12px"
+                    }} 
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>

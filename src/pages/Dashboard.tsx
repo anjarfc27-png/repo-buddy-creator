@@ -137,25 +137,28 @@ export const Dashboard = () => {
       {/* Analytics Section */}
       <DashboardAnalytics />
 
-      {/* Main Actions - Show all features without hiding */}
-      <div className="grid grid-cols-2 gap-3">
-        {quickActions.map((action) => (
-          <Card 
-            key={action.path}
-            className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5 border-2"
-            onClick={() => navigate(action.path)}
-          >
-            <CardContent className="p-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradientFrom} ${action.gradientTo} flex items-center justify-center mb-3`}>
-                <action.icon className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-base">{action.title}</h3>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Quick Action Cards - POS & PPOB */}
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-muted-foreground px-1">Aksi Cepat</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {quickActions.map((action) => (
+            <Card 
+              key={action.path}
+              className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5 border-2 bg-card"
+              onClick={() => navigate(action.path)}
+            >
+              <CardContent className="p-4">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradientFrom} ${action.gradientTo} flex items-center justify-center mb-3`}>
+                  <action.icon className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-base">{action.title}</h3>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      {/* Additional Menu Items - All visible, no hiding */}
+      {/* Additional Menu Items */}
       <div className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground px-1">Menu Lainnya</h2>
         <div className="grid grid-cols-2 gap-2">
