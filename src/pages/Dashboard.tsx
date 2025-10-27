@@ -94,15 +94,15 @@ export const Dashboard = () => {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-20 space-y-6 safe-top safe-bottom animate-fade-in-up">
+    <div className="min-h-screen bg-background p-3 sm:p-4 pb-20 space-y-4 sm:space-y-6 safe-top safe-bottom animate-fade-in-up">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 rounded-xl border bg-card shadow-sm">
+      <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl border bg-card shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{currentStore?.name || 'Sistem Kasir'}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{currentStore?.name || 'Sistem Kasir'}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={handleLogout} className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive">
-          <LogOut className="h-4 w-4" />
+        <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8 sm:h-9 sm:w-9 hover:bg-destructive/10 hover:text-destructive">
+          <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </Button>
       </div>
 
@@ -134,29 +134,14 @@ export const Dashboard = () => {
         />
       </div>
 
-      {/* Analytics Section */}
-      <DashboardAnalytics />
-
       {/* Quick Action Cards - POS & PPOB */}
       <div className="space-y-2">
         <h2 className="text-sm font-semibold text-muted-foreground px-1">Aksi Cepat</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action) => (
-            <Card 
-              key={action.path}
-              className="cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5 border-2 bg-card"
-              onClick={() => navigate(action.path)}
-            >
-              <CardContent className="p-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradientFrom} ${action.gradientTo} flex items-center justify-center mb-3`}>
-                  <action.icon className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="font-semibold text-base">{action.title}</h3>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <QuickActions actions={quickActions} />
       </div>
+
+      {/* Analytics Section */}
+      <DashboardAnalytics />
 
       {/* Additional Menu Items */}
       <div className="space-y-2">

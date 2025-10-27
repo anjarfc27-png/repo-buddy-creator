@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useState, useMemo } from 'react';
 import { usePOSContext } from '@/contexts/POSContext';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
@@ -28,24 +28,22 @@ export const DashboardAnalytics = () => {
 
       const revenue = monthReceipts.reduce((sum, r) => sum + r.total, 0);
       const profit = monthReceipts.reduce((sum, r) => sum + r.profit, 0);
-      const transactions = monthReceipts.length;
 
       return {
         month: format(month, 'MMM yy', { locale: localeId }),
         revenue: Math.round(revenue),
         profit: Math.round(profit),
-        transactions
       };
     });
   }, [receipts, timeRange]);
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="border shadow-sm bg-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base sm:text-lg font-semibold">Analisis Penjualan</CardTitle>
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[140px] h-9 rounded-xl border-2">
+            <SelectTrigger className="w-[120px] sm:w-[140px] h-8 sm:h-9 rounded-xl border-2">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -58,90 +56,56 @@ export const DashboardAnalytics = () => {
           </Select>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Revenue & Profit Chart */}
+      <CardContent className="pt-2">
         <div>
-          <p className="text-sm font-medium mb-3 text-muted-foreground">Pendapatan & Profit</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={analyticsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <p className="text-xs sm:text-sm font-medium mb-3 text-muted-foreground">Pendapatan & Profit</p>
+          <ResponsiveContainer width="100%" height={180}>
+            <LineChart data={analyticsData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis 
                 dataKey="month" 
-                tick={{ fontSize: 11 }}
-                stroke="hsl(var(--muted-foreground))"
+                tick={{ fontSize: 10 }}
+                stroke="hsl(var(--foreground))"
+                opacity={0.7}
               />
               <YAxis 
-                tick={{ fontSize: 11 }}
-                stroke="hsl(var(--muted-foreground))"
+                tick={{ fontSize: 10 }}
+                stroke="hsl(var(--foreground))"
+                opacity={0.7}
                 tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
+                  backgroundColor: 'hsl(var(--popover))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
-                  fontSize: '12px'
+                  fontSize: '11px'
                 }}
                 formatter={(value: number) => formatPrice(value)}
               />
               <Legend 
-                wrapperStyle={{ fontSize: '12px' }}
+                wrapperStyle={{ fontSize: '11px' }}
                 iconType="circle"
               />
               <Line 
                 type="monotone" 
                 dataKey="revenue" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={2}
+                stroke="hsl(217 91% 60%)" 
+                strokeWidth={2.5}
                 name="Pendapatan"
                 dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
               />
               <Line 
                 type="monotone" 
                 dataKey="profit" 
-                stroke="hsl(var(--chart-2))" 
-                strokeWidth={2}
+                stroke="hsl(142 76% 36%)" 
+                strokeWidth={2.5}
                 name="Profit"
                 dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
               />
             </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Transactions Chart */}
-        <div>
-          <p className="text-sm font-medium mb-3 text-muted-foreground">Jumlah Transaksi</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={analyticsData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="month" 
-                tick={{ fontSize: 11 }}
-                stroke="hsl(var(--muted-foreground))"
-              />
-              <YAxis 
-                tick={{ fontSize: 11 }}
-                stroke="hsl(var(--muted-foreground))"
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  fontSize: '12px'
-                }}
-              />
-              <Legend 
-                wrapperStyle={{ fontSize: '12px' }}
-                iconType="circle"
-              />
-              <Bar 
-                dataKey="transactions" 
-                fill="hsl(var(--chart-3))" 
-                radius={[8, 8, 0, 0]}
-                name="Transaksi"
-              />
-            </BarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>
