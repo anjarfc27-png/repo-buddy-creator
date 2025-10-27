@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PriceInput } from '@/components/ui/price-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, X, Scan } from 'lucide-react';
@@ -87,8 +88,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       // Update existing product stock
       onUpdateProduct(existingProduct.id, {
         stock: existingProduct.stock + (stockQuantity || 0),
-        costPrice: parseFloat(formData.costPrice) || existingProduct.costPrice,
-        sellPrice: parseFloat(formData.sellPrice) || existingProduct.sellPrice,
+        costPrice: parseFloat(formData.costPrice.replace(/\./g, '')) || existingProduct.costPrice,
+        sellPrice: parseFloat(formData.sellPrice.replace(/\./g, '')) || existingProduct.sellPrice,
         category: formData.category || existingProduct.category,
       });
     } else {
@@ -101,8 +102,8 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
       });
       onAddProduct({
         name: formData.name,
-        costPrice: parseFloat(formData.costPrice) || 0,
-        sellPrice: parseFloat(formData.sellPrice),
+        costPrice: parseFloat(formData.costPrice.replace(/\./g, '')) || 0,
+        sellPrice: parseFloat(formData.sellPrice.replace(/\./g, '')),
         stock: (formData.isPhotocopy || isService) ? 0 : (stockQuantity || 0),
         category: formData.category || undefined,
         code: formData.code || undefined,
@@ -342,27 +343,21 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                 
                 <div>
                   <Label htmlFor="costPrice">Harga Kulakan (opsional)</Label>
-                  <Input
+                  <PriceInput
                     id="costPrice"
-                    type="number"
                     value={formData.costPrice}
-                    onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, costPrice: value })}
                     placeholder="0"
-                    min="0"
-                    step="100"
                   />
                 </div>
                 
                 <div>
                   <Label htmlFor="sellPrice">Harga Jual *</Label>
-                  <Input
+                  <PriceInput
                     id="sellPrice"
-                    type="number"
                     value={formData.sellPrice}
-                    onChange={(e) => setFormData({ ...formData, sellPrice: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, sellPrice: value })}
                     placeholder="0"
-                    min="0"
-                    step="100"
                     required
                   />
                 </div>
@@ -463,27 +458,21 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
                 
                 <div>
                   <Label htmlFor="serviceCost">Biaya Operasional (opsional)</Label>
-                  <Input
+                  <PriceInput
                     id="serviceCost"
-                    type="number"
                     value={formData.costPrice}
-                    onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, costPrice: value })}
                     placeholder="0"
-                    min="0"
-                    step="100"
                   />
                 </div>
                 
                 <div>
                   <Label htmlFor="servicePrice">Harga Layanan *</Label>
-                  <Input
+                  <PriceInput
                     id="servicePrice"
-                    type="number"
                     value={formData.sellPrice}
-                    onChange={(e) => setFormData({ ...formData, sellPrice: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, sellPrice: value })}
                     placeholder="0"
-                    min="0"
-                    step="100"
                     required
                   />
                 </div>

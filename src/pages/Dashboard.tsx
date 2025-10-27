@@ -42,11 +42,7 @@ export const Dashboard = () => {
     return { revenue, profit, transactions };
   }, [receipts]);
 
-  useEffect(() => {
-    if (!loading && !isAdmin) {
-      navigate('/pos');
-    }
-  }, [loading, isAdmin, navigate]);
+  // Removed automatic redirect - users should explicitly choose where to go
 
   const handleLogout = async () => {
     try {

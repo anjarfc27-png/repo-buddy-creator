@@ -39,10 +39,15 @@ jobs:
     
     - name: Install Capacitor CLI
       run: npm install -g @capacitor/cli
+
+    - name: Remove android folder if exists
+      run: rm -rf android
+
+    - name: Add Android platform
+      run: npx cap add android
     
-    - name: Generate Android icons
+    - name: Generate Capacitor Resources
       run: |
-        echo "Generating Android app icons..."
         npm install -g @capacitor/assets
         npx capacitor-assets generate --android --iconBackgroundColor "#3b82f6"
     

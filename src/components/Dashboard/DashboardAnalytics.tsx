@@ -69,10 +69,15 @@ export const DashboardAnalytics = () => {
                 opacity={0.7}
               />
               <YAxis 
-                tick={{ fontSize: 10 }}
+                tick={{ fontSize: 9 }}
                 stroke="hsl(var(--foreground))"
                 opacity={0.7}
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                width={35}
+                tickFormatter={(value) => {
+                  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                  if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
+                  return value.toString();
+                }}
               />
               <Tooltip 
                 contentStyle={{ 
