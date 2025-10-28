@@ -51,11 +51,14 @@ jobs:
         npm install -g @capacitor/assets
         npx capacitor-assets generate --android --iconBackgroundColor "#3b82f6"
     
+    - name: Sync Capacitor (initial)
+      run: npx cap sync android
+    
     - name: Copy AndroidManifest.xml
       run: |
         cp class-buddy-notify-15-main/android/app/src/main/AndroidManifest.xml android/app/src/main/
     
-    - name: Sync Capacitor
+    - name: Sync Capacitor (final)
       run: npx cap sync android
     
     - name: Build Android APK

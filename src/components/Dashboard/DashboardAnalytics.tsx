@@ -39,9 +39,22 @@ export const DashboardAnalytics = () => {
       };
     });
 
-    // Ensure we always have data to display
+    // Ensure we always have at least 2 data points for line to render
     if (data.length === 0) {
-      return [{ month: format(new Date(), 'MMM yy', { locale: localeId }), revenue: 0, profit: 0 }];
+      const now = new Date();
+      const prevMonth = subMonths(now, 1);
+      return [
+        { month: format(prevMonth, 'MMM yy', { locale: localeId }), revenue: 0, profit: 0 },
+        { month: format(now, 'MMM yy', { locale: localeId }), revenue: 0, profit: 0 }
+      ];
+    }
+    
+    if (data.length === 1) {
+      const prevMonth = subMonths(new Date(data[0].month), 1);
+      return [
+        { month: format(prevMonth, 'MMM yy', { locale: localeId }), revenue: 0, profit: 0 },
+        ...data
+      ];
     }
 
     return data;

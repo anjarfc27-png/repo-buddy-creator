@@ -193,13 +193,20 @@ export default function AddProductForm({ onAddProduct, onUpdateProduct, products
         return;
       }
 
-      const { camera } = await BarcodeScanner.requestPermissions();
-      if (camera !== 'granted') {
-        toast.error('Izin kamera diperlukan untuk scan barcode');
+      const { camera } = await BarcodeScanner.checkPermissions();
+      
+      if (camera === 'denied') {
+        toast.error('Izin kamera ditolak. Silakan aktifkan di pengaturan.');
         return;
       }
-
-      console.log('Starting barcode scan...');
+      
+      if (camera !== 'granted') {
+        const result = await BarcodeScanner.requestPermissions();
+        if (result.camera !== 'granted') {
+          toast.error('Izin kamera diperlukan untuk scan barcode');
+          return;
+        }
+      }
 
       setIsScanning(true);
       document.querySelector('body')?.classList.add('barcode-scanner-active');
