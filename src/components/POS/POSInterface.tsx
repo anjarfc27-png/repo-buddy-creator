@@ -491,7 +491,7 @@ Profit: ${formatPrice(receipt.profit)}
     <div className="min-h-screen w-full bg-background">
       {/* Header - Fixed with safe area padding for status bar */}
       <header className="fixed top-0 z-40 border-b bg-card/95 backdrop-blur-xl shadow-sm w-full safe-top">
-        <div className="w-full px-2 sm:px-4 py-2.5">
+        <div className="w-full px-2 sm:px-6 md:px-8 lg:px-12 py-2.5 max-w-[1920px] mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
               <Button
@@ -505,7 +505,7 @@ Profit: ${formatPrice(receipt.profit)}
               <div>
                 <div className="hidden sm:block">
                   <h1 className="text-lg sm:text-2xl font-bold">
-                    Kasir POS Multi Toko
+                    {currentStore?.name || 'Toko'}
                   </h1>
                   {currentStore?.address && (
                     <p className="text-xs sm:text-sm text-muted-foreground">

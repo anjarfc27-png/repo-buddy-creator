@@ -100,35 +100,33 @@ export const Dashboard = () => {
         </Button>
       </div>
 
-      {/* Stats Cards - Only for admin */}
-      {isAdmin && (
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          <StatsCard 
-            title="Pendapatan" 
-            value={formatPrice(todayStats.revenue)} 
-            icon={DollarSign} 
-            trend="+12% vs kemarin" 
-            gradientFrom="from-blue-500" 
-            gradientTo="to-blue-600" 
-          />
-          <StatsCard 
-            title="Profit" 
-            value={formatPrice(todayStats.profit)} 
-            icon={DollarSign} 
-            trend="+8% vs kemarin" 
-            gradientFrom="from-emerald-500" 
-            gradientTo="to-emerald-600" 
-          />
-          <StatsCard 
-            title="Transaksi" 
-            value={todayStats.transactions.toString()} 
-            icon={ShoppingCart} 
-            trend="Hari ini" 
-            gradientFrom="from-violet-500" 
-            gradientTo="to-violet-600" 
-          />
-        </div>
-      )}
+      {/* Stats Cards - For all users */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <StatsCard 
+          title="Pendapatan" 
+          value={formatPrice(todayStats.revenue)} 
+          icon={DollarSign} 
+          trend="+12% vs kemarin" 
+          gradientFrom="from-blue-500" 
+          gradientTo="to-blue-600" 
+        />
+        <StatsCard 
+          title="Profit" 
+          value={formatPrice(todayStats.profit)} 
+          icon={DollarSign} 
+          trend="+8% vs kemarin" 
+          gradientFrom="from-emerald-500" 
+          gradientTo="to-emerald-600" 
+        />
+        <StatsCard 
+          title="Transaksi" 
+          value={todayStats.transactions.toString()} 
+          icon={ShoppingCart} 
+          trend="Hari ini" 
+          gradientFrom="from-violet-500" 
+          gradientTo="to-violet-600" 
+        />
+      </div>
 
       {/* Quick Action Cards - POS & PPOB */}
       <div className="space-y-2">
@@ -136,8 +134,8 @@ export const Dashboard = () => {
         <QuickActions actions={quickActions} />
       </div>
 
-      {/* Analytics Section - Only for admin */}
-      {isAdmin && <DashboardAnalytics />}
+      {/* Analytics Section - For all users */}
+      <DashboardAnalytics />
 
       {/* Additional Menu Items */}
       <div className="space-y-2">

@@ -46,23 +46,23 @@ export const StatsCard = ({
   }, [value]);
   
   return (
-    <Card className="border shadow-sm hover:shadow-md transition-shadow">
-      <CardContent className="pt-4 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-muted-foreground font-medium">{title}</p>
-          <div className={`p-2 rounded-lg bg-gradient-to-br ${gradientFrom} ${gradientTo}`}>
-            <Icon className="h-4 w-4 text-white" />
+    <Card className="border shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+      <CardContent className="pt-3 pb-2.5 px-2.5 sm:pt-4 sm:pb-3 sm:px-6">
+        <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium truncate pr-1">{title}</p>
+          <div className={`p-1.5 sm:p-2 rounded-lg bg-gradient-to-br ${gradientFrom} ${gradientTo} flex-shrink-0`}>
+            <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
           </div>
         </div>
-        <p className="text-lg sm:text-2xl font-bold text-foreground mb-1 truncate">{displayValue}</p>
+        <p className="text-sm sm:text-lg md:text-2xl font-bold text-foreground mb-0.5 sm:mb-1 truncate">{displayValue}</p>
         {trend && (
-          <div className="flex items-center gap-1 text-muted-foreground">
+          <div className="flex items-center gap-0.5 sm:gap-1 text-muted-foreground">
             {trend.includes('+') ? (
-              <TrendingUp className="h-3 w-3 text-green-600" />
+              <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600 flex-shrink-0" />
             ) : trend.includes('-') ? (
-              <TrendingDown className="h-3 w-3 text-red-600" />
+              <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-600 flex-shrink-0" />
             ) : null}
-            <p className="text-xs">{trend}</p>
+            <p className="text-[9px] sm:text-xs truncate">{trend}</p>
           </div>
         )}
       </CardContent>
