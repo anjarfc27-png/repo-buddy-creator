@@ -294,16 +294,25 @@ export const LoginPage = () => {
                   <Label htmlFor="signup-whatsapp" className="text-sm font-semibold">
                     WhatsApp <span className="text-error">*</span>
                   </Label>
-                  <Input
-                    id="signup-whatsapp"
-                    type="tel"
-                    placeholder="628123456789"
-                    value={signUpData.whatsapp}
-                    onChange={(e) => setSignUpData(prev => ({ ...prev, whatsapp: e.target.value }))}
-                    required
-                    className="h-12 rounded-xl border-2 focus:border-primary transition-all mt-2"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Format: 628xxx (tanpa +)</p>
+                  <div className="flex gap-2 mt-2">
+                    <div className="flex items-center px-3 border-2 rounded-xl bg-muted h-12">
+                      <span className="text-sm font-medium">+62</span>
+                    </div>
+                    <Input
+                      id="signup-whatsapp"
+                      type="tel"
+                      placeholder="8123456789"
+                      value={signUpData.whatsapp.replace('62', '')}
+                      onChange={(e) => {
+                        const cleaned = e.target.value.replace(/\D/g, '');
+                        const formatted = cleaned.startsWith('0') ? '62' + cleaned.substring(1) : '62' + cleaned;
+                        setSignUpData(prev => ({ ...prev, whatsapp: formatted }));
+                      }}
+                      required
+                      className="h-12 rounded-xl border-2 focus:border-primary transition-all flex-1"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Masukkan nomor tanpa +62 atau 0</p>
                 </div>
                 <div>
                   <Label htmlFor="signup-password" className="text-sm font-semibold">Password</Label>

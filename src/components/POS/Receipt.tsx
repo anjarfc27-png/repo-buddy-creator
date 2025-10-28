@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useStore } from '@/contexts/StoreContext';
 import { useQrisImage } from '@/hooks/useQrisImage';
 import QRCode from 'qrcode';
+import { WhatsAppShare } from '@/components/Receipt/WhatsAppShare';
 
 const QrisBlock = () => {
   const { currentStore } = useStore();
@@ -139,10 +140,13 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
           )}
           <h2 className="text-xl font-semibold">Detail Struk</h2>
         </div>
-        <Button onClick={handleThermalPrint} size="sm">
-          <Printer className="h-4 w-4 mr-1" />
-          Print Thermal
-        </Button>
+        <div className="flex gap-2">
+          <WhatsAppShare receipt={receipt} formatPrice={formatPrice} />
+          <Button onClick={handleThermalPrint} size="sm">
+            <Printer className="h-4 w-4 mr-1" />
+            Print Thermal
+          </Button>
+        </div>
       </div>
 
       {/* Konten struk */}

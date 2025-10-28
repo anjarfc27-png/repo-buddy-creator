@@ -106,7 +106,7 @@ export const Dashboard = () => {
           title="Pendapatan" 
           value={formatPrice(todayStats.revenue)} 
           icon={DollarSign} 
-          trend="+12% vs kemarin" 
+          trend={todayStats.revenue > 0 ? "Hari ini" : undefined}
           gradientFrom="from-blue-500" 
           gradientTo="to-blue-600" 
         />
@@ -114,7 +114,7 @@ export const Dashboard = () => {
           title="Profit" 
           value={formatPrice(todayStats.profit)} 
           icon={DollarSign} 
-          trend="+8% vs kemarin" 
+          trend={todayStats.profit > 0 ? "Hari ini" : undefined}
           gradientFrom="from-emerald-500" 
           gradientTo="to-emerald-600" 
         />

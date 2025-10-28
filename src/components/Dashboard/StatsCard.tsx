@@ -55,7 +55,7 @@ export const StatsCard = ({
           </div>
         </div>
         <p className="text-sm sm:text-lg md:text-2xl font-bold text-foreground mb-0.5 sm:mb-1 truncate">{displayValue}</p>
-        {trend && (
+        {trend && !trend.includes('vs kemarin') && (
           <div className="flex items-center gap-0.5 sm:gap-1 text-muted-foreground">
             {trend.includes('+') ? (
               <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-600 flex-shrink-0" />

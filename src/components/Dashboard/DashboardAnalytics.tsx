@@ -13,11 +13,14 @@ export const DashboardAnalytics = () => {
   const analyticsData = useMemo(() => {
     const months = parseInt(timeRange);
     const endDate = new Date();
-    const startDate = subMonths(endDate, months - 1);
+    const startDate = subMonths(startOfMonth(endDate), months - 1);
 
-    const monthsInterval = eachMonthOfInterval({ start: startDate, end: endDate });
+    const monthsInterval = eachMonthOfInterval({ 
+      start: startDate, 
+      end: endOfMonth(endDate) 
+    });
 
-    return monthsInterval.map(month => {
+    const data = monthsInterval.map(month => {
       const monthStart = startOfMonth(month);
       const monthEnd = endOfMonth(month);
 
@@ -35,6 +38,13 @@ export const DashboardAnalytics = () => {
         profit: Math.round(profit),
       };
     });
+
+    // Ensure we always have data to display
+    if (data.length === 0) {
+      return [{ month: format(new Date(), 'MMM yy', { locale: localeId }), revenue: 0, profit: 0 }];
+    }
+
+    return data;
   }, [receipts, timeRange]);
 
   return (

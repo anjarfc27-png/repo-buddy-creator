@@ -20,6 +20,8 @@ import { useNavigate } from 'react-router-dom';
 import { AdminProtection } from '@/components/Auth/AdminProtection';
 import { supabase } from '@/integrations/supabase/client';
 import { BackupRestore } from '@/components/Settings/BackupRestore';
+import { ReceiptCustomization } from '@/components/Settings/ReceiptCustomization';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const BUCKET = 'store-assets';
 
 export const StoreSettings = () => {
@@ -249,7 +251,15 @@ export const StoreSettings = () => {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:gap-6">
+          <Tabs defaultValue="store-info" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="store-info">Info Toko</TabsTrigger>
+              <TabsTrigger value="receipt-format">Format Nota</TabsTrigger>
+              <TabsTrigger value="backup">Backup & Restore</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="store-info">
+              <div className="grid gap-4 sm:gap-6">
             <Card className="border-border">
               <CardHeader className="pb-3 sm:pb-6">
                 <CardTitle className="text-base sm:text-lg">Informasi Toko</CardTitle>
@@ -562,17 +572,23 @@ export const StoreSettings = () => {
               </CardContent>
             </Card>
 
-            {/* Backup & Restore Section */}
-            <BackupRestore />
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto sm:min-w-32 h-9 sm:h-10">
+                    <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+                    <span className="text-xs sm:text-sm">{isSaving ? 'Menyimpan...' : 'Simpan'}</span>
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
 
+            <TabsContent value="receipt-format">
+              <ReceiptCustomization />
+            </TabsContent>
 
-            <div className="flex justify-end pt-2">
-              <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto sm:min-w-32 h-9 sm:h-10">
-                <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                <span className="text-xs sm:text-sm">{isSaving ? 'Menyimpan...' : 'Simpan'}</span>
-              </Button>
-            </div>
-          </div>
+            <TabsContent value="backup">
+              <BackupRestore />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
