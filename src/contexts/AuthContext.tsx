@@ -148,6 +148,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUp = async (email: string, username: string, password: string, whatsapp?: string) => {
+    // Get the correct redirect URL - use production URL if available, otherwise current origin
+    const redirectUrl = window.location.hostname === 'localhost' 
+      ? 'https://kasirq-pos.lovable.app/waiting-approval'
+      : `${window.location.origin}/waiting-approval`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -156,7 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           username: username,
           whatsapp: whatsapp
         },
-        emailRedirectTo: `${window.location.origin}/waiting-approval`
+        emailRedirectTo: redirectUrl
       }
     });
     

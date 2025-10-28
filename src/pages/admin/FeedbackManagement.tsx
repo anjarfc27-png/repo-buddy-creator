@@ -100,7 +100,7 @@ export const FeedbackManagement = () => {
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={() => navigate('/admin')}
+          onClick={() => navigate('/')}
           className="rounded-xl"
         >
           <ArrowLeft className="h-5 w-5" />

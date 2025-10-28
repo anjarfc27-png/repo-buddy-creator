@@ -14,7 +14,9 @@ import {
   Lightbulb,
   ShoppingBag,
   Tv,
-  DollarSign
+  DollarSign,
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -24,23 +26,23 @@ export const PPOB = () => {
   const [activeTab, setActiveTab] = useState('beranda');
   const [depositAmount] = useState(0);
 
-  // Kategori Prabayar
+  // Kategori Prabayar dengan warna berbeda
   const prabayarCategories = [
-    { id: 'pulsa', name: 'Pulsa Seluler', icon: Smartphone },
-    { id: 'paket-data', name: 'Paket Data', icon: Wifi },
-    { id: 'token-listrik', name: 'Token Listrik', icon: Zap },
-    { id: 'e-wallet', name: 'E-Wallet', icon: Wallet },
-    { id: 'voucher', name: 'Voucher', icon: CreditCard },
+    { id: 'pulsa', name: 'Pulsa Seluler', icon: Smartphone, gradient: 'from-blue-500 to-blue-600' },
+    { id: 'paket-data', name: 'Paket Data', icon: Wifi, gradient: 'from-cyan-500 to-cyan-600' },
+    { id: 'token-listrik', name: 'Token Listrik', icon: Zap, gradient: 'from-amber-500 to-amber-600' },
+    { id: 'e-wallet', name: 'E-Wallet', icon: Wallet, gradient: 'from-emerald-500 to-emerald-600' },
+    { id: 'voucher', name: 'Voucher', icon: CreditCard, gradient: 'from-purple-500 to-purple-600' },
   ];
 
-  // Kategori Pascabayar
+  // Kategori Pascabayar dengan warna berbeda
   const pascabayarCategories = [
-    { id: 'telkom', name: 'Telkom', icon: Phone },
-    { id: 'pln', name: 'PLN', icon: Lightbulb },
-    { id: 'pulsa-pasca', name: 'Pulsa Pasca', icon: Smartphone },
-    { id: 'pgn', name: 'PGN', icon: DollarSign },
-    { id: 'pdam', name: 'PDAM', icon: ShoppingBag },
-    { id: 'tv-kabel', name: 'TV Kabel', icon: Tv },
+    { id: 'telkom', name: 'Telkom', icon: Phone, gradient: 'from-red-500 to-red-600' },
+    { id: 'pln', name: 'PLN', icon: Lightbulb, gradient: 'from-yellow-500 to-yellow-600' },
+    { id: 'pulsa-pasca', name: 'Pulsa Pasca', icon: Smartphone, gradient: 'from-indigo-500 to-indigo-600' },
+    { id: 'pgn', name: 'PGN', icon: DollarSign, gradient: 'from-teal-500 to-teal-600' },
+    { id: 'pdam', name: 'PDAM', icon: ShoppingBag, gradient: 'from-blue-400 to-blue-500' },
+    { id: 'tv-kabel', name: 'TV Kabel', icon: Tv, gradient: 'from-pink-500 to-pink-600' },
   ];
 
   const handleDeposit = () => {
@@ -52,164 +54,208 @@ export const PPOB = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 safe-bottom">
-      {/* Header iOS Style */}
-      <div className="bg-white px-3 py-2 shadow-sm sticky top-0 z-10 safe-top border-b border-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background safe-bottom">
+      {/* Enhanced Header with Gradient */}
+      <div className="bg-gradient-to-br from-primary to-primary/90 px-4 py-4 shadow-lg sticky top-0 z-20 safe-top">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => navigate('/')}
-              className="text-primary hover:bg-gray-100 h-8 w-8 rounded-full"
+              className="text-white hover:bg-white/20 h-10 w-10 rounded-full transition-all hover:scale-105"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-semibold text-gray-900">PPOB</h1>
+            <div>
+              <h1 className="text-xl font-bold text-white">PPOB</h1>
+              <p className="text-xs text-white/80">Payment Point Online Bank</p>
+            </div>
           </div>
           
           <Button
             variant="ghost"
             onClick={() => toast.info('Fitur atur harga akan segera aktif')}
-            className="text-primary hover:bg-gray-100 text-sm rounded-full px-3 h-8"
+            className="text-white hover:bg-white/20 text-sm rounded-full px-4 h-9 transition-all hover:scale-105"
           >
             Atur Harga
           </Button>
         </div>
       </div>
 
-      {/* Tabs iOS Style */}
+      {/* Animated Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="bg-white border-b border-gray-100 sticky top-[calc(env(safe-area-inset-top)+40px)] z-10">
-          <TabsList className="w-full h-8 bg-transparent rounded-none border-0 grid grid-cols-2">
+        <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-[72px] z-10 shadow-sm">
+          <TabsList className="w-full h-12 bg-transparent rounded-none border-0 grid grid-cols-2 max-w-6xl mx-auto">
             <TabsTrigger 
               value="beranda" 
-              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none font-semibold text-gray-600"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none font-semibold text-gray-600 transition-all"
             >
               Beranda
             </TabsTrigger>
             <TabsTrigger 
               value="riwayat"
-              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none font-semibold text-gray-600"
+              className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none font-semibold text-gray-600 transition-all"
             >
               Riwayat
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-2 space-y-2 pb-24">
+        <div className="max-w-6xl mx-auto px-4 py-4 space-y-4 pb-28 animate-fade-in">
           <TabsContent value="beranda" className="space-y-4 mt-0">
-            {/* Deposit Card iOS Style */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-cyan-50 overflow-hidden rounded-2xl">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Saldo Deposit</p>
-                    <p className="text-3xl font-bold text-gray-900">Rp {depositAmount.toLocaleString('id-ID')}</p>
+            {/* Enhanced Deposit Card with Animation */}
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-primary via-primary to-primary-light overflow-hidden rounded-2xl transform transition-all hover:scale-[1.02] hover:shadow-2xl">
+              <CardContent className="p-6 relative">
+                {/* Decorative circles */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                
+                <div className="flex items-center justify-between relative z-10">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-5 w-5 text-white/80" />
+                      <p className="text-sm text-white/90 font-medium">Saldo Deposit</p>
+                    </div>
+                    <p className="text-4xl font-bold text-white drop-shadow-lg">
+                      Rp {depositAmount.toLocaleString('id-ID')}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-white/80">
+                      <Clock className="h-3 w-3" />
+                      <span>Update terakhir: Hari ini</span>
+                    </div>
                   </div>
                   <Button 
                     onClick={handleDeposit}
-                    className="bg-primary hover:bg-primary/90 text-white font-semibold shadow-sm rounded-full px-6 h-11"
+                    className="bg-white hover:bg-white/90 text-primary font-bold shadow-xl rounded-full px-6 h-12 transition-all hover:scale-105 active:scale-95"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
+                    <Plus className="h-5 w-5 mr-2" />
                     Deposit
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Banner Promo iOS Style */}
-            <Card className="border-0 shadow-sm overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-400 via-green-400 to-teal-400">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
+            {/* Animated Banner Promo */}
+            <Card className="border-0 shadow-xl overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 transform transition-all hover:scale-[1.02] hover:shadow-2xl">
+              <CardContent className="p-6 relative">
+                {/* Animated background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_white_1px,_transparent_1px)] bg-[length:24px_24px]"></div>
+                </div>
+                
+                <div className="flex items-center justify-between relative z-10">
                   <div className="space-y-2 flex-1">
-                    <h3 className="font-bold text-white text-lg">Tri EXTRA BENEFIT</h3>
-                    <p className="text-sm text-white/90">Dapatkan Bonus Pulsa Nelpon Hingga</p>
-                    <p className="text-lg font-bold text-yellow-300">Rp 10.000,- dan Kuota Youtube Unlimited</p>
-                    <p className="text-xs text-white/80">Syarat dan Ketentuan Berlaku</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="h-5 w-5 text-white" />
+                      <span className="text-xs font-semibold text-white/90 bg-white/20 px-2 py-1 rounded-full">PROMO TERBARU</span>
+                    </div>
+                    <h3 className="font-bold text-white text-xl drop-shadow">Tri EXTRA BENEFIT</h3>
+                    <p className="text-sm text-white/95 font-medium">Dapatkan Bonus Pulsa Nelpon Hingga</p>
+                    <p className="text-lg font-bold text-yellow-300 drop-shadow">
+                      Rp 10.000,- dan Kuota Youtube Unlimited
+                    </p>
+                    <p className="text-xs text-white/80 mt-2">*Syarat dan Ketentuan Berlaku</p>
                   </div>
-                  <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center ml-4">
-                    <Smartphone className="h-10 w-10 text-white" />
+                  <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center ml-4 shadow-xl animate-pulse">
+                    <Smartphone className="h-12 w-12 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Prabayar Section iOS Style */}
-            <div className="space-y-3">
-              <h2 className="font-bold text-lg text-gray-900 px-1">Prabayar</h2>
+            {/* Prabayar Section with Enhanced Animation */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="font-bold text-xl text-foreground">Prabayar</h2>
+                <span className="text-xs text-muted-foreground bg-primary/10 px-3 py-1 rounded-full">5 Kategori</span>
+              </div>
               <div className="grid grid-cols-4 gap-3">
-                {prabayarCategories.map((category) => {
+                {prabayarCategories.map((category, index) => {
                   const Icon = category.icon;
                   return (
                     <button
                       key={category.id}
                       onClick={() => handleCategoryClick(category.id)}
-                      className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all active:scale-95 border border-gray-100"
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card shadow-md hover:shadow-xl transition-all active:scale-95 border border-border/50 hover:border-primary/50 animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center shadow-sm">
-                        <Icon className="h-7 w-7 text-white" />
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 hover:rotate-3`}>
+                        <Icon className="h-8 w-8 text-white drop-shadow" />
                       </div>
-                      <span className="text-xs text-center font-medium text-gray-700">{category.name}</span>
+                      <span className="text-xs text-center font-semibold text-foreground">{category.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Pascabayar Section iOS Style */}
-            <div className="space-y-3">
-              <h2 className="font-bold text-lg text-gray-900 px-1">Pascabayar</h2>
+            {/* Pascabayar Section with Enhanced Animation */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="font-bold text-xl text-foreground">Pascabayar</h2>
+                <span className="text-xs text-muted-foreground bg-primary/10 px-3 py-1 rounded-full">6 Kategori</span>
+              </div>
               <div className="grid grid-cols-4 gap-3">
-                {pascabayarCategories.map((category) => {
+                {pascabayarCategories.map((category, index) => {
                   const Icon = category.icon;
                   return (
                     <button
                       key={category.id}
                       onClick={() => handleCategoryClick(category.id)}
-                      className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all active:scale-95 border border-gray-100"
+                      className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card shadow-md hover:shadow-xl transition-all active:scale-95 border border-border/50 hover:border-primary/50 animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center shadow-sm">
-                        <Icon className="h-7 w-7 text-white" />
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center shadow-lg transform transition-transform hover:scale-110 hover:rotate-3`}>
+                        <Icon className="h-8 w-8 text-white drop-shadow" />
                       </div>
-                      <span className="text-xs text-center font-medium text-gray-700">{category.name}</span>
+                      <span className="text-xs text-center font-semibold text-foreground">{category.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Coming Soon Notice iOS Style */}
-            <Card className="border border-blue-200 bg-blue-50 rounded-2xl">
+            {/* Enhanced Coming Soon Notice */}
+            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl shadow-lg transform transition-all hover:scale-[1.01]">
               <CardContent className="pt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  💙 Fitur PPOB akan segera tersedia setelah integrasi dengan Digiflaz
+                <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <span className="text-3xl">🚀</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground mb-2">
+                  Fitur PPOB Segera Hadir!
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Integrasi dengan Digiflaz sedang dalam proses pengembangan
                 </p>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="riwayat" className="space-y-4 mt-0">
-            <Card className="border-0 shadow-sm rounded-2xl">
-              <CardContent className="pt-16 pb-16 text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 mx-auto mb-4 flex items-center justify-center">
-                  <CreditCard className="h-10 w-10 text-gray-400" />
+          <TabsContent value="riwayat" className="space-y-4 mt-0 animate-fade-in">
+            <Card className="border-0 shadow-lg rounded-2xl overflow-hidden">
+              <CardContent className="pt-20 pb-20 text-center">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/10 to-primary/20 mx-auto mb-6 flex items-center justify-center animate-pulse">
+                  <CreditCard className="h-12 w-12 text-primary" />
                 </div>
-                <p className="text-gray-500 font-medium">Belum ada riwayat transaksi</p>
-                <p className="text-sm text-gray-400 mt-2">Transaksi Anda akan muncul di sini</p>
+                <p className="text-foreground font-semibold text-lg mb-2">Belum ada riwayat transaksi</p>
+                <p className="text-sm text-muted-foreground">
+                  Semua transaksi PPOB Anda akan muncul di sini
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
         </div>
       </Tabs>
 
-      {/* Bottom Button iOS Style */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 safe-bottom">
+      {/* Enhanced Bottom Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-xl border-t border-border shadow-2xl safe-bottom z-10">
         <div className="max-w-6xl mx-auto">
           <Button 
-            className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg text-white font-bold text-lg rounded-2xl transition-all active:scale-95"
+            className="w-full h-14 bg-gradient-to-r from-primary via-primary to-primary-light hover:from-primary/90 hover:via-primary/90 hover:to-primary-light/90 shadow-xl text-white font-bold text-lg rounded-2xl transition-all active:scale-95 hover:shadow-2xl"
             onClick={() => toast.info('Fitur akan segera aktif')}
           >
+            <ShoppingBag className="h-5 w-5 mr-2" />
             <span className="mr-2">0 Item</span>
             LANJUTKAN
           </Button>

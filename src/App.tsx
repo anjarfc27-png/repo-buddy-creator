@@ -26,6 +26,7 @@ import { FeedbackManagement } from "@/pages/admin/FeedbackManagement";
 import { SubscriptionManagement } from "@/pages/admin/SubscriptionManagement";
 import { PPOB } from "@/pages/PPOB";
 import { AnalyticsDashboard } from "@/pages/AnalyticsDashboard";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -140,6 +141,7 @@ const App = () => {
             
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <POSProvider>
                 <BluetoothProvider>
                   <AppRoutes />
