@@ -134,25 +134,23 @@ const App = () => {
   }, []);
 
   return (
-    <React.StrictMode>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <StoreProvider>
-              <BrowserRouter>
-                <ScrollToTop />
-                <POSProvider>
-                  <BluetoothProvider>
-                    <AppRoutes />
-                  </BluetoothProvider>
-                </POSProvider>
-              </BrowserRouter>
-              <Sonner />
-            </StoreProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </React.StrictMode>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <StoreProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <POSProvider>
+                <BluetoothProvider>
+                  <AppRoutes />
+                </BluetoothProvider>
+              </POSProvider>
+            </BrowserRouter>
+            <Sonner />
+          </StoreProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

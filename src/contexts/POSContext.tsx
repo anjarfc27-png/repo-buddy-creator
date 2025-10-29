@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState } from 'react';
 import { useSupabasePOS } from '@/hooks/useSupabasePOS';
 import { usePOS } from '@/hooks/usePOS';
 import { CartItem, Product, Receipt } from '@/types/pos';
