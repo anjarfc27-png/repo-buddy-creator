@@ -33,15 +33,23 @@ export const TransactionHistory = ({
     const now = new Date();
     switch (selectedDate) {
       case 'today':
-        return (receipt: Receipt) => isToday(receipt.timestamp);
+        return (receipt: Receipt) => {
+          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+          return !isNaN(timestamp.getTime()) && isToday(timestamp);
+        };
       case 'yesterday':
-        return (receipt: Receipt) => isYesterday(receipt.timestamp);
+        return (receipt: Receipt) => {
+          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+          return !isNaN(timestamp.getTime()) && isYesterday(timestamp);
+        };
       case 'custom':
         if (!startDate || !endDate) return () => true;
         const start = startOfDay(new Date(startDate));
         const end = endOfDay(new Date(endDate));
-        return (receipt: Receipt) => 
-          isAfter(receipt.timestamp, start) && isBefore(receipt.timestamp, end);
+        return (receipt: Receipt) => {
+          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+          return !isNaN(timestamp.getTime()) && isAfter(timestamp, start) && isBefore(timestamp, end);
+        };
       default:
         return () => true;
     }
@@ -56,7 +64,11 @@ export const TransactionHistory = ({
         item.product.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
-    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    .sort((a, b) => {
+      const timestampA = a.timestamp instanceof Date ? a.timestamp : new Date(a.timestamp);
+      const timestampB = b.timestamp instanceof Date ? b.timestamp : new Date(b.timestamp);
+      return timestampB.getTime() - timestampA.getTime();
+    });
 
   const totalRevenue = filteredReceipts.reduce((sum, receipt) => sum + receipt.total, 0);
   const totalProfit = filteredReceipts.reduce((sum, receipt) => sum + receipt.profit, 0);
@@ -66,16 +78,22 @@ export const TransactionHistory = ({
     return items.map(item => `${item.product.name} (${item.quantity}x)`).join(', ');
   };
 
-  const formatDateTime = (date: Date) => {
-    return format(date, 'dd/MM/yyyy HH:mm', { locale: localeId });
+  const formatDateTime = (date: Date | string) => {
+    const timestamp = date instanceof Date ? date : new Date(date);
+    if (isNaN(timestamp.getTime())) return 'Invalid Date';
+    return format(timestamp, 'dd/MM/yyyy HH:mm', { locale: localeId });
   };
 
-  const formatDateOnly = (date: Date) => {
-    return format(date, 'dd/MM/yyyy', { locale: localeId });
+  const formatDateOnly = (date: Date | string) => {
+    const timestamp = date instanceof Date ? date : new Date(date);
+    if (isNaN(timestamp.getTime())) return 'Invalid Date';
+    return format(timestamp, 'dd/MM/yyyy', { locale: localeId });
   };
 
-  const formatTimeOnly = (date: Date) => {
-    return format(date, 'HH:mm', { locale: localeId });
+  const formatTimeOnly = (date: Date | string) => {
+    const timestamp = date instanceof Date ? date : new Date(date);
+    if (isNaN(timestamp.getTime())) return 'Invalid Time';
+    return format(timestamp, 'HH:mm', { locale: localeId });
   };
 
   return (
