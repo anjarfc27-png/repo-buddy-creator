@@ -247,14 +247,16 @@ export const POSInterface = () => {
     const storeAddress = currentStore?.address || '';
     const storePhone = currentStore?.phone || '';
     
+    const timestamp = safeParseDate(receipt.timestamp);
+    
     const printContent = `
 ===============================
    ${storeName.toUpperCase()}
 ===============================
 ${storeAddress ? storeAddress + '\n' : ''}${storePhone ? 'Telp: ' + storePhone + '\n' : ''}
 Invoice: ${receipt.id}
-Tanggal: ${new Date(receipt.timestamp).toLocaleDateString('id-ID')}
-Waktu: ${new Date(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+Tanggal: ${timestamp.toLocaleDateString('id-ID')}
+Waktu: ${timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
 -------------------------------
 
 ${receipt.items.map(item => `

@@ -11,6 +11,7 @@ import { formatThermalReceipt, formatPrintReceipt } from '@/lib/receipt-formatte
 import { usePOSContext } from '@/contexts/POSContext';
 import { useToast } from '@/hooks/use-toast';
 import { PaymentMethodSelector } from '@/components/POS/PaymentMethodSelector';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -300,20 +301,20 @@ export const CartView = () => {
                                {formatPrice(receipt.total)}
                              </div>
                            </div>
-                           <div className="flex items-center justify-between text-xs text-muted-foreground">
-                             <span>{receipt.items.length} item</span>
-                             <div className="text-right">
-                               <div>{new Date(receipt.timestamp).toLocaleDateString('id-ID', {
-                                 day: '2-digit',
-                                 month: '2-digit', 
-                                 year: 'numeric'
-                               })}</div>
-                               <div>{new Date(receipt.timestamp).toLocaleTimeString('id-ID', {
-                                 hour: '2-digit',
-                                 minute: '2-digit'
-                               })}</div>
-                             </div>
-                           </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{receipt.items.length} item</span>
+                              <div className="text-right">
+                                <div>{safeParseDate(receipt.timestamp).toLocaleDateString('id-ID', {
+                                  day: '2-digit',
+                                  month: '2-digit', 
+                                  year: 'numeric'
+                                })}</div>
+                                <div>{safeParseDate(receipt.timestamp).toLocaleTimeString('id-ID', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}</div>
+                              </div>
+                            </div>
                          </div>
                        ))
                      )}

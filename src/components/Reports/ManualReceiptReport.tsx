@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, TrendingUp, DollarSign, Package, Eye, Printer } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 interface ManualReceiptReportProps {
   receipts: Receipt[];
@@ -54,7 +55,7 @@ export const ManualReceiptReport = ({ receipts, formatPrice, onViewReceipt, onPr
   
   // Filter manual receipts only
   const filteredReceipts = receipts.filter(receipt => {
-    const receiptDate = new Date(receipt.timestamp);
+    const receiptDate = safeParseDate(receipt.timestamp);
     const isManual = receipt.isManual || receipt.id.startsWith('MNL-');
     return isManual && receiptDate >= start && receiptDate <= end;
   });
@@ -100,8 +101,8 @@ DETAIL TRANSAKSI MANUAL:
 
 ${filteredReceipts.length === 0 ? 'Tidak ada transaksi manual pada periode ini.' : 
   filteredReceipts.map(receipt => {
-    const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-    const dateStr = isNaN(timestamp.getTime()) ? 'Invalid Date' : format(timestamp, 'dd/MM/yyyy HH:mm', { locale: id });
+    const timestamp = safeParseDate(receipt.timestamp);
+    const dateStr = format(timestamp, 'dd/MM/yyyy HH:mm', { locale: id });
     return `
 Nota: ${receipt.id}
 Tanggal: ${dateStr}
@@ -241,10 +242,7 @@ Dicetak pada: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: id })}
                         {receipt.id}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {(() => {
-                          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-                          return isNaN(timestamp.getTime()) ? 'Invalid Date' : format(timestamp, 'dd/MM/yyyy HH:mm', { locale: id });
-                        })()}
+                        {format(safeParseDate(receipt.timestamp), 'dd/MM/yyyy HH:mm', { locale: id })}
                       </span>
                     </div>
                     

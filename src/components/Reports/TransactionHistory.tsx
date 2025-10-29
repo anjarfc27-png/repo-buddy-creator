@@ -10,6 +10,7 @@ import { Eye, Printer, Calendar, Clock, Hash, DollarSign, TrendingUp } from 'luc
 import { format, isAfter, isBefore, startOfDay, endOfDay, isToday, isYesterday } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import { formatReceiptForDisplay } from '@/utils/receiptFormatter';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 interface TransactionHistoryProps {
   receipts: Receipt[];
@@ -34,21 +35,21 @@ export const TransactionHistory = ({
     switch (selectedDate) {
       case 'today':
         return (receipt: Receipt) => {
-          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-          return !isNaN(timestamp.getTime()) && isToday(timestamp);
+          const timestamp = safeParseDate(receipt.timestamp);
+          return isToday(timestamp);
         };
       case 'yesterday':
         return (receipt: Receipt) => {
-          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-          return !isNaN(timestamp.getTime()) && isYesterday(timestamp);
+          const timestamp = safeParseDate(receipt.timestamp);
+          return isYesterday(timestamp);
         };
       case 'custom':
         if (!startDate || !endDate) return () => true;
         const start = startOfDay(new Date(startDate));
         const end = endOfDay(new Date(endDate));
         return (receipt: Receipt) => {
-          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-          return !isNaN(timestamp.getTime()) && isAfter(timestamp, start) && isBefore(timestamp, end);
+          const timestamp = safeParseDate(receipt.timestamp);
+          return isAfter(timestamp, start) && isBefore(timestamp, end);
         };
       default:
         return () => true;

@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useStore } from "@/contexts/StoreContext";
 import { usePOSContext } from "@/contexts/POSContext";
 import { ArrowLeft, TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, BarChart3 } from "lucide-react";
+import { safeParseDate } from "@/utils/dateHelpers";
 import {
   LineChart,
   Line,
@@ -53,7 +54,7 @@ export const AnalyticsDashboard = () => {
     }
 
     const filteredReceipts = receipts.filter(r => {
-      const receiptDate = new Date(r.timestamp);
+      const receiptDate = safeParseDate(r.timestamp);
       return receiptDate >= startDate && !r.isManual && !r.id.startsWith('MNL-');
     });
 
@@ -68,7 +69,7 @@ export const AnalyticsDashboard = () => {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dayReceipts = receipts.filter(r => {
-        const rd = new Date(r.timestamp);
+        const rd = safeParseDate(r.timestamp);
         return rd.toDateString() === date.toDateString() && !r.isManual;
       });
       weeklyData.push({

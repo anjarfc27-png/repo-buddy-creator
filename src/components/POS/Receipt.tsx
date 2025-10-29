@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Receipt as ReceiptType } from '@/types/pos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useStore } from '@/contexts/StoreContext';
 import { useQrisImage } from '@/hooks/useQrisImage';
 import QRCode from 'qrcode';
+import { safeParseDate } from '@/utils/dateHelpers';
 import { WhatsAppShare } from '@/components/Receipt/WhatsAppShare';
 
 const QrisBlock = () => {
@@ -156,19 +157,14 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             <div>
               <CardTitle>Struk {receipt.id}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {(() => {
-                  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-                  return isNaN(timestamp.getTime()) 
-                    ? 'Invalid Date' 
-                    : new Intl.DateTimeFormat('id-ID', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                      }).format(timestamp);
-                })()}
+                {new Intl.DateTimeFormat('id-ID', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false
+                }).format(safeParseDate(receipt.timestamp))}
               </p>
             </div>
             <Badge variant={receipt.paymentMethod === 'tunai' ? 'default' : 'secondary'}>

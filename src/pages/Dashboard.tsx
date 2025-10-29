@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 export const Dashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -31,7 +32,7 @@ export const Dashboard = () => {
   const todayStats = useMemo(() => {
     const today = new Date().toDateString();
     const todayReceipts = receipts.filter(r => {
-      const receiptDate = new Date(r.timestamp).toDateString();
+      const receiptDate = safeParseDate(r.timestamp).toDateString();
       return receiptDate === today && !r.isManual && !r.id.startsWith('MNL-');
     });
     
