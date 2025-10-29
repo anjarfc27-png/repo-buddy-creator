@@ -156,14 +156,19 @@ export const Receipt = ({ receipt, formatPrice, onBack }: ReceiptProps) => {
             <div>
               <CardTitle>Struk {receipt.id}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {new Intl.DateTimeFormat('id-ID', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false
-                }).format(receipt.timestamp)}
+                {(() => {
+                  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+                  return isNaN(timestamp.getTime()) 
+                    ? 'Invalid Date' 
+                    : new Intl.DateTimeFormat('id-ID', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }).format(timestamp);
+                })()}
               </p>
             </div>
             <Badge variant={receipt.paymentMethod === 'tunai' ? 'default' : 'secondary'}>

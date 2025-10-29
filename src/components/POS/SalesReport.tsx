@@ -293,7 +293,12 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
                     <div>
                       <p className="font-medium">{receipt.id}</p>
                       <p className="text-sm text-muted-foreground">
-                        {format(new Date(receipt.timestamp), 'dd MMM yyyy, HH:mm', { locale: id })}
+                        {(() => {
+                          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+                          return isNaN(timestamp.getTime()) 
+                            ? 'Invalid Date' 
+                            : format(timestamp, 'dd MMM yyyy, HH:mm', { locale: id });
+                        })()}
                       </p>
                     </div>
                     <div className="text-right">

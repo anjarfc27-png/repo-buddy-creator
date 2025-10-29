@@ -25,8 +25,9 @@ export const DashboardAnalytics = () => {
       const monthEnd = endOfMonth(month);
 
       const monthReceipts = receipts.filter(r => {
-        const receiptDate = new Date(r.timestamp);
-        return receiptDate >= monthStart && receiptDate <= monthEnd && !r.isManual;
+        const timestamp = r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp);
+        if (isNaN(timestamp.getTime())) return false;
+        return timestamp >= monthStart && timestamp <= monthEnd && !r.isManual;
       });
 
       const revenue = monthReceipts.reduce((sum, r) => sum + r.total, 0);
