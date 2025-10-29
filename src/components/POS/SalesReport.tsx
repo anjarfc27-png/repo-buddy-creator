@@ -11,6 +11,7 @@ import { useStore } from '@/contexts/StoreContext';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 interface SalesReportProps {
   receipts: Receipt[];
@@ -57,7 +58,7 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
   const { start, end } = getDateRange(selectedPeriod);
   
   const filteredReceipts = receipts.filter(receipt => {
-    const receiptDate = new Date(receipt.timestamp);
+    const receiptDate = safeParseDate(receipt.timestamp);
     return receiptDate >= start && receiptDate <= end;
   });
 
@@ -293,12 +294,7 @@ export const SalesReport = ({ receipts, formatPrice }: SalesReportProps) => {
                     <div>
                       <p className="font-medium">{receipt.id}</p>
                       <p className="text-sm text-muted-foreground">
-                        {(() => {
-                          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-                          return isNaN(timestamp.getTime()) 
-                            ? 'Invalid Date' 
-                            : format(timestamp, 'dd MMM yyyy, HH:mm', { locale: id });
-                        })()}
+                        {format(safeParseDate(receipt.timestamp), 'dd MMM yyyy, HH:mm', { locale: id })}
                       </p>
                     </div>
                     <div className="text-right">

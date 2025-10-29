@@ -1,6 +1,7 @@
 import { Receipt } from '@/types/pos';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 interface SalesReportPrintProps {
   receipts: Receipt[];
@@ -336,8 +337,8 @@ export const generateA4PrintContent = ({
             <tr>
               <td class="text-center">${index + 1}</td>
               <td>${receipt.id}</td>
-              <td>${format(new Date(receipt.timestamp), 'dd MMM yyyy', { locale: id })}</td>
-              <td>${format(new Date(receipt.timestamp), 'HH:mm', { locale: id })}</td>
+              <td>${format(safeParseDate(receipt.timestamp), 'dd MMM yyyy', { locale: id })}</td>
+              <td>${format(safeParseDate(receipt.timestamp), 'HH:mm', { locale: id })}</td>
               <td>
                 ${receipt.items.map(item => `
                   <div class="item-details">

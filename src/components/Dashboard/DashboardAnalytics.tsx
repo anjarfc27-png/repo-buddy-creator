@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { usePOSContext } from '@/contexts/POSContext';
 import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 export const DashboardAnalytics = () => {
   const { receipts, formatPrice } = usePOSContext();
@@ -25,8 +26,7 @@ export const DashboardAnalytics = () => {
       const monthEnd = endOfMonth(month);
 
       const monthReceipts = receipts.filter(r => {
-        const timestamp = r.timestamp instanceof Date ? r.timestamp : new Date(r.timestamp);
-        if (isNaN(timestamp.getTime())) return false;
+        const timestamp = safeParseDate(r.timestamp);
         return timestamp >= monthStart && timestamp <= monthEnd && !r.isManual;
       });
 

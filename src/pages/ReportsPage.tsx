@@ -10,6 +10,7 @@ import { Receipt } from '@/types/pos';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 export const ReportsPage = () => {
   const { receipts, formatPrice } = usePOSContext();
@@ -24,7 +25,7 @@ export const ReportsPage = () => {
       
       const query = searchQuery.toLowerCase();
       const matchesId = receipt.id.toLowerCase().includes(query);
-      const matchesDate = new Date(receipt.timestamp).toLocaleDateString('id-ID').includes(query);
+      const matchesDate = safeParseDate(receipt.timestamp).toLocaleDateString('id-ID').includes(query);
       const matchesProducts = receipt.items.some(item => 
         item.product.name.toLowerCase().includes(query)
       );
@@ -36,15 +37,15 @@ export const ReportsPage = () => {
     const now = new Date();
     if (filter === 'today') {
       filtered = filtered.filter(r => {
-        const receiptDate = new Date(r.timestamp);
+        const receiptDate = safeParseDate(r.timestamp);
         return receiptDate.toDateString() === now.toDateString();
       });
     } else if (filter === 'week') {
       const weekAgo = new Date(now.setDate(now.getDate() - 7));
-      filtered = filtered.filter(r => new Date(r.timestamp) >= weekAgo);
+      filtered = filtered.filter(r => safeParseDate(r.timestamp) >= weekAgo);
     } else if (filter === 'month') {
       const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
-      filtered = filtered.filter(r => new Date(r.timestamp) >= monthAgo);
+      filtered = filtered.filter(r => safeParseDate(r.timestamp) >= monthAgo);
     }
 
     return filtered;
@@ -54,8 +55,7 @@ export const ReportsPage = () => {
   const groupedReceipts = useMemo(() => {
     const groups: { [key: string]: Receipt[] } = {};
     filteredReceipts.forEach(receipt => {
-      const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-      if (isNaN(timestamp.getTime())) return;
+      const timestamp = safeParseDate(receipt.timestamp);
       const date = format(timestamp, 'dd MMMM yyyy', { locale: localeId });
       if (!groups[date]) groups[date] = [];
       groups[date].push(receipt);
@@ -255,15 +255,12 @@ export const ReportsPage = () => {
                                 <div className="p-2 rounded-lg bg-primary/10">
                                   <ShoppingCart className="h-5 w-5 text-primary" />
                                 </div>
-                                <div>
-                                  <p className="font-semibold">Invoice #{receipt.id.slice(-6)}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {receipt.items.length} items • {(() => {
-                                      const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
-                                      return isNaN(timestamp.getTime()) ? 'Invalid Time' : format(timestamp, 'HH:mm');
-                                    })()}
-                                  </p>
-                                </div>
+                                 <div>
+                                   <p className="font-semibold">Invoice #{receipt.id.slice(-6)}</p>
+                                   <p className="text-sm text-muted-foreground">
+                                     {receipt.items.length} items • {format(safeParseDate(receipt.timestamp), 'HH:mm')}
+                                   </p>
+                                 </div>
                               </div>
                               <div className="flex items-center gap-2 ml-14">
                                 <Badge variant="outline" className="text-xs">

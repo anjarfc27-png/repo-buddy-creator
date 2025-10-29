@@ -46,6 +46,7 @@ import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
 import { Torch } from '@capawesome/capacitor-torch';
 import { toast } from 'sonner';
 import { BarcodeScannerUI } from '@/components/barcode/BarcodeScannerUI';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 export const POSInterface = () => {
   const navigate = useNavigate();
@@ -336,7 +337,7 @@ Profit: ${formatPrice(receipt.profit)}
     const todayString = today.toDateString();
     
     const todayReceipts = receipts.filter(receipt => {
-      const receiptDate = new Date(receipt.timestamp);
+      const receiptDate = safeParseDate(receipt.timestamp);
       return receiptDate.toDateString() === todayString;
     });
     

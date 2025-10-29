@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Product, CartItem, Receipt } from '@/types/pos';
 import { toast } from 'sonner';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 export const useSupabasePOS = () => {
   const { user } = useAuth();
@@ -137,7 +138,7 @@ export const useSupabasePOS = () => {
         total: Number(receipt.total),
         profit: Number(receipt.profit),
         photocopyRevenue: 0, // Legacy field, not used
-        timestamp: new Date(receipt.created_at),
+        timestamp: safeParseDate(receipt.created_at),
         paymentMethod: receipt.payment_method,
         isManual: (receipt.invoice_number?.startsWith('MNL-') ?? false)
       }));
@@ -314,7 +315,7 @@ export const useSupabasePOS = () => {
         discount,
         total,
         profit,
-        timestamp: new Date(receiptData.created_at),
+        timestamp: safeParseDate(receiptData.created_at),
         paymentMethod,
         isManual: false
       };

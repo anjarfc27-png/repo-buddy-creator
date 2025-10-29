@@ -1,4 +1,5 @@
 import { Receipt } from '@/types/pos';
+import { safeParseDate } from './dateHelpers';
 
 export const formatReceiptId = (receipt: Receipt): string => {
   // Return invoice ID as is (INV-1281025 or MNL-1281025)
@@ -7,7 +8,7 @@ export const formatReceiptId = (receipt: Receipt): string => {
 
 export const formatReceiptDetailedInfo = (receipt: Receipt): string => {
   const formattedId = formatReceiptId(receipt);
-  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+  const timestamp = safeParseDate(receipt.timestamp);
   
   if (isNaN(timestamp.getTime())) {
     return `${formattedId} - Invalid Date`;
@@ -26,7 +27,7 @@ export const formatReceiptForDisplay = (receipt: Receipt): {
   shortTime: string;
 } => {
   const displayId = formatReceiptId(receipt);
-  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+  const timestamp = safeParseDate(receipt.timestamp);
   
   if (isNaN(timestamp.getTime())) {
     return {

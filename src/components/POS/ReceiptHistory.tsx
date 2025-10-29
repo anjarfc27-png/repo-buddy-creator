@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Receipt as ReceiptType } from '@/types/pos';
 import { Receipt } from '@/components/POS/Receipt';
+import { safeParseDate } from '@/utils/dateHelpers';
 
 interface ReceiptHistoryProps {
   receipts: ReceiptType[];
@@ -45,19 +46,19 @@ export const ReceiptHistory = ({
     switch (selectedDate) {
       case 'today':
         return (receipt: ReceiptType) => {
-          const receiptDate = new Date(receipt.timestamp);
+          const receiptDate = safeParseDate(receipt.timestamp);
           return receiptDate.toDateString() === today.toDateString();
         };
       case 'yesterday':
         return (receipt: ReceiptType) => {
-          const receiptDate = new Date(receipt.timestamp);
+          const receiptDate = safeParseDate(receipt.timestamp);
           return receiptDate.toDateString() === yesterday.toDateString();
         };
       case 'custom':
         return (receipt: ReceiptType) => {
           if (!customDate) return true;
-          const receiptDate = new Date(receipt.timestamp);
-          const filterDate = new Date(customDate);
+          const receiptDate = safeParseDate(receipt.timestamp);
+          const filterDate = safeParseDate(customDate);
           return receiptDate.toDateString() === filterDate.toDateString();
         };
       case 'all':
@@ -74,7 +75,7 @@ export const ReceiptHistory = ({
         item.product.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    .sort((a, b) => safeParseDate(b.timestamp).getTime() - safeParseDate(a.timestamp).getTime());
 
   const totalRevenue = filteredReceipts.reduce((sum, receipt) => sum + receipt.total, 0);
   const totalProfit = filteredReceipts.reduce((sum, receipt) => sum + receipt.profit, 0);
@@ -224,7 +225,7 @@ export const ReceiptHistory = ({
                     <div>
                       <span className="block">Tanggal:</span>
                       <span className="font-medium text-foreground">
-                        {new Date(receipt.timestamp).toLocaleDateString('id-ID', {
+                        {safeParseDate(receipt.timestamp).toLocaleDateString('id-ID', {
                           weekday: 'long',
                           year: 'numeric',
                           month: 'long',
@@ -235,7 +236,7 @@ export const ReceiptHistory = ({
                     <div>
                       <span className="block">Waktu:</span>
                       <span className="font-medium text-foreground">
-                        {new Date(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        {safeParseDate(receipt.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   </div>
