@@ -134,24 +134,25 @@ const App = () => {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <StoreProvider>
-            
-            <Sonner />
-            <BrowserRouter>
-              <ScrollToTop />
-              <POSProvider>
-                <BluetoothProvider>
-                  <AppRoutes />
-                </BluetoothProvider>
-              </POSProvider>
-            </BrowserRouter>
-          </StoreProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <React.StrictMode>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <StoreProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <POSProvider>
+                  <BluetoothProvider>
+                    <AppRoutes />
+                  </BluetoothProvider>
+                </POSProvider>
+              </BrowserRouter>
+              <Sonner />
+            </StoreProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
   );
 };
 

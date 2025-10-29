@@ -24,7 +24,16 @@ interface POSContextType {
 const POSContext = createContext<POSContextType | undefined>(undefined);
 
 export const POSProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
+  // Safely get auth context with null checks
+  let authContext;
+  try {
+    authContext = useAuth();
+  } catch (error) {
+    console.warn('Auth context not available, using local storage');
+    authContext = { user: null };
+  }
+  
+  const { user } = authContext;
   const supabasePOS = useSupabasePOS();
   const localPOS = usePOS();
 
