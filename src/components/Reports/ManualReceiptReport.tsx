@@ -99,16 +99,20 @@ DETAIL TRANSAKSI MANUAL:
 ===============================
 
 ${filteredReceipts.length === 0 ? 'Tidak ada transaksi manual pada periode ini.' : 
-  filteredReceipts.map(receipt => `
+  filteredReceipts.map(receipt => {
+    const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+    const dateStr = isNaN(timestamp.getTime()) ? 'Invalid Date' : format(timestamp, 'dd/MM/yyyy HH:mm', { locale: id });
+    return `
 Nota: ${receipt.id}
-Tanggal: ${format(receipt.timestamp, 'dd/MM/yyyy HH:mm', { locale: id })}
+Tanggal: ${dateStr}
 Items: ${receipt.items.map(item => `${item.product.name} (${item.quantity}x @${formatPrice(item.finalPrice || item.product.sellPrice)})`).join(', ')}
 Subtotal: ${formatPrice(receipt.subtotal)}${receipt.discount > 0 ? `
 Diskon: ${formatPrice(receipt.discount)}` : ''}
 Total: ${formatPrice(receipt.total)}
 Penghasilan Fotocopy: ${formatPrice(photocopyRevenue)}
 ${receipt.paymentMethod ? `Metode: ${receipt.paymentMethod}` : ''}
--------------------------------`).join('')}
+-------------------------------`;
+  }).join('')}
 
 ===============================
 Dicetak pada: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: id })}
@@ -237,7 +241,10 @@ Dicetak pada: ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: id })}
                         {receipt.id}
                       </span>
                       <span className="text-sm text-muted-foreground">
-                        {format(receipt.timestamp, 'dd/MM/yyyy HH:mm', { locale: id })}
+                        {(() => {
+                          const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+                          return isNaN(timestamp.getTime()) ? 'Invalid Date' : format(timestamp, 'dd/MM/yyyy HH:mm', { locale: id });
+                        })()}
                       </span>
                     </div>
                     

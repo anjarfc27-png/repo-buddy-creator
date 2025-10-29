@@ -7,8 +7,14 @@ export const formatReceiptId = (receipt: Receipt): string => {
 
 export const formatReceiptDetailedInfo = (receipt: Receipt): string => {
   const formattedId = formatReceiptId(receipt);
-  const date = receipt.timestamp.toLocaleDateString('id-ID');
-  const time = receipt.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+  
+  if (isNaN(timestamp.getTime())) {
+    return `${formattedId} - Invalid Date`;
+  }
+  
+  const date = timestamp.toLocaleDateString('id-ID');
+  const time = timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
   
   return `${formattedId} - ${date} ${time}`;
 };
@@ -20,8 +26,19 @@ export const formatReceiptForDisplay = (receipt: Receipt): {
   shortTime: string;
 } => {
   const displayId = formatReceiptId(receipt);
-  const date = receipt.timestamp.toLocaleDateString('id-ID');
-  const time = receipt.timestamp.toLocaleTimeString('id-ID', { 
+  const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+  
+  if (isNaN(timestamp.getTime())) {
+    return {
+      displayId,
+      dateTime: 'Invalid Date',
+      shortDate: 'Invalid Date',
+      shortTime: 'Invalid Time'
+    };
+  }
+  
+  const date = timestamp.toLocaleDateString('id-ID');
+  const time = timestamp.toLocaleTimeString('id-ID', { 
     hour: '2-digit', 
     minute: '2-digit' 
   });

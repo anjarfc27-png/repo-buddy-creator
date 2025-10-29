@@ -54,7 +54,9 @@ export const ReportsPage = () => {
   const groupedReceipts = useMemo(() => {
     const groups: { [key: string]: Receipt[] } = {};
     filteredReceipts.forEach(receipt => {
-      const date = format(new Date(receipt.timestamp), 'dd MMMM yyyy', { locale: localeId });
+      const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+      if (isNaN(timestamp.getTime())) return;
+      const date = format(timestamp, 'dd MMMM yyyy', { locale: localeId });
       if (!groups[date]) groups[date] = [];
       groups[date].push(receipt);
     });
@@ -256,7 +258,10 @@ export const ReportsPage = () => {
                                 <div>
                                   <p className="font-semibold">Invoice #{receipt.id.slice(-6)}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {receipt.items.length} items • {format(new Date(receipt.timestamp), 'HH:mm')}
+                                    {receipt.items.length} items • {(() => {
+                                      const timestamp = receipt.timestamp instanceof Date ? receipt.timestamp : new Date(receipt.timestamp);
+                                      return isNaN(timestamp.getTime()) ? 'Invalid Time' : format(timestamp, 'HH:mm');
+                                    })()}
                                   </p>
                                 </div>
                               </div>
